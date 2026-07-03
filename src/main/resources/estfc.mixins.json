@@ -1,0 +1,20 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "me.xuan.estfc.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "SolarDataManagerMixin",
+        "WeatherManagerMixin",
+        "WeatherHelpersMixin",
+        "EclipticUtilMixin",
+        "ServerLevelMixin",
+        "SnowyMapCheckerMixin",
+        "MapCheckerMixin"
+    ],
+    "client": [
+        "NetworkUtilMixin"
+    ],
+    "server": [],
+    "refmap": "estfc.refmap.json"
+}

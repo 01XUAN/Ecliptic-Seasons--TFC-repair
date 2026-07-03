@@ -1,0 +1,6 @@
+{
+    "estfc.configuration.title": "Ecliptic Seasons TFC Compat Config",
+    "estfc.configuration.section.estfc.common.toml": "Ecliptic Seasons TFC Compat Config",
+    "estfc.configuration.section.estfc.common.toml.title": "Ecliptic Seasons TFC Compat Config",
+    "estfc.configuration.enableTFCCompat": "Enable TFC Compatibility Mode"
+}
