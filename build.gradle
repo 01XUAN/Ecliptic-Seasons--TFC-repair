@@ -120,6 +120,46 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+// === 生成 TFC 覆雪定义 JSON（无需 Minecraft 环境） ===
+tasks.register('generateTfcSnowDefinitions') {
+    group = 'estfc'
+    description = 'Generate snow_definitions JSON for TFC blocks'
+
+    def outputDir = file('src/generated/resources/data/estfc/eclipticseasons/snow_definitions')
+
+    doLast {
+        outputDir.mkdirs()
+
+        // 第一批：地面装饰物
+        def groundcoverTypes = [
+            'bone', 'clam', 'driftwood', 'feather', 'flint', 'guano', 'humus',
+            'mollusk', 'mussel', 'pinecone', 'pumice', 'rotten_flesh',
+            'salt_lick', 'seaweed', 'sea_urchin', 'stick'
+        ]
+        groundcoverTypes.each { type ->
+            def f = new File(outputDir, "tfc_groundcover_${type}.json")
+            f.text = "{\n  \"blocks\": [\"tfc:groundcover/${type}\"],\n  \"flag\": 1000,\n  \"offset\": 1,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
+        }
+
+        // 散落岩石
+        def rockTypes = [
+            'granite', 'diorite', 'gabbro', 'shale', 'claystone', 'limestone',
+            'conglomerate', 'dolomite', 'chert', 'chalk', 'tuff', 'rhyolite',
+            'basalt', 'andesite', 'dacite', 'quartzite', 'slate', 'phyllite',
+            'schist', 'gneiss', 'marble'
+        ]
+        rockTypes.each { rock ->
+            def f1 = new File(outputDir, "tfc_loose_rock_${rock}.json")
+            f1.text = "{\n  \"blocks\": [\"tfc:rock/loose/${rock}\"],\n  \"flag\": 1000,\n  \"offset\": 1,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
+            def f2 = new File(outputDir, "tfc_mossy_loose_rock_${rock}.json")
+            f2.text = "{\n  \"blocks\": [\"tfc:rock/mossy_loose/${rock}\"],\n  \"flag\": 1000,\n  \"offset\": 1,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
+        }
+    }
+}
+
+// 处理资源时先生成 JSON
+processResources.dependsOn generateTfcSnowDefinitions
+
 idea {
     module {
         downloadSources = true
