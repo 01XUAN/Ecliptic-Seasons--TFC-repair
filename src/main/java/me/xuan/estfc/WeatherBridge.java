@@ -22,6 +22,7 @@ public class WeatherBridge {
 
     private static final Logger LOG = LoggerFactory.getLogger("estfc");
     private static boolean LOGGED = false;
+    private static boolean FIRST_SYNC_DONE = false;
 
     /**
      * 每 tick 处理一个群系的雪深更新。
@@ -69,7 +70,12 @@ public class WeatherBridge {
             }
             // 零下 + 无降水 → 不动（雪不会在零下消失！）
 
-            // 每 100 tick (~5 秒) 同步 BiomeWeatherMessage 到客户端
+            // 首次运行时立即同步一次，避免 Voxy/DH 在世界加载初期读到空缓存
+            if (!FIRST_SYNC_DONE && !level.players().isEmpty()) {
+                WeatherManager.sendBiomePacket(level, biomes, level.players());
+                FIRST_SYNC_DONE = true;
+            }
+            // 之后每 100 tick (~5 秒) 同步
             if (level.getGameTime() % 100 == 0 && !level.players().isEmpty()) {
                 WeatherManager.sendBiomePacket(level, biomes, level.players());
             }

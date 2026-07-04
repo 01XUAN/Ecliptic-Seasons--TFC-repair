@@ -72,20 +72,33 @@ public abstract class MapCheckerMixin {
         }
 
         // Tier 2: SnowDepthCache（服务端同步的群系级雪深）
-        int biomeId = level.registryAccess().registryOrThrow(Registries.BIOME).getId(biome);
-        if (biomeId >= 0 && biomeId < SnowDepthCache.DEPTHS.length) {
-            int depth = SnowDepthCache.DEPTHS[biomeId] & 0xFF;
-            if (depth > Math.abs(seed % 100)) {
-                cir.setReturnValue(true);
-                return;
+        // 仅在缓存已初始化时才使用，避免 Voxy/DH 首帧时读到全零缓存误判无雪
+        if (SnowDepthCache.INITIALIZED) {
+            int biomeId = level.registryAccess().registryOrThrow(Registries.BIOME).getId(biome);
+            if (biomeId >= 0 && biomeId < SnowDepthCache.DEPTHS.length) {
+                int depth = SnowDepthCache.DEPTHS[biomeId] & 0xFF;
+                if (depth > Math.abs(seed % 100)) {
+                    cir.setReturnValue(true);
+                    return;
+                }
+                if (depth == 0) {
+                    // 缓存已初始化且深度为0 → 该群系确实无雪
+                    cir.setReturnValue(false);
+                    return;
+                }
             }
         }
 
-        // Tier 3: 雪线检查
+        // Tier 3: 雪线检查（缓存未初始化或深度不足以覆盖时的兜底）
         int snowLine = BiomeClimateManager.getSnowLine(biome, false);
         if (mcPos.getY() > snowLine) {
             cir.setReturnValue(true);
             return;
+        }
+
+        // 缓存未初始化时无法确定 → 不做判断，让调用方走自己的默认逻辑
+        if (!SnowDepthCache.INITIALIZED) {
+            return; // 不 cancel，让 ES 原生 shouldSnowAtBiome 执行
         }
 
         cir.setReturnValue(false);

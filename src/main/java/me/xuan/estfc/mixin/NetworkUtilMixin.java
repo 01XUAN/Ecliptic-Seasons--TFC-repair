@@ -21,5 +21,6 @@ public abstract class NetworkUtilMixin {
         byte[] snowDepth = msg.snowDepth;
         int len = Math.min(snowDepth.length, SnowDepthCache.DEPTHS.length);
         System.arraycopy(snowDepth, 0, SnowDepthCache.DEPTHS, 0, len);
+        SnowDepthCache.INITIALIZED = true;
     }
 }
