@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/plant/water_lily/water_lily_2"
+    }
+  }
+}

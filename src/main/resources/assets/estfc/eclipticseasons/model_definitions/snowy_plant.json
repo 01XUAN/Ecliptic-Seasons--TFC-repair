@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy_plant"
+    }
+  }
+}

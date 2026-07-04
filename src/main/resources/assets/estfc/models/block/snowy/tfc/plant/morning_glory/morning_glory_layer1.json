@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/morning_glory/morning_glory_layer1"
+  }
+}

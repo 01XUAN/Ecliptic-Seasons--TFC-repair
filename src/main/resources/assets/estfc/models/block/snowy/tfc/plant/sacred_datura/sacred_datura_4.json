@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/sacred_datura/sacred_datura_4"
+  }
+}

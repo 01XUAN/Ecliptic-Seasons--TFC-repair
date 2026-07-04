@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/field_horsetail/horsetail_3"
+  }
+}

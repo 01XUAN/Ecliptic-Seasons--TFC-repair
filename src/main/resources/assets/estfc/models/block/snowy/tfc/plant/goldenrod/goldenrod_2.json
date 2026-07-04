@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/goldenrod/goldenrod_2"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/azalea/upper_cross_2"
+  }
+}

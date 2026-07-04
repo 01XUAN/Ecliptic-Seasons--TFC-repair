@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/anemone_large_orange/anemone_single"
+  }
+}

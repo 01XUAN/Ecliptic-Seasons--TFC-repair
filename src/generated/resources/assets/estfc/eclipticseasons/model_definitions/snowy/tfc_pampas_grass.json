@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/plant/pampas_grass/pampas_1"
+    }
+  }
+}

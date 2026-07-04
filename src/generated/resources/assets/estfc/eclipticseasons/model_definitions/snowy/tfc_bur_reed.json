@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/plant/bur_reed/bur_reed"
+    }
+  }
+}

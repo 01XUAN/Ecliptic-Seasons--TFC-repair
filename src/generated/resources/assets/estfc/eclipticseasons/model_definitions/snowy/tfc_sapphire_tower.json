@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/plant/sapphire_tower/sapphire_tower_3"
+    }
+  }
+}

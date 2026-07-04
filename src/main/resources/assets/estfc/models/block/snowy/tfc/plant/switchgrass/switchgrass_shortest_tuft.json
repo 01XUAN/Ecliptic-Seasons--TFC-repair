@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/switchgrass/switchgrass_shortest_tuft"
+  }
+}

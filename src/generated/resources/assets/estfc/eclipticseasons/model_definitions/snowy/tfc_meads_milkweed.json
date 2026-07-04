@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/plant/meads_milkweed/meads_milkweed_5"
+    }
+  }
+}

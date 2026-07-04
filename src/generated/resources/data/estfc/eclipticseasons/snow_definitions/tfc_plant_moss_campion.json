@@ -1,6 +1,8 @@
 {
-  "blocks": ["tfc:plant/moss_campion"],
-  "flag": 1000,
-  "offset": 0,
-  "mid": "estfc:snowy_groundcover"
+  "blocks": [
+    "tfc:plant/moss_campion"
+  ],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_moss_campion"
 }

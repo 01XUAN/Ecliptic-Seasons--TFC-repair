@@ -1,0 +1,8 @@
+{
+  "blocks": [
+    "tfc:crop/maize_wild_top"
+  ],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_maize_wild_top"
+}

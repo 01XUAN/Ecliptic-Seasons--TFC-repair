@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/plant/saguaro_fruit/saguaro_fruit_1"
+    }
+  }
+}

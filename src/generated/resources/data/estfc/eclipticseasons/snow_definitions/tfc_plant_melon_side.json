@@ -1,0 +1,8 @@
+{
+  "blocks": [
+    "tfc:crop/melon_side"
+  ],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_melon_side"
+}

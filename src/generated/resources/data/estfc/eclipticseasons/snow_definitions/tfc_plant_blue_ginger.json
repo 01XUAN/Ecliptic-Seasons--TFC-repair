@@ -1,6 +1,8 @@
 {
-  "blocks": ["tfc:plant/blue_ginger"],
-  "flag": 1000,
-  "offset": 0,
-  "mid": "estfc:snowy_groundcover"
+  "blocks": [
+    "tfc:plant/blue_ginger"
+  ],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_blue_ginger"
 }

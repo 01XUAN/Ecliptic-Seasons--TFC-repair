@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/crop/yellow_bell_pepper_6"
+    }
+  }
+}

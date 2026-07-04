@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/oxeye_daisy/oxeye_daisy_5"
+  }
+}

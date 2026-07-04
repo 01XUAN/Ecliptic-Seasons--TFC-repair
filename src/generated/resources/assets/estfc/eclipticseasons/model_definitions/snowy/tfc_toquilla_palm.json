@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy/tfc/plant/toquilla_palm/toquilla_palm_2"
+    }
+  }
+}

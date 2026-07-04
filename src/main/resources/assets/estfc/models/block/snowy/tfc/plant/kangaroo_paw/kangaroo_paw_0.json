@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/kangaroo_paw/kangaroo_paw_0"
+  }
+}

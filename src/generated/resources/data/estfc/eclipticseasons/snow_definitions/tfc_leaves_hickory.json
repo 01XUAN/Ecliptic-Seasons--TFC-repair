@@ -1,7 +1,0 @@
-{
-  "blocks": ["tfc:wood/leaves/hickory"],
-  "flag": 1101,
-  "offset": 0,
-  "mid": "eclipticseasons:snowy_leaves_top",
-  "mid2": "eclipticseasons:snowy_leaves_attach"
-}

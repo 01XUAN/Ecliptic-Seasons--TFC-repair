@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/bromegrass/bromegrass_shorter_tuft"
+  }
+}

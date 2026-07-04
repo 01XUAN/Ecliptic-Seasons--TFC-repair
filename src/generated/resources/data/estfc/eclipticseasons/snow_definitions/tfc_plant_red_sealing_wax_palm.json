@@ -1,6 +1,8 @@
 {
-  "blocks": ["tfc:plant/red_sealing_wax_palm"],
-  "flag": 1000,
-  "offset": 0,
-  "mid": "estfc:snowy_groundcover"
+  "blocks": [
+    "tfc:plant/red_sealing_wax_palm"
+  ],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_red_sealing_wax_palm"
 }
