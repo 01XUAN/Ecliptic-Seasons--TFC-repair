@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/grape_hyacinth/grape_hyacinth_1"
-  }
-}

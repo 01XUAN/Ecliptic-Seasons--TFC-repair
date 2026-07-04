@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/star_grass/0"
-  }
-}

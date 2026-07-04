@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/silken_pincushion_cactus/cactus_0"
-  }
-}

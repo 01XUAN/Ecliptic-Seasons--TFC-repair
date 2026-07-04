@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/ostrich_fern/ostrich_fern_fronds_shortest_furled"
-  }
-}

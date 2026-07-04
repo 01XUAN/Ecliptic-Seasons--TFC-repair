@@ -228,22 +228,17 @@ def generate_models_and_definitions(plant_groups, all_rel_paths):
             count_solid(*_load_input_px(p))           # 按像素数排序
         ))
 
-        tex_path = "estfc:block/" + best_rel.replace("\\", "/")
-        tex_path = tex_path[:tex_path.rfind(".")]  # 去掉 .png
+        # 1. 方块模型 JSON (一个植物一个，使用最茂盛贴图)
+        best_model_path = best_rel.replace("\\", "/")
+        best_model_path = best_model_path[:best_model_path.rfind(".")]
 
-        # 1. 方块模型 JSON (每个变体一个；模型定义引用主变体)
-        for rel in rel_paths:
-            variant_tex = "estfc:block/" + rel.replace("\\", "/")
-            variant_tex = variant_tex[:variant_tex.rfind(".")]
-
-            model_data = {
-                "parent": "minecraft:block/cross",
-                "textures": {"cross": variant_tex}
-            }
-            model_path = os.path.join(MODEL_OUT, rel.replace("\\", "/"))
-            model_path = model_path[:model_path.rfind(".")] + ".json"
-            write_json(model_path, model_data)
-            model_count += 1
+        model_data = {
+            "parent": "minecraft:block/cross",
+            "textures": {"cross": f"estfc:block/{best_model_path}"}
+        }
+        model_path = os.path.join(MODEL_OUT, best_model_path + ".json")
+        write_json(model_path, model_data)
+        model_count += 1
 
         # 2. 模型定义 JSON (一个植物一个，replace=true)
         # 特殊: 水果树叶 → 用 flag 1101
@@ -252,10 +247,6 @@ def generate_models_and_definitions(plant_groups, all_rel_paths):
             "olive_sapling", "orange_sapling", "peach_sapling",
             "plum_sapling", "red_apple_sapling", "banana_sapling",
         }
-
-        # 主贴图的模型路径 (去掉扩展名)
-        best_model_path = best_rel.replace("\\", "/")
-        best_model_path = best_model_path[:best_model_path.rfind(".")]
 
         def_data = {
             "replace": True,
