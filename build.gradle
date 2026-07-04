@@ -154,6 +154,102 @@ tasks.register('generateTfcSnowDefinitions') {
             def f2 = new File(outputDir, "tfc_mossy_loose_rock_${rock}.json")
             f2.text = "{\n  \"blocks\": [\"tfc:rock/mossy_loose/${rock}\"],\n  \"flag\": 1000,\n  \"offset\": 1,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
         }
+
+        // 第二批：树叶 — 双层雪模 (flag 1101: 顶层+内部斑点)
+        def woodTypes = [
+            'acacia', 'ash', 'aspen', 'birch', 'blackwood', 'chestnut',
+            'douglas_fir', 'hickory', 'kapok', 'mangrove', 'maple', 'oak',
+            'palm', 'pine', 'rosewood', 'sequoia', 'spruce', 'sycamore',
+            'white_cedar', 'willow'
+        ]
+        woodTypes.each { wood ->
+            def f = new File(outputDir, "tfc_leaves_${wood}.json")
+            f.text = "{\n  \"blocks\": [\"tfc:wood/leaves/${wood}\"],\n  \"flag\": 1101,\n  \"offset\": 0,\n  \"mid\": \"eclipticseasons:snowy_leaves_top\",\n  \"mid2\": \"eclipticseasons:snowy_leaves_attach\"\n}"
+            def ff = new File(outputDir, "tfc_fallen_leaves_${wood}.json")
+            ff.text = "{\n  \"blocks\": [\"tfc:wood/fallen_leaves/${wood}\"],\n  \"flag\": 1000,\n  \"offset\": 0,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
+        }
+
+        // 第三批：全部植物（小写） + 果树/浆果/矮曲木 + 果树叶子
+        def plants = [
+            'allium', 'anthurium', 'arrowhead', 'artists_conk', 'azalea',
+            'badderlocks', 'barrel_cactus', 'beachgrass', 'bear_grass',
+            'bird_nest_fern', 'black_orchid', 'blood_lily', 'blue_ginger',
+            'blue_orchid', 'bluegrass', 'bromegrass', 'bur_reed', 'buttercup',
+            'butterfly_milkweed', 'calendula', 'cattail', 'cobblestone_lichen',
+            'coontail', 'cordgrass', 'cornflower', 'dandelion', 'dead_bush',
+            'desert_flame', 'dry_grass', 'duckweed', 'edelweiss', 'eel_grass',
+            'elegant_sunburst_lichen', 'fan_palm', 'field_horsetail', 'fountain_grass',
+            'foxglove', 'grape_hyacinth', 'green_algae', 'gutweed', 'guzmania',
+            'heather', 'heliconia', 'hibiscus', 'houstonia', 'ivy',
+            'kangaroo_paw', 'king_fern', 'kinnikinnick', 'jungle_vines',
+            'labrador_tea', 'lady_fern', 'laminaria', 'licorice_fern',
+            'lilac', 'lily_of_the_valley', 'lotus',
+            'maiden_pink', 'manatee_grass', 'marigold', 'meads_milkweed',
+            'milfoil', 'morning_glory', 'moss', 'moss_campion',
+            'mountain_hullwort',
+            'nasturtium', 'orchard_grass', 'ostrich_fern', 'oxeye_daisy',
+            'palash', 'penwortel', 'philodendron', 'phragmite', 'pickerelweed',
+            'pistia', 'poppy', 'prickly_pear', 'prickly_pear_purple',
+            'primrose', 'pulsatilla', 'qantu',
+            'raddia_grass', 'ramirezella', 'ramunda', 'red_algae',
+            'red_oat_grass', 'red_sealing_wax_palm', 'reindeer_lichen',
+            'ryegrass', 'rose',
+            'sacred_datura', 'sagebrush', 'sago', 'saguaro_fruit',
+            'sapphire_tower', 'sargassum', 'scutch_grass', 'sea_lavender',
+            'sea_palm', 'shawiash', 'silken_pincushion_cactus',
+            'silver_bromeliad', 'silver_spurflower',
+            'snapdragon_pink', 'snapdragon_red', 'snapdragon_white', 'snapdragon_yellow',
+            'star_grass', 'strelitzia', 'sunflower', 'switchgrass', 'sword_fern',
+            'tall_fescue_grass', 'tank_bromeliad', 'timothy_grass',
+            'toquilla_palm', 'trillium', 'tropical_milkweed',
+            'tulip_orange', 'tulip_pink', 'tulip_red', 'tulip_white',
+            'turtle_grass', 'vriesea', 'water_canna', 'water_taro',
+            'white_water_lily', 'purple_water_lily', 'yellow_water_lily',
+            'yellow_saxifrage', 'yucca',
+            'hanging_vines', 'hanging_vines_plant',
+            'spanish_moss', 'spanish_moss_plant',
+            'liana', 'liana_plant',
+            'flame_vine', 'flame_vine_plant',
+            'tree_fern', 'tree_fern_plant',
+            'arundo', 'arundo_plant',
+            'dry_phragmite', 'dry_phragmite_plant',
+            'winged_kelp', 'winged_kelp_plant',
+            'leafy_kelp', 'leafy_kelp_plant',
+            'giant_kelp_plant', 'giant_kelp_flower',
+            'saguaro', 'saguaro_plant', 'cycad', 'cycad_plant',
+            'golden_bamboo', 'golden_bamboo_sapling',
+            'athyrium_fern', 'canna', 'goldenrod', 'pampas_grass', 'perovskia',
+            'anemone_green', 'anemone_purple', 'anemone_large_orange', 'anemone_large_purple',
+            'barnacles', 'mussels', 'starfish'
+        ]
+        plants.each { plant ->
+            def f = new File(outputDir, "tfc_plant_${plant}.json")
+            f.text = "{\n  \"blocks\": [\"tfc:plant/${plant}\"],\n  \"flag\": 1000,\n  \"offset\": 0,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
+        }
+
+        // 果树苗、浆果灌木、矮曲木
+        def fruitAndBush = [
+            'cherry_sapling', 'green_apple_sapling', 'lemon_sapling', 'olive_sapling',
+            'orange_sapling', 'peach_sapling', 'plum_sapling', 'red_apple_sapling',
+            'banana_sapling',
+            'snowberry_bush', 'bunchberry_bush', 'gooseberry_bush', 'cloudberry_bush',
+            'strawberry_bush', 'wintergreen_berry_bush',
+            'blackberry_bush', 'raspberry_bush', 'blueberry_bush', 'elderberry_bush',
+            'cranberry_bush',
+            'pine_krummholz', 'spruce_krummholz', 'white_cedar_krummholz',
+            'douglas_fir_krummholz', 'aspen_krummholz'
+        ]
+        fruitAndBush.each { s ->
+            def f = new File(outputDir, "tfc_plant_${s}.json")
+            f.text = "{\n  \"blocks\": [\"tfc:plant/${s}\"],\n  \"flag\": 1000,\n  \"offset\": 0,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
+        }
+
+        // 果树叶子 (flag 1101)
+        ['cherry_leaves', 'green_apple_leaves', 'lemon_leaves', 'olive_leaves',
+         'orange_leaves', 'peach_leaves', 'plum_leaves', 'red_apple_leaves'].each { leaf ->
+            def f = new File(outputDir, "tfc_plant_${leaf}.json")
+            f.text = "{\n  \"blocks\": [\"tfc:plant/${leaf}\"],\n  \"flag\": 1101,\n  \"offset\": 0,\n  \"mid\": \"eclipticseasons:snowy_leaves_top\",\n  \"mid2\": \"eclipticseasons:snowy_leaves_attach\"\n}"
+        }
     }
 }
 

@@ -1,0 +1,7 @@
+{
+  "blocks": ["tfc:plant/lemon_leaves"],
+  "flag": 1101,
+  "offset": 0,
+  "mid": "eclipticseasons:snowy_leaves_top",
+  "mid2": "eclipticseasons:snowy_leaves_attach"
+}

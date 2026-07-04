@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:plant/kangaroo_paw"],
+  "flag": 1000,
+  "offset": 0,
+  "mid": "estfc:snowy_groundcover"
+}

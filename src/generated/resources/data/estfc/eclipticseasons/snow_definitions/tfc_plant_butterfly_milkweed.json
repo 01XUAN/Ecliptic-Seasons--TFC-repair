@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:plant/butterfly_milkweed"],
+  "flag": 1000,
+  "offset": 0,
+  "mid": "estfc:snowy_groundcover"
+}
