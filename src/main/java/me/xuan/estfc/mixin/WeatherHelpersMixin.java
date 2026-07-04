@@ -64,6 +64,6 @@ public abstract class WeatherHelpersMixin {
             ESTFC_LOG.info("[estfc] Driving ES snow cycle from TFC advanceWeatherCycle TAIL");
         }
 
-        WeatherManagerMixin.estfc$tickWeatherCycle(level);
+        me.xuan.estfc.WeatherBridge.tickWeatherCycle(level);
     }
 }
