@@ -1,8 +1,0 @@
-{
-    "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_6_bottom"
-        }
-    }
-}
