@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/blood_lily"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_blood_lily"
+    "blocks": "tfc:plant/blood_lily",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_blood_lily"
 }

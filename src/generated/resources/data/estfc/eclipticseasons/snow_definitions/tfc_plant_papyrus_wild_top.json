@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/papyrus_wild_top"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_papyrus_wild_top"
+    "blocks": "tfc:crop/papyrus_wild_top",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_papyrus_wild_top"
 }

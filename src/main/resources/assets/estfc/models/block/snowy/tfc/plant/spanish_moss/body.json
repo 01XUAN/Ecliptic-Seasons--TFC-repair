@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/spanish_moss/body"
-  }
+    "parent": "minecraft:block/cross",
+    "textures": {
+        "cross": "estfc:block/plant/spanish_moss/body"
+    }
 }

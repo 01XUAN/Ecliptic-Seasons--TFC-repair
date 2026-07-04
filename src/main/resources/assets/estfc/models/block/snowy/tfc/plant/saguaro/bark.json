@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/saguaro/bark"
-  }
+    "parent": "minecraft:block/cross",
+    "textures": {
+        "cross": "estfc:block/plant/saguaro/bark"
+    }
 }

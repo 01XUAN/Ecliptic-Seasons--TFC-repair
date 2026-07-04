@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/dry_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_dry_grass"
+    "blocks": "tfc:plant/dry_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_dry_grass"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/tall_fescue_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_tall_fescue_grass"
+    "blocks": "tfc:plant/tall_fescue_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_tall_fescue_grass"
 }

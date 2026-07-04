@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/crop/lentil_5"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/crop/lentil_5"
+        }
     }
-  }
 }

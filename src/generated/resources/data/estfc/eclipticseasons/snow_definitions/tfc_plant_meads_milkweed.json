@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/meads_milkweed"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_meads_milkweed"
+    "blocks": "tfc:plant/meads_milkweed",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_meads_milkweed"
 }

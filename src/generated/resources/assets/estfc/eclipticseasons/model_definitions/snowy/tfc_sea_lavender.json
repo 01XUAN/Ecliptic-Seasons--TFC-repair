@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/plant/sea_lavender/sea_lavender"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/plant/sea_lavender/sea_lavender"
+        }
     }
-  }
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/flame_vine"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_flame_vine"
+    "blocks": "tfc:plant/flame_vine",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_flame_vine"
 }

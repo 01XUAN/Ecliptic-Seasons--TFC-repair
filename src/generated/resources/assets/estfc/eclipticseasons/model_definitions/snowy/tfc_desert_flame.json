@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/plant/desert_flame/desert_flame_1"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/plant/desert_flame/desert_flame_1"
+        }
     }
-  }
 }

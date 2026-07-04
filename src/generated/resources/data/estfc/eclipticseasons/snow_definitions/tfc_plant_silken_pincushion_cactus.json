@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/silken_pincushion_cactus"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_silken_pincushion_cactus"
+    "blocks": "tfc:plant/silken_pincushion_cactus",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_silken_pincushion_cactus"
 }

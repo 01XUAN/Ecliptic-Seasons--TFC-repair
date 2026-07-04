@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/yucca"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_yucca"
+    "blocks": "tfc:plant/yucca",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_yucca"
 }

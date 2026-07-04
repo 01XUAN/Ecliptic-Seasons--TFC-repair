@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/black_orchid/black_orchid_2"
-  }
+    "parent": "minecraft:block/cross",
+    "textures": {
+        "cross": "estfc:block/plant/black_orchid/black_orchid_2"
+    }
 }

@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/crop/pumpkin_7"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/crop/pumpkin_7"
+        }
     }
-  }
 }

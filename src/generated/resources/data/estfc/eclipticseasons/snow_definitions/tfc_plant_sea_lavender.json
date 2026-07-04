@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/sea_lavender"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_sea_lavender"
+    "blocks": "tfc:plant/sea_lavender",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_sea_lavender"
 }

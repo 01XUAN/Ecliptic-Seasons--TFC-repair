@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/plant/red_sealing_wax_palm/frond_0a"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/plant/red_sealing_wax_palm/frond_0a"
+        }
     }
-  }
 }

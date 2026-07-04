@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/ramirezella/base"
-  }
+    "parent": "minecraft:block/cross",
+    "textures": {
+        "cross": "estfc:block/plant/ramirezella/base"
+    }
 }

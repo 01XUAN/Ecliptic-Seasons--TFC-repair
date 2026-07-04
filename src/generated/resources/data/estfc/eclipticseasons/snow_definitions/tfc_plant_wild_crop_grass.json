@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/wild_crop_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_wild_crop_grass"
+    "blocks": "tfc:crop/wild_crop_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_wild_crop_grass"
 }

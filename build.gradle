@@ -125,7 +125,12 @@ tasks.register('generateTfcSnowDefinitions') {
     group = 'estfc'
     description = 'Generate snow_definitions JSON for TFC blocks'
 
-    def outputDir = file('src/generated/resources/data/estfc/eclipticseasons/snow_definitions')
+    // 配置时捕获，避免执行时访问 project（configuration cache 兼容）
+    def projectDir = project.layout.projectDirectory.asFile
+    def outputDir = new File(projectDir, 'src/generated/resources/data/estfc/eclipticseasons/snow_definitions')
+    def manifestFile = new File(projectDir, 'src/generated/resources/plant_manifest.json')
+    def modelDefDir = new File(projectDir, 'src/generated/resources/assets/estfc/eclipticseasons/model_definitions/snowy')
+    def blockModelDir = new File(projectDir, 'src/main/resources/assets/estfc/models/block/snowy/tfc')
 
     doLast {
         outputDir.mkdirs()
@@ -169,8 +174,52 @@ tasks.register('generateTfcSnowDefinitions') {
             ff.text = "{\n  \"blocks\": [\"tfc:wood/fallen_leaves/${wood}\"],\n  \"flag\": 1000,\n  \"offset\": 0,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
         }
 
-        // 植物/作物的雪定义由 gen_snowy.py 统一生成
-        // （方块ID自动从贴图目录结构推断：plant/→tfc:plant/, crop/→tfc:crop/）
+        // ── 植物/农作物 (从 gen_snowy.py 生成的 manifest 读取) ──
+        if (manifestFile.exists()) {
+            def manifest = new groovy.json.JsonSlurper().parse(manifestFile)
+
+            modelDefDir.mkdirs()
+            blockModelDir.mkdirs()
+
+            manifest.each { plant ->
+                // 雪定义 → data/estfc/eclipticseasons/snow_definitions/
+                def sd = new File(outputDir, "tfc_plant_${plant.plant_key}.json")
+                def sdJson = [
+                    blocks: plant.block_id,
+                    flag: plant.flag,
+                    offset: plant.is_leaves ? 0 : 1,
+                    mid: "estfc:snowy/tfc_${plant.plant_key}"
+                ]
+                if (plant.is_leaves) {
+                    sdJson.mid = "eclipticseasons:snowy_leaves_top"
+                    sdJson.mid2 = "eclipticseasons:snowy_leaves_attach"
+                    sdJson.remove('offset')
+                }
+                sd.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(sdJson))
+
+                // 模型定义 → assets/estfc/eclipticseasons/model_definitions/snowy/
+                def md = new File(modelDefDir, "tfc_${plant.plant_key}.json")
+                def mdJson = [
+                    replace: true,
+                    variants: ["" : [model: "estfc:block/snowy/tfc/${plant.best_texture}"]]
+                ]
+                md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mdJson))
+
+                // 方块模型 → assets/estfc/models/block/snowy/tfc/
+                def bmFile = new File(blockModelDir, plant.best_texture + '.json')
+                def parentPath = bmFile.toPath().toAbsolutePath().getParent()
+                java.nio.file.Files.createDirectories(parentPath)
+                def bmJson = [
+                    parent: "minecraft:block/cross",
+                    textures: [cross: "estfc:block/${plant.best_texture}"]
+                ]
+                java.nio.file.Files.writeString(bmFile.toPath().toAbsolutePath(),
+                    groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bmJson)))
+            }
+            println "Generated ${manifest.size()} plant snow definitions + model definitions + block models"
+        } else {
+            println "WARNING: plant_manifest.json not found. Run gen_snowy.py first."
+        }
     }
 }
 

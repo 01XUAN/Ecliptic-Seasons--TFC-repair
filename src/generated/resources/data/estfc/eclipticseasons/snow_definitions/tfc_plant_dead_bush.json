@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/dead_bush"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_dead_bush"
+    "blocks": "tfc:plant/dead_bush",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_dead_bush"
 }

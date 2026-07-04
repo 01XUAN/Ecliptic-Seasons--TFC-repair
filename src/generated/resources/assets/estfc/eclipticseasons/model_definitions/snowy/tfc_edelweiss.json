@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/plant/edelweiss/edelweiss_2"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/plant/edelweiss/edelweiss_2"
+        }
     }
-  }
 }

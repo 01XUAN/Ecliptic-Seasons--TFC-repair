@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/onion"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_onion"
+    "blocks": "tfc:crop/onion",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_onion"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/timothy_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_timothy_grass"
+    "blocks": "tfc:plant/timothy_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_timothy_grass"
 }

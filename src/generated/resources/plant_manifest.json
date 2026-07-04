@@ -1,0 +1,3370 @@
+[
+  {
+    "block_id": "tfc:crop/alfalfa",
+    "plant_key": "alfalfa",
+    "best_texture": "crop/alfalfa_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/alfalfa_0",
+      "crop/alfalfa_1",
+      "crop/alfalfa_2",
+      "crop/alfalfa_3",
+      "crop/alfalfa_4",
+      "crop/alfalfa_5",
+      "crop/alfalfa_dead",
+      "crop/alfalfa_dead_young",
+      "crop/alfalfa_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/barley",
+    "plant_key": "barley",
+    "best_texture": "crop/barley_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/barley_0",
+      "crop/barley_1",
+      "crop/barley_2",
+      "crop/barley_3",
+      "crop/barley_4",
+      "crop/barley_5",
+      "crop/barley_6",
+      "crop/barley_7",
+      "crop/barley_dead",
+      "crop/barley_dead_young",
+      "crop/barley_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/beet",
+    "plant_key": "beet",
+    "best_texture": "crop/beet_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/beet_0",
+      "crop/beet_1",
+      "crop/beet_2",
+      "crop/beet_3",
+      "crop/beet_4",
+      "crop/beet_5",
+      "crop/beet_dead",
+      "crop/beet_dead_young",
+      "crop/beet_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/cabbage",
+    "plant_key": "cabbage",
+    "best_texture": "crop/cabbage_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/cabbage_0",
+      "crop/cabbage_1",
+      "crop/cabbage_2",
+      "crop/cabbage_3",
+      "crop/cabbage_4",
+      "crop/cabbage_5",
+      "crop/cabbage_dead",
+      "crop/cabbage_dead_young",
+      "crop/cabbage_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/canola",
+    "plant_key": "canola",
+    "best_texture": "crop/canola_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/canola_0",
+      "crop/canola_1",
+      "crop/canola_2",
+      "crop/canola_3",
+      "crop/canola_4",
+      "crop/canola_5",
+      "crop/canola_dead",
+      "crop/canola_dead_young",
+      "crop/canola_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/carrot",
+    "plant_key": "carrot",
+    "best_texture": "crop/carrot_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/carrot_0",
+      "crop/carrot_1",
+      "crop/carrot_2",
+      "crop/carrot_3",
+      "crop/carrot_4",
+      "crop/carrot_dead",
+      "crop/carrot_dead_young",
+      "crop/carrot_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/cassava",
+    "plant_key": "cassava",
+    "best_texture": "crop/cassava_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/cassava_0",
+      "crop/cassava_1",
+      "crop/cassava_2",
+      "crop/cassava_3",
+      "crop/cassava_4",
+      "crop/cassava_5",
+      "crop/cassava_dead",
+      "crop/cassava_dead_young",
+      "crop/cassava_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/garlic",
+    "plant_key": "garlic",
+    "best_texture": "crop/garlic_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/garlic_0",
+      "crop/garlic_1",
+      "crop/garlic_2",
+      "crop/garlic_3",
+      "crop/garlic_4",
+      "crop/garlic_dead",
+      "crop/garlic_dead_young",
+      "crop/garlic_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean",
+    "plant_key": "green_bean",
+    "best_texture": "crop/green_bean_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_0",
+      "crop/green_bean_1",
+      "crop/green_bean_2",
+      "crop/green_bean_3",
+      "crop/green_bean_dead_young"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_0_stick",
+    "plant_key": "green_bean_0_stick",
+    "best_texture": "crop/green_bean_0_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_0_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_1_stick",
+    "plant_key": "green_bean_1_stick",
+    "best_texture": "crop/green_bean_1_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_1_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_2_stick",
+    "plant_key": "green_bean_2_stick",
+    "best_texture": "crop/green_bean_2_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_2_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_3_stick",
+    "plant_key": "green_bean_3_stick",
+    "best_texture": "crop/green_bean_3_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_3_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_4_bottom",
+    "plant_key": "green_bean_4_bottom",
+    "best_texture": "crop/green_bean_4_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_4_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_4_top",
+    "plant_key": "green_bean_4_top",
+    "best_texture": "crop/green_bean_4_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_4_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_5_bottom",
+    "plant_key": "green_bean_5_bottom",
+    "best_texture": "crop/green_bean_5_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_5_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_5_top",
+    "plant_key": "green_bean_5_top",
+    "best_texture": "crop/green_bean_5_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_5_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_6_bottom",
+    "plant_key": "green_bean_6_bottom",
+    "best_texture": "crop/green_bean_6_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_6_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_6_top",
+    "plant_key": "green_bean_6_top",
+    "best_texture": "crop/green_bean_6_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_6_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_7_bottom",
+    "plant_key": "green_bean_7_bottom",
+    "best_texture": "crop/green_bean_7_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_7_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_7_top",
+    "plant_key": "green_bean_7_top",
+    "best_texture": "crop/green_bean_7_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_7_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_dead_bottom",
+    "plant_key": "green_bean_dead_bottom",
+    "best_texture": "crop/green_bean_dead_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_dead_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_dead_top",
+    "plant_key": "green_bean_dead_top",
+    "best_texture": "crop/green_bean_dead_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_dead_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_dead_young_stick",
+    "plant_key": "green_bean_dead_young_stick",
+    "best_texture": "crop/green_bean_dead_young_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_dead_young_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_wild_bottom",
+    "plant_key": "green_bean_wild_bottom",
+    "best_texture": "crop/green_bean_wild_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_wild_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/green_bean_wild_top",
+    "plant_key": "green_bean_wild_top",
+    "best_texture": "crop/green_bean_wild_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/green_bean_wild_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute",
+    "plant_key": "jute",
+    "best_texture": "crop/jute_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_0",
+      "crop/jute_1",
+      "crop/jute_2",
+      "crop/jute_dead_young"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_3_bottom",
+    "plant_key": "jute_3_bottom",
+    "best_texture": "crop/jute_3_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_3_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_3_top",
+    "plant_key": "jute_3_top",
+    "best_texture": "crop/jute_3_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_3_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_4_bottom",
+    "plant_key": "jute_4_bottom",
+    "best_texture": "crop/jute_4_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_4_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_4_top",
+    "plant_key": "jute_4_top",
+    "best_texture": "crop/jute_4_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_4_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_5_bottom",
+    "plant_key": "jute_5_bottom",
+    "best_texture": "crop/jute_5_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_5_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_5_top",
+    "plant_key": "jute_5_top",
+    "best_texture": "crop/jute_5_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_5_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_dead_bottom",
+    "plant_key": "jute_dead_bottom",
+    "best_texture": "crop/jute_dead_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_dead_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_dead_top",
+    "plant_key": "jute_dead_top",
+    "best_texture": "crop/jute_dead_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_dead_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_wild_bottom",
+    "plant_key": "jute_wild_bottom",
+    "best_texture": "crop/jute_wild_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_wild_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/jute_wild_top",
+    "plant_key": "jute_wild_top",
+    "best_texture": "crop/jute_wild_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/jute_wild_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/lentil",
+    "plant_key": "lentil",
+    "best_texture": "crop/lentil_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/lentil_0",
+      "crop/lentil_1",
+      "crop/lentil_2",
+      "crop/lentil_3",
+      "crop/lentil_4",
+      "crop/lentil_5",
+      "crop/lentil_dead",
+      "crop/lentil_dead_young",
+      "crop/lentil_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize",
+    "plant_key": "maize",
+    "best_texture": "crop/maize_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_0",
+      "crop/maize_1",
+      "crop/maize_2",
+      "crop/maize_dead_young"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_3_bottom",
+    "plant_key": "maize_3_bottom",
+    "best_texture": "crop/maize_3_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_3_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_3_top",
+    "plant_key": "maize_3_top",
+    "best_texture": "crop/maize_3_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_3_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_4_bottom",
+    "plant_key": "maize_4_bottom",
+    "best_texture": "crop/maize_4_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_4_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_4_top",
+    "plant_key": "maize_4_top",
+    "best_texture": "crop/maize_4_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_4_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_5_bottom",
+    "plant_key": "maize_5_bottom",
+    "best_texture": "crop/maize_5_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_5_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_5_top",
+    "plant_key": "maize_5_top",
+    "best_texture": "crop/maize_5_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_5_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_dead_bottom",
+    "plant_key": "maize_dead_bottom",
+    "best_texture": "crop/maize_dead_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_dead_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_dead_top",
+    "plant_key": "maize_dead_top",
+    "best_texture": "crop/maize_dead_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_dead_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_wild_bottom",
+    "plant_key": "maize_wild_bottom",
+    "best_texture": "crop/maize_wild_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_wild_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/maize_wild_top",
+    "plant_key": "maize_wild_top",
+    "best_texture": "crop/maize_wild_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/maize_wild_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/melon",
+    "plant_key": "melon",
+    "best_texture": "crop/melon_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/melon_0",
+      "crop/melon_1",
+      "crop/melon_2",
+      "crop/melon_3",
+      "crop/melon_4",
+      "crop/melon_5",
+      "crop/melon_6",
+      "crop/melon_7",
+      "crop/melon_dead",
+      "crop/melon_dead_young",
+      "crop/melon_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/melon_side",
+    "plant_key": "melon_side",
+    "best_texture": "crop/melon_side",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/melon_side",
+      "crop/melon_side_dead"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/oat",
+    "plant_key": "oat",
+    "best_texture": "crop/oat_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/oat_0",
+      "crop/oat_1",
+      "crop/oat_2",
+      "crop/oat_3",
+      "crop/oat_4",
+      "crop/oat_5",
+      "crop/oat_6",
+      "crop/oat_7",
+      "crop/oat_dead",
+      "crop/oat_dead_young",
+      "crop/oat_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/onion",
+    "plant_key": "onion",
+    "best_texture": "crop/onion_6",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/onion_0",
+      "crop/onion_1",
+      "crop/onion_2",
+      "crop/onion_3",
+      "crop/onion_4",
+      "crop/onion_5",
+      "crop/onion_6",
+      "crop/onion_dead",
+      "crop/onion_dead_young",
+      "crop/onion_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus",
+    "plant_key": "papyrus",
+    "best_texture": "crop/papyrus_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_0",
+      "crop/papyrus_1",
+      "crop/papyrus_2",
+      "crop/papyrus_dead_young"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_3_bottom",
+    "plant_key": "papyrus_3_bottom",
+    "best_texture": "crop/papyrus_3_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_3_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_3_top",
+    "plant_key": "papyrus_3_top",
+    "best_texture": "crop/papyrus_3_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_3_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_4_bottom",
+    "plant_key": "papyrus_4_bottom",
+    "best_texture": "crop/papyrus_4_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_4_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_4_top",
+    "plant_key": "papyrus_4_top",
+    "best_texture": "crop/papyrus_4_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_4_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_5_bottom",
+    "plant_key": "papyrus_5_bottom",
+    "best_texture": "crop/papyrus_5_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_5_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_5_top",
+    "plant_key": "papyrus_5_top",
+    "best_texture": "crop/papyrus_5_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_5_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_dead_bottom",
+    "plant_key": "papyrus_dead_bottom",
+    "best_texture": "crop/papyrus_dead_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_dead_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_dead_top",
+    "plant_key": "papyrus_dead_top",
+    "best_texture": "crop/papyrus_dead_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_dead_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_wild_bottom",
+    "plant_key": "papyrus_wild_bottom",
+    "best_texture": "crop/papyrus_wild_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_wild_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/papyrus_wild_top",
+    "plant_key": "papyrus_wild_top",
+    "best_texture": "crop/papyrus_wild_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/papyrus_wild_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/peanut",
+    "plant_key": "peanut",
+    "best_texture": "crop/peanut_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/peanut_0",
+      "crop/peanut_1",
+      "crop/peanut_2",
+      "crop/peanut_3",
+      "crop/peanut_4",
+      "crop/peanut_5",
+      "crop/peanut_dead",
+      "crop/peanut_dead_young",
+      "crop/peanut_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/potato",
+    "plant_key": "potato",
+    "best_texture": "crop/potato_6",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/potato_0",
+      "crop/potato_1",
+      "crop/potato_2",
+      "crop/potato_3",
+      "crop/potato_4",
+      "crop/potato_5",
+      "crop/potato_6",
+      "crop/potato_dead",
+      "crop/potato_dead_young",
+      "crop/potato_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/pumpkin",
+    "plant_key": "pumpkin",
+    "best_texture": "crop/pumpkin_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/pumpkin_0",
+      "crop/pumpkin_1",
+      "crop/pumpkin_2",
+      "crop/pumpkin_3",
+      "crop/pumpkin_4",
+      "crop/pumpkin_5",
+      "crop/pumpkin_6",
+      "crop/pumpkin_7",
+      "crop/pumpkin_dead",
+      "crop/pumpkin_dead_young",
+      "crop/pumpkin_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/pumpkin_side",
+    "plant_key": "pumpkin_side",
+    "best_texture": "crop/pumpkin_side",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/pumpkin_side",
+      "crop/pumpkin_side_dead"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/radish",
+    "plant_key": "radish",
+    "best_texture": "crop/radish_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/radish_0",
+      "crop/radish_1",
+      "crop/radish_2",
+      "crop/radish_3",
+      "crop/radish_4",
+      "crop/radish_5",
+      "crop/radish_dead",
+      "crop/radish_dead_young",
+      "crop/radish_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/red_bell_pepper",
+    "plant_key": "red_bell_pepper",
+    "best_texture": "crop/red_bell_pepper_6",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/red_bell_pepper_0",
+      "crop/red_bell_pepper_1",
+      "crop/red_bell_pepper_2",
+      "crop/red_bell_pepper_3",
+      "crop/red_bell_pepper_4",
+      "crop/red_bell_pepper_5",
+      "crop/red_bell_pepper_6",
+      "crop/red_bell_pepper_dead",
+      "crop/red_bell_pepper_dead_young",
+      "crop/red_bell_pepper_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/rice",
+    "plant_key": "rice",
+    "best_texture": "crop/rice_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/rice_0",
+      "crop/rice_1",
+      "crop/rice_2",
+      "crop/rice_3",
+      "crop/rice_4",
+      "crop/rice_5",
+      "crop/rice_6",
+      "crop/rice_7",
+      "crop/rice_dead",
+      "crop/rice_dead_young",
+      "crop/rice_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/rotten_melon_side",
+    "plant_key": "rotten_melon_side",
+    "best_texture": "crop/rotten_melon_side",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/rotten_melon_side"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/rotten_melon_top",
+    "plant_key": "rotten_melon_top",
+    "best_texture": "crop/rotten_melon_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/rotten_melon_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/rotten_pumpkin_side",
+    "plant_key": "rotten_pumpkin_side",
+    "best_texture": "crop/rotten_pumpkin_side",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/rotten_pumpkin_side"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/rotten_pumpkin_top",
+    "plant_key": "rotten_pumpkin_top",
+    "best_texture": "crop/rotten_pumpkin_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/rotten_pumpkin_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/rye",
+    "plant_key": "rye",
+    "best_texture": "crop/rye_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/rye_0",
+      "crop/rye_1",
+      "crop/rye_2",
+      "crop/rye_3",
+      "crop/rye_4",
+      "crop/rye_5",
+      "crop/rye_6",
+      "crop/rye_7",
+      "crop/rye_dead",
+      "crop/rye_dead_young",
+      "crop/rye_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/soybean",
+    "plant_key": "soybean",
+    "best_texture": "crop/soybean_6",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/soybean_0",
+      "crop/soybean_1",
+      "crop/soybean_2",
+      "crop/soybean_3",
+      "crop/soybean_4",
+      "crop/soybean_5",
+      "crop/soybean_6",
+      "crop/soybean_dead",
+      "crop/soybean_dead_young",
+      "crop/soybean_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/squash",
+    "plant_key": "squash",
+    "best_texture": "crop/squash_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/squash_0",
+      "crop/squash_1",
+      "crop/squash_2",
+      "crop/squash_3",
+      "crop/squash_4",
+      "crop/squash_5",
+      "crop/squash_6",
+      "crop/squash_7",
+      "crop/squash_dead",
+      "crop/squash_dead_young",
+      "crop/squash_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/stick_top",
+    "plant_key": "stick_top",
+    "best_texture": "crop/stick_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/stick_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane",
+    "plant_key": "sugarcane",
+    "best_texture": "crop/sugarcane_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_0",
+      "crop/sugarcane_1",
+      "crop/sugarcane_2",
+      "crop/sugarcane_3",
+      "crop/sugarcane_dead_young"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_4_bottom",
+    "plant_key": "sugarcane_4_bottom",
+    "best_texture": "crop/sugarcane_4_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_4_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_4_top",
+    "plant_key": "sugarcane_4_top",
+    "best_texture": "crop/sugarcane_4_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_4_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_5_bottom",
+    "plant_key": "sugarcane_5_bottom",
+    "best_texture": "crop/sugarcane_5_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_5_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_5_top",
+    "plant_key": "sugarcane_5_top",
+    "best_texture": "crop/sugarcane_5_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_5_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_6_bottom",
+    "plant_key": "sugarcane_6_bottom",
+    "best_texture": "crop/sugarcane_6_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_6_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_6_top",
+    "plant_key": "sugarcane_6_top",
+    "best_texture": "crop/sugarcane_6_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_6_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_7_bottom",
+    "plant_key": "sugarcane_7_bottom",
+    "best_texture": "crop/sugarcane_7_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_7_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_7_top",
+    "plant_key": "sugarcane_7_top",
+    "best_texture": "crop/sugarcane_7_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_7_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_dead_bottom",
+    "plant_key": "sugarcane_dead_bottom",
+    "best_texture": "crop/sugarcane_dead_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_dead_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_dead_top",
+    "plant_key": "sugarcane_dead_top",
+    "best_texture": "crop/sugarcane_dead_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_dead_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_wild_bottom",
+    "plant_key": "sugarcane_wild_bottom",
+    "best_texture": "crop/sugarcane_wild_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_wild_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/sugarcane_wild_top",
+    "plant_key": "sugarcane_wild_top",
+    "best_texture": "crop/sugarcane_wild_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/sugarcane_wild_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato",
+    "plant_key": "tomato",
+    "best_texture": "crop/tomato_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_0",
+      "crop/tomato_1",
+      "crop/tomato_2",
+      "crop/tomato_3",
+      "crop/tomato_dead_young"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_0_stick",
+    "plant_key": "tomato_0_stick",
+    "best_texture": "crop/tomato_0_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_0_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_1_stick",
+    "plant_key": "tomato_1_stick",
+    "best_texture": "crop/tomato_1_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_1_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_2_stick",
+    "plant_key": "tomato_2_stick",
+    "best_texture": "crop/tomato_2_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_2_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_3_stick",
+    "plant_key": "tomato_3_stick",
+    "best_texture": "crop/tomato_3_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_3_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_4_bottom",
+    "plant_key": "tomato_4_bottom",
+    "best_texture": "crop/tomato_4_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_4_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_4_top",
+    "plant_key": "tomato_4_top",
+    "best_texture": "crop/tomato_4_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_4_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_5_bottom",
+    "plant_key": "tomato_5_bottom",
+    "best_texture": "crop/tomato_5_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_5_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_5_top",
+    "plant_key": "tomato_5_top",
+    "best_texture": "crop/tomato_5_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_5_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_6_bottom",
+    "plant_key": "tomato_6_bottom",
+    "best_texture": "crop/tomato_6_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_6_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_6_top",
+    "plant_key": "tomato_6_top",
+    "best_texture": "crop/tomato_6_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_6_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_7_bottom",
+    "plant_key": "tomato_7_bottom",
+    "best_texture": "crop/tomato_7_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_7_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_7_top",
+    "plant_key": "tomato_7_top",
+    "best_texture": "crop/tomato_7_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_7_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_dead_bottom",
+    "plant_key": "tomato_dead_bottom",
+    "best_texture": "crop/tomato_dead_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_dead_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_dead_top",
+    "plant_key": "tomato_dead_top",
+    "best_texture": "crop/tomato_dead_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_dead_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_dead_young_stick",
+    "plant_key": "tomato_dead_young_stick",
+    "best_texture": "crop/tomato_dead_young_stick",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_dead_young_stick"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_wild_bottom",
+    "plant_key": "tomato_wild_bottom",
+    "best_texture": "crop/tomato_wild_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_wild_bottom"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/tomato_wild_top",
+    "plant_key": "tomato_wild_top",
+    "best_texture": "crop/tomato_wild_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/tomato_wild_top"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/wheat",
+    "plant_key": "wheat",
+    "best_texture": "crop/wheat_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/wheat_0",
+      "crop/wheat_1",
+      "crop/wheat_2",
+      "crop/wheat_3",
+      "crop/wheat_4",
+      "crop/wheat_5",
+      "crop/wheat_6",
+      "crop/wheat_7",
+      "crop/wheat_dead",
+      "crop/wheat_dead_young",
+      "crop/wheat_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/wild_crop_grass",
+    "plant_key": "wild_crop_grass",
+    "best_texture": "crop/wild_crop_grass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/wild_crop_grass"
+    ]
+  },
+  {
+    "block_id": "tfc:crop/yellow_bell_pepper",
+    "plant_key": "yellow_bell_pepper",
+    "best_texture": "crop/yellow_bell_pepper_6",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "crop/yellow_bell_pepper_0",
+      "crop/yellow_bell_pepper_1",
+      "crop/yellow_bell_pepper_2",
+      "crop/yellow_bell_pepper_3",
+      "crop/yellow_bell_pepper_4",
+      "crop/yellow_bell_pepper_5",
+      "crop/yellow_bell_pepper_6",
+      "crop/yellow_bell_pepper_dead",
+      "crop/yellow_bell_pepper_dead_young",
+      "crop/yellow_bell_pepper_wild"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/allium",
+    "plant_key": "allium",
+    "best_texture": "plant/allium/allium_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/allium/allium_0",
+      "plant/allium/allium_1",
+      "plant/allium/allium_2",
+      "plant/allium/allium_3",
+      "plant/allium/allium_4",
+      "plant/allium/allium_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/anemone_green",
+    "plant_key": "anemone_green",
+    "best_texture": "plant/anemone_green/anemone_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/anemone_green/anemone_1",
+      "plant/anemone_green/anemone_2",
+      "plant/anemone_green/anemone_3",
+      "plant/anemone_green/anemone_3_closed",
+      "plant/anemone_green/anemone_4",
+      "plant/anemone_green/anemone_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/anemone_large_orange",
+    "plant_key": "anemone_large_orange",
+    "best_texture": "plant/anemone_large_orange/anemone_single",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/anemone_large_orange/anemone_single"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/anemone_large_purple",
+    "plant_key": "anemone_large_purple",
+    "best_texture": "plant/anemone_large_purple/anemone_single",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/anemone_large_purple/anemone_single"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/anemone_purple",
+    "plant_key": "anemone_purple",
+    "best_texture": "plant/anemone_purple/anemone_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/anemone_purple/anemone_1",
+      "plant/anemone_purple/anemone_2",
+      "plant/anemone_purple/anemone_3",
+      "plant/anemone_purple/anemone_3_closed",
+      "plant/anemone_purple/anemone_4",
+      "plant/anemone_purple/anemone_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/anthurium",
+    "plant_key": "anthurium",
+    "best_texture": "plant/anthurium/anthurium_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/anthurium/anthurium_0",
+      "plant/anthurium/anthurium_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/arrowhead",
+    "plant_key": "arrowhead",
+    "best_texture": "plant/arrowhead/arrowhead_stem",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/arrowhead/arrowhead_leaf_0",
+      "plant/arrowhead/arrowhead_stem"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/artists_conk",
+    "plant_key": "artists_conk",
+    "best_texture": "plant/artists_conk/artists_conk_bottom",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/artists_conk/artists_conk_bottom",
+      "plant/artists_conk/artists_conk_top"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/arundo",
+    "plant_key": "arundo",
+    "best_texture": "plant/arundo/body",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/arundo/body",
+      "plant/arundo/tip",
+      "plant/arundo/tip_base"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/athyrium_fern",
+    "plant_key": "athyrium_fern",
+    "best_texture": "plant/athyrium_fern/double",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/athyrium_fern/double",
+      "plant/athyrium_fern/single"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/azalea",
+    "plant_key": "azalea",
+    "best_texture": "azalea/cross_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "azalea/cross_0",
+      "azalea/cross_1",
+      "azalea/cross_2",
+      "azalea/cross_3",
+      "azalea/potted_plant",
+      "azalea/potted_side",
+      "azalea/potted_top",
+      "azalea/side_0",
+      "azalea/side_1",
+      "azalea/side_2",
+      "azalea/top_0",
+      "azalea/top_1",
+      "azalea/top_2",
+      "azalea/upper_cross_0",
+      "azalea/upper_cross_1",
+      "azalea/upper_cross_2",
+      "azalea/upper_cross_3",
+      "plant/azalea/cross_0",
+      "plant/azalea/cross_1",
+      "plant/azalea/cross_2",
+      "plant/azalea/cross_3",
+      "plant/azalea/potted_plant",
+      "plant/azalea/potted_side",
+      "plant/azalea/potted_top",
+      "plant/azalea/side_0",
+      "plant/azalea/side_1",
+      "plant/azalea/side_2",
+      "plant/azalea/top_0",
+      "plant/azalea/top_1",
+      "plant/azalea/top_2",
+      "plant/azalea/upper_cross_0",
+      "plant/azalea/upper_cross_1",
+      "plant/azalea/upper_cross_2",
+      "plant/azalea/upper_cross_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/badderlocks",
+    "plant_key": "badderlocks",
+    "best_texture": "plant/badderlocks/placeholder",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/badderlocks/item",
+      "plant/badderlocks/placeholder"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/barnacles",
+    "plant_key": "barnacles",
+    "best_texture": "plant/barnacles/barnacles_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/barnacles/barnacles_0",
+      "plant/barnacles/barnacles_1",
+      "plant/barnacles/barnacles_2",
+      "plant/barnacles/barnacles_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/barrel_cactus",
+    "plant_key": "barrel_cactus",
+    "best_texture": "plant/barrel_cactus/flower_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/barrel_cactus/flower_0",
+      "plant/barrel_cactus/flower_1",
+      "plant/barrel_cactus/flower_2",
+      "plant/barrel_cactus/flower_3",
+      "plant/barrel_cactus/flower_4",
+      "plant/barrel_cactus/side",
+      "plant/barrel_cactus/spikes_lower",
+      "plant/barrel_cactus/spikes_single",
+      "plant/barrel_cactus/spikes_upper",
+      "plant/barrel_cactus/top"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/beachgrass",
+    "plant_key": "beachgrass",
+    "best_texture": "plant/beachgrass/tall",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/beachgrass/short",
+      "plant/beachgrass/shorter",
+      "plant/beachgrass/shortest",
+      "plant/beachgrass/tall"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/bear_grass",
+    "plant_key": "bear_grass",
+    "best_texture": "plant/bear_grass/bear_grass_lower_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/bear_grass/bear_grass_lower_0",
+      "plant/bear_grass/bear_grass_lower_1",
+      "plant/bear_grass/bear_grass_lower_2",
+      "plant/bear_grass/bear_grass_upper_0",
+      "plant/bear_grass/bear_grass_upper_2",
+      "plant/bear_grass/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/bird_nest_fern",
+    "plant_key": "bird_nest_fern",
+    "best_texture": "plant/bird_nest_fern/bird_nest_fern",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/bird_nest_fern/bird_nest_fern"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/black_orchid",
+    "plant_key": "black_orchid",
+    "best_texture": "plant/black_orchid/black_orchid_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/black_orchid/black_orchid_0",
+      "plant/black_orchid/black_orchid_1",
+      "plant/black_orchid/black_orchid_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/blood_lily",
+    "plant_key": "blood_lily",
+    "best_texture": "plant/blood_lily/blood_lily_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/blood_lily/blood_lily_0",
+      "plant/blood_lily/blood_lily_1",
+      "plant/blood_lily/blood_lily_2",
+      "plant/blood_lily/blood_lily_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/blue_ginger",
+    "plant_key": "blue_ginger",
+    "best_texture": "plant/blue_ginger/blue_ginger_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/blue_ginger/blue_ginger_0",
+      "plant/blue_ginger/blue_ginger_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/blue_orchid",
+    "plant_key": "blue_orchid",
+    "best_texture": "plant/blue_orchid/blue_orchid_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/blue_orchid/blue_orchid_0",
+      "plant/blue_orchid/blue_orchid_1",
+      "plant/blue_orchid/blue_orchid_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/bluegrass",
+    "plant_key": "bluegrass",
+    "best_texture": "plant/bluegrass/bluegrass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/bluegrass/bluegrass",
+      "plant/bluegrass/bluegrass_short",
+      "plant/bluegrass/bluegrass_short_tuft",
+      "plant/bluegrass/bluegrass_shorter",
+      "plant/bluegrass/bluegrass_shorter_tuft",
+      "plant/bluegrass/bluegrass_shortest",
+      "plant/bluegrass/bluegrass_shortest_tuft",
+      "plant/bluegrass/bluegrass_tuft"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/bromegrass",
+    "plant_key": "bromegrass",
+    "best_texture": "plant/bromegrass/bromegrass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/bromegrass/bromegrass",
+      "plant/bromegrass/bromegrass_short",
+      "plant/bromegrass/bromegrass_short_tuft",
+      "plant/bromegrass/bromegrass_shorter",
+      "plant/bromegrass/bromegrass_shorter_tuft",
+      "plant/bromegrass/bromegrass_shortest",
+      "plant/bromegrass/bromegrass_shortest_tuft",
+      "plant/bromegrass/bromegrass_tuft"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/bur_reed",
+    "plant_key": "bur_reed",
+    "best_texture": "plant/bur_reed/bur_reed",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/bur_reed/bur_reed",
+      "plant/bur_reed/bur_reed_overlay_blooming"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/buttercup",
+    "plant_key": "buttercup",
+    "best_texture": "plant/buttercup/leaves",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/buttercup/leaves",
+      "plant/buttercup/petals",
+      "plant/buttercup/potted",
+      "plant/buttercup/stem"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/butterfly_milkweed",
+    "plant_key": "butterfly_milkweed",
+    "best_texture": "plant/butterfly_milkweed/butterfly_milkweed_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/butterfly_milkweed/butterfly_milkweed_0",
+      "plant/butterfly_milkweed/butterfly_milkweed_1",
+      "plant/butterfly_milkweed/butterfly_milkweed_2",
+      "plant/butterfly_milkweed/butterfly_milkweed_3",
+      "plant/butterfly_milkweed/butterfly_milkweed_4",
+      "plant/butterfly_milkweed/butterfly_milkweed_5",
+      "plant/butterfly_milkweed/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/calendula",
+    "plant_key": "calendula",
+    "best_texture": "plant/calendula/calendula_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/calendula/calendula_0",
+      "plant/calendula/calendula_1",
+      "plant/calendula/calendula_2",
+      "plant/calendula/calendula_3",
+      "plant/calendula/calendula_4",
+      "plant/calendula/calendula_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/canna",
+    "plant_key": "canna",
+    "best_texture": "plant/canna/canna_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/canna/canna_0",
+      "plant/canna/canna_2",
+      "plant/canna/canna_3",
+      "plant/canna/canna_base",
+      "plant/canna/canna_stem"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/cattail",
+    "plant_key": "cattail",
+    "best_texture": "plant/cattail/cattail_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/cattail/cattail_0",
+      "plant/cattail/cattail_0b",
+      "plant/cattail/cattail_1",
+      "plant/cattail/cattail_1b",
+      "plant/cattail/cattail_2",
+      "plant/cattail/cattail_3",
+      "plant/cattail/cattail_3b"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/cobblestone_lichen",
+    "plant_key": "cobblestone_lichen",
+    "best_texture": "plant/cobblestone_lichen/lichen3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/cobblestone_lichen/lichen",
+      "plant/cobblestone_lichen/lichen2",
+      "plant/cobblestone_lichen/lichen3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/coontail",
+    "plant_key": "coontail",
+    "best_texture": "plant/coontail/3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/coontail/0",
+      "plant/coontail/1",
+      "plant/coontail/2",
+      "plant/coontail/3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/cordgrass",
+    "plant_key": "cordgrass",
+    "best_texture": "plant/cordgrass/cordgrass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/cordgrass/cordgrass",
+      "plant/cordgrass/cordgrass_overlay_blooming",
+      "plant/cordgrass/item"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/cornflower",
+    "plant_key": "cornflower",
+    "best_texture": "plant/cornflower/cornflower_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/cornflower/cornflower_0",
+      "plant/cornflower/cornflower_1",
+      "plant/cornflower/cornflower_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/cycad",
+    "plant_key": "cycad",
+    "best_texture": "plant/cycad/frond",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/cycad/frond",
+      "plant/cycad/potted",
+      "plant/cycad/potted_stem",
+      "plant/cycad/seed",
+      "plant/cycad/trunk"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/dandelion",
+    "plant_key": "dandelion",
+    "best_texture": "plant/dandelion/dandelion_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/dandelion/dandelion_0",
+      "plant/dandelion/dandelion_1",
+      "plant/dandelion/dandelion_2",
+      "plant/dandelion/dandelion_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/dead_bush",
+    "plant_key": "dead_bush",
+    "best_texture": "plant/dead_bush/dead_bush_large",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/dead_bush/dead_bush0",
+      "plant/dead_bush/dead_bush1",
+      "plant/dead_bush/dead_bush2",
+      "plant/dead_bush/dead_bush3",
+      "plant/dead_bush/dead_bush4",
+      "plant/dead_bush/dead_bush5",
+      "plant/dead_bush/dead_bush6",
+      "plant/dead_bush/dead_bush_large"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/desert_flame",
+    "plant_key": "desert_flame",
+    "best_texture": "plant/desert_flame/desert_flame_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/desert_flame/desert_flame_0",
+      "plant/desert_flame/desert_flame_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/dry_grass",
+    "plant_key": "dry_grass",
+    "best_texture": "plant/dry_grass/tall_dry_grass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/dry_grass/short_dry_grass",
+      "plant/dry_grass/tall_dry_grass"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/dry_phragmite",
+    "plant_key": "dry_phragmite",
+    "best_texture": "plant/dry_phragmite/body",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/dry_phragmite/body",
+      "plant/dry_phragmite/tip"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/duckweed",
+    "plant_key": "duckweed",
+    "best_texture": "plant/duckweed/duckweed",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/duckweed/duckweed"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/edelweiss",
+    "plant_key": "edelweiss",
+    "best_texture": "plant/edelweiss/edelweiss_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/edelweiss/edelweiss_0",
+      "plant/edelweiss/edelweiss_1",
+      "plant/edelweiss/edelweiss_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/eel_grass",
+    "plant_key": "eel_grass",
+    "best_texture": "plant/eel_grass/3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/eel_grass/0",
+      "plant/eel_grass/1",
+      "plant/eel_grass/2",
+      "plant/eel_grass/3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/elegant_sunburst_lichen",
+    "plant_key": "elegant_sunburst_lichen",
+    "best_texture": "plant/elegant_sunburst_lichen/potted",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/elegant_sunburst_lichen/elegant_sunburst_lichen_layer1",
+      "plant/elegant_sunburst_lichen/elegant_sunburst_lichen_layer2",
+      "plant/elegant_sunburst_lichen/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/fan_palm",
+    "plant_key": "fan_palm",
+    "best_texture": "plant/fan_palm/frond_0a",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/fan_palm/base0",
+      "plant/fan_palm/base0a",
+      "plant/fan_palm/frond_0a",
+      "plant/fan_palm/small_frond_0a"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/field_horsetail",
+    "plant_key": "field_horsetail",
+    "best_texture": "plant/field_horsetail/horsetail_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/field_horsetail/horsetail_0",
+      "plant/field_horsetail/horsetail_1",
+      "plant/field_horsetail/horsetail_2",
+      "plant/field_horsetail/horsetail_3",
+      "plant/field_horsetail/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/flame_vine",
+    "plant_key": "flame_vine",
+    "best_texture": "plant/flame_vine/body_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/flame_vine/body_0",
+      "plant/flame_vine/body_1",
+      "plant/flame_vine/tip_0",
+      "plant/flame_vine/tip_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/fountain_grass",
+    "plant_key": "fountain_grass",
+    "best_texture": "plant/fountain_grass/fountain_grass_0",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/fountain_grass/fountain_grass_0",
+      "plant/fountain_grass/fountain_grass_0b"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/foxglove",
+    "plant_key": "foxglove",
+    "best_texture": "plant/foxglove/1_upper",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/foxglove/0_lower",
+      "plant/foxglove/0_upper",
+      "plant/foxglove/1_lower",
+      "plant/foxglove/1_upper",
+      "plant/foxglove/2_lower",
+      "plant/foxglove/2_upper",
+      "plant/foxglove/3_lower",
+      "plant/foxglove/3_upper",
+      "plant/foxglove/4_lower",
+      "plant/foxglove/4_upper",
+      "plant/foxglove/item"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/giant_kelp",
+    "plant_key": "giant_kelp",
+    "best_texture": "plant/giant_kelp/body",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/giant_kelp/body",
+      "plant/giant_kelp/flower",
+      "plant/giant_kelp/petal"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/golden_bamboo",
+    "plant_key": "golden_bamboo",
+    "best_texture": "plant/golden_bamboo/stalk",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/golden_bamboo/stalk"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/goldenrod",
+    "plant_key": "goldenrod",
+    "best_texture": "plant/goldenrod/goldenrod_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/goldenrod/goldenrod_0",
+      "plant/goldenrod/goldenrod_1",
+      "plant/goldenrod/goldenrod_2",
+      "plant/goldenrod/goldenrod_3",
+      "plant/goldenrod/goldenrod_4"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/grape_hyacinth",
+    "plant_key": "grape_hyacinth",
+    "best_texture": "plant/grape_hyacinth/grape_hyacinth_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/grape_hyacinth/grape_hyacinth_0",
+      "plant/grape_hyacinth/grape_hyacinth_1",
+      "plant/grape_hyacinth/grape_hyacinth_2",
+      "plant/grape_hyacinth/grape_hyacinth_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/green_algae",
+    "plant_key": "green_algae",
+    "best_texture": "plant/green_algae/green_algae",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/green_algae/green_algae"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/gutweed",
+    "plant_key": "gutweed",
+    "best_texture": "plant/gutweed/gutweed",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/gutweed/gutweed"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/guzmania",
+    "plant_key": "guzmania",
+    "best_texture": "plant/guzmania/guzmania_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/guzmania/guzmania_0",
+      "plant/guzmania/guzmania_1",
+      "plant/guzmania/guzmania_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/hanging_vines",
+    "plant_key": "hanging_vines",
+    "best_texture": "plant/hanging_vines/body",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/hanging_vines/body",
+      "plant/hanging_vines/tip"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/heather",
+    "plant_key": "heather",
+    "best_texture": "plant/heather/heather_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/heather/heather_0",
+      "plant/heather/heather_1",
+      "plant/heather/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/heliconia",
+    "plant_key": "heliconia",
+    "best_texture": "plant/heliconia/heliconia_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/heliconia/heliconia_0",
+      "plant/heliconia/heliconia_1",
+      "plant/heliconia/heliconia_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/hibiscus",
+    "plant_key": "hibiscus",
+    "best_texture": "plant/hibiscus/top_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/hibiscus/cross",
+      "plant/hibiscus/potted",
+      "plant/hibiscus/side_0",
+      "plant/hibiscus/side_1",
+      "plant/hibiscus/side_2",
+      "plant/hibiscus/top_0",
+      "plant/hibiscus/top_1",
+      "plant/hibiscus/top_2",
+      "plant/hibiscus/upper_cross"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/houstonia",
+    "plant_key": "houstonia",
+    "best_texture": "plant/houstonia/houstonia_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/houstonia/houstonia_0",
+      "plant/houstonia/houstonia_1",
+      "plant/houstonia/houstonia_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/ivy",
+    "plant_key": "ivy",
+    "best_texture": "plant/ivy/ivy",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/ivy/ivy"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/jungle_vines",
+    "plant_key": "jungle_vines",
+    "best_texture": "plant/jungle_vines/vine",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/jungle_vines/vine"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/kangaroo_paw",
+    "plant_key": "kangaroo_paw",
+    "best_texture": "plant/kangaroo_paw/kangaroo_paw_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/kangaroo_paw/item",
+      "plant/kangaroo_paw/kangaroo_paw_0",
+      "plant/kangaroo_paw/kangaroo_paw_0b",
+      "plant/kangaroo_paw/kangaroo_paw_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/king_fern",
+    "plant_key": "king_fern",
+    "best_texture": "plant/king_fern/frond_large_0a",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/king_fern/base0",
+      "plant/king_fern/base0a",
+      "plant/king_fern/frond_0a",
+      "plant/king_fern/frond_large_0a",
+      "plant/king_fern/small_frond_0a"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/kinnikinnick",
+    "plant_key": "kinnikinnick",
+    "best_texture": "plant/kinnikinnick/kinnikinnick_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/kinnikinnick/kinnikinnick_0",
+      "plant/kinnikinnick/kinnikinnick_1",
+      "plant/kinnikinnick/kinnikinnick_2",
+      "plant/kinnikinnick/kinnikinnick_3",
+      "plant/kinnikinnick/kinnikinnick_4",
+      "plant/kinnikinnick/potted_plant",
+      "plant/kinnikinnick/potted_side",
+      "plant/kinnikinnick/potted_top"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/labrador_tea",
+    "plant_key": "labrador_tea",
+    "best_texture": "plant/labrador_tea/labrador_tea_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/labrador_tea/labrador_tea_0",
+      "plant/labrador_tea/labrador_tea_1",
+      "plant/labrador_tea/labrador_tea_2",
+      "plant/labrador_tea/labrador_tea_3",
+      "plant/labrador_tea/labrador_tea_4",
+      "plant/labrador_tea/labrador_tea_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/lady_fern",
+    "plant_key": "lady_fern",
+    "best_texture": "plant/lady_fern/fern_single",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/lady_fern/fern_single",
+      "plant/lady_fern/item"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/laminaria",
+    "plant_key": "laminaria",
+    "best_texture": "plant/laminaria/large",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/laminaria/large",
+      "plant/laminaria/small",
+      "plant/laminaria/thin"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/liana",
+    "plant_key": "liana",
+    "best_texture": "plant/liana/body",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/liana/body",
+      "plant/liana/tip"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/licorice_fern",
+    "plant_key": "licorice_fern",
+    "best_texture": "plant/licorice_fern/licorice_fern_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/licorice_fern/licorice_fern_1",
+      "plant/licorice_fern/licorice_fern_2",
+      "plant/licorice_fern/licorice_fern_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/lilac",
+    "plant_key": "lilac",
+    "best_texture": "plant/lilac/lilac_lower_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/lilac/lilac_lower_0",
+      "plant/lilac/lilac_lower_1",
+      "plant/lilac/lilac_upper_0",
+      "plant/lilac/lilac_upper_1",
+      "plant/lilac/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/lily_of_the_valley",
+    "plant_key": "lily_of_the_valley",
+    "best_texture": "plant/lily_of_the_valley/lily_of_the_valley_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/lily_of_the_valley/lily_of_the_valley_0",
+      "plant/lily_of_the_valley/lily_of_the_valley_1",
+      "plant/lily_of_the_valley/lily_of_the_valley_2",
+      "plant/lily_of_the_valley/lily_of_the_valley_3",
+      "plant/lily_of_the_valley/lily_of_the_valley_4",
+      "plant/lily_of_the_valley/lily_of_the_valley_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/lotus",
+    "plant_key": "lotus",
+    "best_texture": "plant/lotus/lotus_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/lotus/lotus",
+      "plant/lotus/lotus_0",
+      "plant/lotus/lotus_1",
+      "plant/lotus/lotus_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/maiden_pink",
+    "plant_key": "maiden_pink",
+    "best_texture": "plant/maiden_pink/petals",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/maiden_pink/leaves",
+      "plant/maiden_pink/petals",
+      "plant/maiden_pink/potted",
+      "plant/maiden_pink/stem"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/manatee_grass",
+    "plant_key": "manatee_grass",
+    "best_texture": "plant/manatee_grass/2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/manatee_grass/0",
+      "plant/manatee_grass/1",
+      "plant/manatee_grass/2",
+      "plant/manatee_grass/3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/marigold",
+    "plant_key": "marigold",
+    "best_texture": "plant/marigold/marigold_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/marigold/marigold_0",
+      "plant/marigold/marigold_0b",
+      "plant/marigold/marigold_1",
+      "plant/marigold/marigold_1b",
+      "plant/marigold/marigold_2",
+      "plant/marigold/marigold_3",
+      "plant/marigold/marigold_3b"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/meads_milkweed",
+    "plant_key": "meads_milkweed",
+    "best_texture": "plant/meads_milkweed/meads_milkweed_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/meads_milkweed/meads_milkweed_0",
+      "plant/meads_milkweed/meads_milkweed_1",
+      "plant/meads_milkweed/meads_milkweed_2",
+      "plant/meads_milkweed/meads_milkweed_3",
+      "plant/meads_milkweed/meads_milkweed_4",
+      "plant/meads_milkweed/meads_milkweed_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/milfoil",
+    "plant_key": "milfoil",
+    "best_texture": "plant/milfoil/milfoil",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/milfoil/milfoil"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/morning_glory",
+    "plant_key": "morning_glory",
+    "best_texture": "plant/morning_glory/morning_glory_bottom_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/morning_glory/morning_glory_bottom_2",
+      "plant/morning_glory/morning_glory_flowerpot_foliage",
+      "plant/morning_glory/morning_glory_layer0",
+      "plant/morning_glory/morning_glory_layer1",
+      "plant/morning_glory/morning_glory_middle_1a",
+      "plant/morning_glory/morning_glory_middle_1b",
+      "plant/morning_glory/morning_glory_middle_1c",
+      "plant/morning_glory/morning_glory_middle_1d",
+      "plant/morning_glory/morning_glory_middle_2",
+      "plant/morning_glory/morning_glory_top_1",
+      "plant/morning_glory/morning_glory_top_1a",
+      "plant/morning_glory/morning_glory_top_1b",
+      "plant/morning_glory/morning_glory_top_1c",
+      "plant/morning_glory/morning_glory_top_1d",
+      "plant/morning_glory/morning_glory_top_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/moss",
+    "plant_key": "moss",
+    "best_texture": "plant/moss/moss_layer0",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/moss/moss_hanging",
+      "plant/moss/moss_layer0",
+      "plant/moss/moss_layer1",
+      "plant/moss/moss_layer2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/moss_campion",
+    "plant_key": "moss_campion",
+    "best_texture": "plant/moss_campion/moss_campion_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/moss_campion/moss_campion_0",
+      "plant/moss_campion/moss_campion_1",
+      "plant/moss_campion/moss_campion_2",
+      "plant/moss_campion/moss_campion_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/mountain_hullwort",
+    "plant_key": "mountain_hullwort",
+    "best_texture": "plant/mountain_hullwort/upper_cross_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/mountain_hullwort/cross_0",
+      "plant/mountain_hullwort/potted",
+      "plant/mountain_hullwort/potted_bush",
+      "plant/mountain_hullwort/side_0",
+      "plant/mountain_hullwort/top_0",
+      "plant/mountain_hullwort/upper_cross_0",
+      "plant/mountain_hullwort/upper_cross_1",
+      "plant/mountain_hullwort/upper_cross_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/mussels",
+    "plant_key": "mussels",
+    "best_texture": "plant/mussels/mussels_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/mussels/mussels_0",
+      "plant/mussels/mussels_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/nasturtium",
+    "plant_key": "nasturtium",
+    "best_texture": "plant/nasturtium/nasturtium_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/nasturtium/nasturtium_0",
+      "plant/nasturtium/nasturtium_1",
+      "plant/nasturtium/nasturtium_2",
+      "plant/nasturtium/nasturtium_3",
+      "plant/nasturtium/nasturtium_4"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/orchard_grass",
+    "plant_key": "orchard_grass",
+    "best_texture": "plant/orchard_grass/placeholder",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/orchard_grass/placeholder"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/ostrich_fern",
+    "plant_key": "ostrich_fern",
+    "best_texture": "plant/ostrich_fern/ostrich_fern_fronds",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/ostrich_fern/ostrich_fern_cross_furled",
+      "plant/ostrich_fern/ostrich_fern_cross_short_furled",
+      "plant/ostrich_fern/ostrich_fern_cross_shortest_furled",
+      "plant/ostrich_fern/ostrich_fern_fronds",
+      "plant/ostrich_fern/ostrich_fern_fronds_furled",
+      "plant/ostrich_fern/ostrich_fern_fronds_short_furled",
+      "plant/ostrich_fern/ostrich_fern_fronds_shortest_furled",
+      "plant/ostrich_fern/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/oxeye_daisy",
+    "plant_key": "oxeye_daisy",
+    "best_texture": "plant/oxeye_daisy/oxeye_daisy_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/oxeye_daisy/oxeye_daisy_0",
+      "plant/oxeye_daisy/oxeye_daisy_1",
+      "plant/oxeye_daisy/oxeye_daisy_2",
+      "plant/oxeye_daisy/oxeye_daisy_3",
+      "plant/oxeye_daisy/oxeye_daisy_4",
+      "plant/oxeye_daisy/oxeye_daisy_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/palash",
+    "plant_key": "palash",
+    "best_texture": "plant/palash/cross_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/palash/cross_0",
+      "plant/palash/cross_1",
+      "plant/palash/cross_3",
+      "plant/palash/potted_cross",
+      "plant/palash/potted_leaves",
+      "plant/palash/side_0",
+      "plant/palash/side_1",
+      "plant/palash/top_0",
+      "plant/palash/top_1",
+      "plant/palash/upper_cross_0",
+      "plant/palash/upper_cross_1",
+      "plant/palash/upper_cross_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/pampas_grass",
+    "plant_key": "pampas_grass",
+    "best_texture": "plant/pampas_grass/pampas_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/pampas_grass/pampas_0",
+      "plant/pampas_grass/pampas_1",
+      "plant/pampas_grass/pampas_1b"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/penwortel",
+    "plant_key": "penwortel",
+    "best_texture": "plant/penwortel/top_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/penwortel/cross_0",
+      "plant/penwortel/cross_1",
+      "plant/penwortel/potted",
+      "plant/penwortel/side_0",
+      "plant/penwortel/side_1",
+      "plant/penwortel/top_0",
+      "plant/penwortel/top_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/perovskia",
+    "plant_key": "perovskia",
+    "best_texture": "plant/perovskia/perovskia_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/perovskia/perovskia_0",
+      "plant/perovskia/perovskia_1",
+      "plant/perovskia/perovskia_2",
+      "plant/perovskia/perovskia_3",
+      "plant/perovskia/perovskia_4",
+      "plant/perovskia/perovskia_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/philodendron",
+    "plant_key": "philodendron",
+    "best_texture": "plant/philodendron/10x10",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/philodendron/10x10",
+      "plant/philodendron/8x8",
+      "plant/philodendron/vine"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/phragmite",
+    "plant_key": "phragmite",
+    "best_texture": "plant/phragmite/phragmite_overlay_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/phragmite/phragmite",
+      "plant/phragmite/phragmite_overlay_0",
+      "plant/phragmite/phragmite_overlay_1",
+      "plant/phragmite/phragmite_overlay_3",
+      "plant/phragmite/phragmite_overlay_4"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/pickerelweed",
+    "plant_key": "pickerelweed",
+    "best_texture": "plant/pickerelweed/pickerelweed_stem_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/pickerelweed/pickerelweed_bud",
+      "plant/pickerelweed/pickerelweed_flower",
+      "plant/pickerelweed/pickerelweed_leaf",
+      "plant/pickerelweed/pickerelweed_stem_0",
+      "plant/pickerelweed/pickerelweed_stem_1",
+      "plant/pickerelweed/pickerelweed_stem_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/pistia",
+    "plant_key": "pistia",
+    "best_texture": "plant/pistia/pistia_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/pistia/pistia_0",
+      "plant/pistia/pistia_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/poppy",
+    "plant_key": "poppy",
+    "best_texture": "plant/poppy/poppy_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/poppy/poppy_0",
+      "plant/poppy/poppy_1",
+      "plant/poppy/poppy_2",
+      "plant/poppy/poppy_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/prickly_pear",
+    "plant_key": "prickly_pear",
+    "best_texture": "plant/prickly_pear/flower_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/prickly_pear/base",
+      "plant/prickly_pear/flower_0",
+      "plant/prickly_pear/flower_1",
+      "plant/prickly_pear/flower_2",
+      "plant/prickly_pear/flower_3",
+      "plant/prickly_pear/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/prickly_pear_purple",
+    "plant_key": "prickly_pear_purple",
+    "best_texture": "plant/prickly_pear_purple/flower_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/prickly_pear_purple/base",
+      "plant/prickly_pear_purple/flower_0",
+      "plant/prickly_pear_purple/flower_1",
+      "plant/prickly_pear_purple/flower_2",
+      "plant/prickly_pear_purple/flower_3",
+      "plant/prickly_pear_purple/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/primrose",
+    "plant_key": "primrose",
+    "best_texture": "plant/primrose/primrose_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/primrose/primrose",
+      "plant/primrose/primrose_0",
+      "plant/primrose/primrose_1",
+      "plant/primrose/primrose_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/pulsatilla",
+    "plant_key": "pulsatilla",
+    "best_texture": "plant/pulsatilla/pulsatilla_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/pulsatilla/pulsatilla_0",
+      "plant/pulsatilla/pulsatilla_1",
+      "plant/pulsatilla/pulsatilla_2",
+      "plant/pulsatilla/pulsatilla_3",
+      "plant/pulsatilla/pulsatilla_4",
+      "plant/pulsatilla/pulsatilla_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/qantu",
+    "plant_key": "qantu",
+    "best_texture": "plant/qantu/top_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/qantu/cross_0",
+      "plant/qantu/cross_1",
+      "plant/qantu/potted",
+      "plant/qantu/side_0",
+      "plant/qantu/side_1",
+      "plant/qantu/top_0",
+      "plant/qantu/top_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/raddia_grass",
+    "plant_key": "raddia_grass",
+    "best_texture": "plant/raddia_grass/raddia_grass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/raddia_grass/raddia_grass",
+      "plant/raddia_grass/raddia_grass_short",
+      "plant/raddia_grass/raddia_grass_shorter",
+      "plant/raddia_grass/raddia_grass_shortest"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/ramirezella",
+    "plant_key": "ramirezella",
+    "best_texture": "plant/ramirezella/base",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/ramirezella/base",
+      "plant/ramirezella/bloom"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/ramunda",
+    "plant_key": "ramunda",
+    "best_texture": "plant/ramunda/ramunda_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/ramunda/ramunda_0",
+      "plant/ramunda/ramunda_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/rattan",
+    "plant_key": "rattan",
+    "best_texture": "plant/rattan/rattan",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/rattan/rattan"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/red_algae",
+    "plant_key": "red_algae",
+    "best_texture": "plant/red_algae/red_algae",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/red_algae/red_algae"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/red_oat_grass",
+    "plant_key": "red_oat_grass",
+    "best_texture": "plant/red_oat_grass/red_oat_grass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/red_oat_grass/red_oat_grass",
+      "plant/red_oat_grass/red_oat_grass_short",
+      "plant/red_oat_grass/red_oat_grass_short_tuft",
+      "plant/red_oat_grass/red_oat_grass_shorter",
+      "plant/red_oat_grass/red_oat_grass_shorter_tuft",
+      "plant/red_oat_grass/red_oat_grass_shortest",
+      "plant/red_oat_grass/red_oat_grass_shortest_tuft",
+      "plant/red_oat_grass/red_oat_grass_tuft"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/red_sealing_wax_palm",
+    "plant_key": "red_sealing_wax_palm",
+    "best_texture": "plant/red_sealing_wax_palm/frond_0a",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/red_sealing_wax_palm/base0",
+      "plant/red_sealing_wax_palm/base0a",
+      "plant/red_sealing_wax_palm/frond_0a",
+      "plant/red_sealing_wax_palm/small_frond_0a"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/reindeer_lichen",
+    "plant_key": "reindeer_lichen",
+    "best_texture": "plant/reindeer_lichen/reindeer_lichen_hanging",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/reindeer_lichen/reindeer_lichen_hanging",
+      "plant/reindeer_lichen/reindeer_lichen_layer1",
+      "plant/reindeer_lichen/reindeer_lichen_layer2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/rose",
+    "plant_key": "rose",
+    "best_texture": "plant/rose/rose_lower_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/rose/classic",
+      "plant/rose/rose_lower_0",
+      "plant/rose/rose_lower_1",
+      "plant/rose/rose_upper_0",
+      "plant/rose/rose_upper_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/ryegrass",
+    "plant_key": "ryegrass",
+    "best_texture": "plant/ryegrass/ryegrass_lower_0b",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/ryegrass/ryegrass_0",
+      "plant/ryegrass/ryegrass_lower_0b",
+      "plant/ryegrass/ryegrass_short_0",
+      "plant/ryegrass/ryegrass_short_0b",
+      "plant/ryegrass/ryegrass_shorter_0",
+      "plant/ryegrass/ryegrass_shorter_0b",
+      "plant/ryegrass/ryegrass_shortest_0",
+      "plant/ryegrass/ryegrass_shortest_0b",
+      "plant/ryegrass/ryegrass_upper_0b"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sacred_datura",
+    "plant_key": "sacred_datura",
+    "best_texture": "plant/sacred_datura/sacred_datura_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sacred_datura/sacred_datura_0",
+      "plant/sacred_datura/sacred_datura_1",
+      "plant/sacred_datura/sacred_datura_2",
+      "plant/sacred_datura/sacred_datura_3",
+      "plant/sacred_datura/sacred_datura_4",
+      "plant/sacred_datura/sacred_datura_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sagebrush",
+    "plant_key": "sagebrush",
+    "best_texture": "plant/sagebrush/sagebrush_7",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sagebrush/sagebrush_0",
+      "plant/sagebrush/sagebrush_0b",
+      "plant/sagebrush/sagebrush_1",
+      "plant/sagebrush/sagebrush_1b",
+      "plant/sagebrush/sagebrush_2",
+      "plant/sagebrush/sagebrush_2b",
+      "plant/sagebrush/sagebrush_3",
+      "plant/sagebrush/sagebrush_3b",
+      "plant/sagebrush/sagebrush_4",
+      "plant/sagebrush/sagebrush_4b",
+      "plant/sagebrush/sagebrush_5",
+      "plant/sagebrush/sagebrush_5b",
+      "plant/sagebrush/sagebrush_6",
+      "plant/sagebrush/sagebrush_6b",
+      "plant/sagebrush/sagebrush_7",
+      "plant/sagebrush/sagebrush_7b"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sago",
+    "plant_key": "sago",
+    "best_texture": "plant/sago/sago",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sago/sago"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/saguaro",
+    "plant_key": "saguaro",
+    "best_texture": "plant/saguaro/bark",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/saguaro/bark",
+      "plant/saguaro/bark_top"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/saguaro_fruit",
+    "plant_key": "saguaro_fruit",
+    "best_texture": "plant/saguaro_fruit/saguaro_fruit_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/saguaro_fruit/saguaro_fruit_0",
+      "plant/saguaro_fruit/saguaro_fruit_1"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sapphire_tower",
+    "plant_key": "sapphire_tower",
+    "best_texture": "plant/sapphire_tower/sapphire_tower_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sapphire_tower/potted",
+      "plant/sapphire_tower/sapphire_tower_0",
+      "plant/sapphire_tower/sapphire_tower_1",
+      "plant/sapphire_tower/sapphire_tower_2",
+      "plant/sapphire_tower/sapphire_tower_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sargassum",
+    "plant_key": "sargassum",
+    "best_texture": "plant/sargassum/sargassum",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sargassum/sargassum"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/scutch_grass",
+    "plant_key": "scutch_grass",
+    "best_texture": "plant/scutch_grass/placeholder",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/scutch_grass/placeholder",
+      "plant/scutch_grass/short",
+      "plant/scutch_grass/shorter",
+      "plant/scutch_grass/shortest",
+      "plant/scutch_grass/tall"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sea_lavender",
+    "plant_key": "sea_lavender",
+    "best_texture": "plant/sea_lavender/sea_lavender",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sea_lavender/item",
+      "plant/sea_lavender/sea_lavender",
+      "plant/sea_lavender/sea_lavender_overlay_blooming"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sea_palm",
+    "plant_key": "sea_palm",
+    "best_texture": "plant/sea_palm/sea_palm_top",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sea_palm/sea_palm",
+      "plant/sea_palm/sea_palm_top"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/shawiash",
+    "plant_key": "shawiash",
+    "best_texture": "plant/shawiash/top_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/shawiash/cross_0",
+      "plant/shawiash/cross_1",
+      "plant/shawiash/cross_2",
+      "plant/shawiash/cross_3",
+      "plant/shawiash/cross_4",
+      "plant/shawiash/potted_plant",
+      "plant/shawiash/potted_side",
+      "plant/shawiash/potted_top",
+      "plant/shawiash/side_0",
+      "plant/shawiash/side_1",
+      "plant/shawiash/side_2",
+      "plant/shawiash/side_4",
+      "plant/shawiash/top_0",
+      "plant/shawiash/top_1",
+      "plant/shawiash/top_2",
+      "plant/shawiash/top_4"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/silken_pincushion_cactus",
+    "plant_key": "silken_pincushion_cactus",
+    "best_texture": "plant/silken_pincushion_cactus/cactus_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/silken_pincushion_cactus/cactus_0",
+      "plant/silken_pincushion_cactus/cactus_1",
+      "plant/silken_pincushion_cactus/potted"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/silver_bromeliad",
+    "plant_key": "silver_bromeliad",
+    "best_texture": "plant/silver_bromeliad/silver_bromeliad",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/silver_bromeliad/silver_bromeliad"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/silver_spurflower",
+    "plant_key": "silver_spurflower",
+    "best_texture": "plant/silver_spurflower/silver_spurflower_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/silver_spurflower/silver_spurflower_0",
+      "plant/silver_spurflower/silver_spurflower_1",
+      "plant/silver_spurflower/silver_spurflower_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/snapdragon",
+    "plant_key": "snapdragon",
+    "best_texture": "plant/snapdragon/snapdragon_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/snapdragon/snapdragon_1",
+      "plant/snapdragon/snapdragon_2",
+      "plant/snapdragon/snapdragon_3",
+      "plant/snapdragon/snapdragon_4",
+      "plant/snapdragon/snapdragon_5",
+      "plant/snapdragon/snapdragon_pink_0",
+      "plant/snapdragon/snapdragon_red_0",
+      "plant/snapdragon/snapdragon_white_0",
+      "plant/snapdragon/snapdragon_yellow_0"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/spanish_moss",
+    "plant_key": "spanish_moss",
+    "best_texture": "plant/spanish_moss/body",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/spanish_moss/body",
+      "plant/spanish_moss/tip"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/star_grass",
+    "plant_key": "star_grass",
+    "best_texture": "plant/star_grass/2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/star_grass/0",
+      "plant/star_grass/1",
+      "plant/star_grass/2",
+      "plant/star_grass/3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/starfish",
+    "plant_key": "starfish",
+    "best_texture": "plant/starfish/starfish",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/starfish/starfish"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/strelitzia",
+    "plant_key": "strelitzia",
+    "best_texture": "plant/strelitzia/strelitzia_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/strelitzia/strelitzia_0",
+      "plant/strelitzia/strelitzia_1",
+      "plant/strelitzia/strelitzia_2",
+      "plant/strelitzia/strelitzia_3",
+      "plant/strelitzia/strelitzia_4",
+      "plant/strelitzia/strelitzia_5"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sunflower",
+    "plant_key": "sunflower",
+    "best_texture": "plant/sunflower/sunflower_top_4",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sunflower/potted_flower",
+      "plant/sunflower/potted_stem",
+      "plant/sunflower/sunflower_back_0",
+      "plant/sunflower/sunflower_back_1",
+      "plant/sunflower/sunflower_bottom_0",
+      "plant/sunflower/sunflower_bottom_1",
+      "plant/sunflower/sunflower_bottom_2",
+      "plant/sunflower/sunflower_bottom_3",
+      "plant/sunflower/sunflower_front_0",
+      "plant/sunflower/sunflower_front_1",
+      "plant/sunflower/sunflower_top_0",
+      "plant/sunflower/sunflower_top_1",
+      "plant/sunflower/sunflower_top_4"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/switchgrass",
+    "plant_key": "switchgrass",
+    "best_texture": "plant/switchgrass/switchgrass",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/switchgrass/switchgrass",
+      "plant/switchgrass/switchgrass_short",
+      "plant/switchgrass/switchgrass_short_tuft",
+      "plant/switchgrass/switchgrass_shorter",
+      "plant/switchgrass/switchgrass_shorter_tuft",
+      "plant/switchgrass/switchgrass_shortest",
+      "plant/switchgrass/switchgrass_shortest_tuft",
+      "plant/switchgrass/switchgrass_tuft"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/sword_fern",
+    "plant_key": "sword_fern",
+    "best_texture": "plant/sword_fern/sword_fern",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/sword_fern/potted",
+      "plant/sword_fern/sword_fern"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/tall_fescue_grass",
+    "plant_key": "tall_fescue_grass",
+    "best_texture": "plant/tall_fescue_grass/tall",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/tall_fescue_grass/short",
+      "plant/tall_fescue_grass/shorter",
+      "plant/tall_fescue_grass/shortest",
+      "plant/tall_fescue_grass/tall"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/tank_bromeliad",
+    "plant_key": "tank_bromeliad",
+    "best_texture": "plant/tank_bromeliad/flower_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/tank_bromeliad/flower_0",
+      "plant/tank_bromeliad/flower_1",
+      "plant/tank_bromeliad/leaves"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/timothy_grass",
+    "plant_key": "timothy_grass",
+    "best_texture": "plant/timothy_grass/tall",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/timothy_grass/short",
+      "plant/timothy_grass/shorter",
+      "plant/timothy_grass/shortest",
+      "plant/timothy_grass/tall"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/toquilla_palm",
+    "plant_key": "toquilla_palm",
+    "best_texture": "plant/toquilla_palm/toquilla_palm_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/toquilla_palm/potted",
+      "plant/toquilla_palm/toquilla_palm_1",
+      "plant/toquilla_palm/toquilla_palm_2",
+      "plant/toquilla_palm/toquilla_palm_2_overlay"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/tree_fern",
+    "plant_key": "tree_fern",
+    "best_texture": "plant/tree_fern/tree_fern_0",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/tree_fern/tree_fern_0",
+      "plant/tree_fern/tree_fern_trunk"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/trillium",
+    "plant_key": "trillium",
+    "best_texture": "plant/trillium/trillium_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/trillium/trillium",
+      "plant/trillium/trillium_0",
+      "plant/trillium/trillium_1",
+      "plant/trillium/trillium_2",
+      "plant/trillium/trillium_4",
+      "plant/trillium/trillium_5",
+      "plant/trillium/trillium_bud",
+      "plant/trillium/trillium_bud_back",
+      "plant/trillium/trillium_flower",
+      "plant/trillium/trillium_flower_back"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/tropical_milkweed",
+    "plant_key": "tropical_milkweed",
+    "best_texture": "plant/tropical_milkweed/tropical_milkweed_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/tropical_milkweed/tropical_milkweed_0",
+      "plant/tropical_milkweed/tropical_milkweed_1",
+      "plant/tropical_milkweed/tropical_milkweed_2",
+      "plant/tropical_milkweed/tropical_milkweed_3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/tulip",
+    "plant_key": "tulip",
+    "best_texture": "plant/tulip/tulip_5",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/tulip/tulip_1",
+      "plant/tulip/tulip_2",
+      "plant/tulip/tulip_3",
+      "plant/tulip/tulip_4",
+      "plant/tulip/tulip_5",
+      "plant/tulip/tulip_orange_0",
+      "plant/tulip/tulip_pink_0",
+      "plant/tulip/tulip_red_0",
+      "plant/tulip/tulip_white_0"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/turtle_grass",
+    "plant_key": "turtle_grass",
+    "best_texture": "plant/turtle_grass/2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/turtle_grass/0",
+      "plant/turtle_grass/1",
+      "plant/turtle_grass/2",
+      "plant/turtle_grass/3"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/vriesea",
+    "plant_key": "vriesea",
+    "best_texture": "plant/vriesea/vriesea_1",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/vriesea/vriesea_1",
+      "plant/vriesea/vriesea_base",
+      "plant/vriesea/vriesea_bloom"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/water_lily",
+    "plant_key": "water_lily",
+    "best_texture": "plant/water_lily/water_lily_2",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/water_lily/water_lily",
+      "plant/water_lily/water_lily_0_purple",
+      "plant/water_lily/water_lily_0_white",
+      "plant/water_lily/water_lily_0_yellow",
+      "plant/water_lily/water_lily_1",
+      "plant/water_lily/water_lily_2"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/water_taro",
+    "plant_key": "water_taro",
+    "best_texture": "plant/water_taro/water_taro_stem",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/water_taro/water_taro_leaf_0",
+      "plant/water_taro/water_taro_stem"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/winged_kelp",
+    "plant_key": "winged_kelp",
+    "best_texture": "plant/winged_kelp/body",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/winged_kelp/body",
+      "plant/winged_kelp/top"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/yellow_saxifrage",
+    "plant_key": "yellow_saxifrage",
+    "best_texture": "plant/yellow_saxifrage/leaves",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/yellow_saxifrage/leaves",
+      "plant/yellow_saxifrage/petals",
+      "plant/yellow_saxifrage/potted",
+      "plant/yellow_saxifrage/stem"
+    ]
+  },
+  {
+    "block_id": "tfc:plant/yucca",
+    "plant_key": "yucca",
+    "best_texture": "plant/yucca/yucca_3",
+    "flag": 1001,
+    "is_leaves": false,
+    "variants": [
+      "plant/yucca/potted",
+      "plant/yucca/yucca_0",
+      "plant/yucca/yucca_1",
+      "plant/yucca/yucca_2",
+      "plant/yucca/yucca_3"
+    ]
+  }
+]

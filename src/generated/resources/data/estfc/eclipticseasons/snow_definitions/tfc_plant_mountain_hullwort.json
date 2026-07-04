@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/mountain_hullwort"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_mountain_hullwort"
+    "blocks": "tfc:plant/mountain_hullwort",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_mountain_hullwort"
 }

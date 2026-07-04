@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/bluegrass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_bluegrass"
+    "blocks": "tfc:plant/bluegrass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_bluegrass"
 }

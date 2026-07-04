@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/badderlocks"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_badderlocks"
+    "blocks": "tfc:plant/badderlocks",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_badderlocks"
 }

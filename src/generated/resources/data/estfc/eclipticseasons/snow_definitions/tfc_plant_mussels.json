@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/mussels"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_mussels"
+    "blocks": "tfc:plant/mussels",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_mussels"
 }

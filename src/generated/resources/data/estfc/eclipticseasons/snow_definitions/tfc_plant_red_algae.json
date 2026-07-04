@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/red_algae"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_red_algae"
+    "blocks": "tfc:plant/red_algae",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_red_algae"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/field_horsetail"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_field_horsetail"
+    "blocks": "tfc:plant/field_horsetail",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_field_horsetail"
 }

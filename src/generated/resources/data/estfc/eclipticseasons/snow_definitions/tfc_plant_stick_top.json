@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/stick_top"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_stick_top"
+    "blocks": "tfc:crop/stick_top",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_stick_top"
 }

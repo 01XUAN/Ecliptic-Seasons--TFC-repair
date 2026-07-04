@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/fan_palm"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_fan_palm"
+    "blocks": "tfc:plant/fan_palm",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_fan_palm"
 }

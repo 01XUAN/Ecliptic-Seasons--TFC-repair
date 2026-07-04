@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/canola"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_canola"
+    "blocks": "tfc:crop/canola",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_canola"
 }

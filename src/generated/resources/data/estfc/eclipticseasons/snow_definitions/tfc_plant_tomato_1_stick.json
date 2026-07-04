@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/tomato_1_stick"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_tomato_1_stick"
+    "blocks": "tfc:crop/tomato_1_stick",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_tomato_1_stick"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/oxeye_daisy"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_oxeye_daisy"
+    "blocks": "tfc:plant/oxeye_daisy",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_oxeye_daisy"
 }

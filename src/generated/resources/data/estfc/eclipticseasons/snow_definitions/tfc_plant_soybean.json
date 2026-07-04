@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/soybean"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_soybean"
+    "blocks": "tfc:crop/soybean",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_soybean"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/water_taro"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_water_taro"
+    "blocks": "tfc:plant/water_taro",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_water_taro"
 }

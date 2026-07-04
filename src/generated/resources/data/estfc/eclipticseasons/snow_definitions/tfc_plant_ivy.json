@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/ivy"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_ivy"
+    "blocks": "tfc:plant/ivy",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_ivy"
 }

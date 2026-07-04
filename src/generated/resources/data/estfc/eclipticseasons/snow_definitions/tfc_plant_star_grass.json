@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/star_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_star_grass"
+    "blocks": "tfc:plant/star_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_star_grass"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/sapphire_tower"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_sapphire_tower"
+    "blocks": "tfc:plant/sapphire_tower",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_sapphire_tower"
 }

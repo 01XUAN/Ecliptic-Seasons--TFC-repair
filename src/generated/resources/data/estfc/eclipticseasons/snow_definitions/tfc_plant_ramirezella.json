@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/ramirezella"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_ramirezella"
+    "blocks": "tfc:plant/ramirezella",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_ramirezella"
 }

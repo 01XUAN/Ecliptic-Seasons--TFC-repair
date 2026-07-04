@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/ryegrass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_ryegrass"
+    "blocks": "tfc:plant/ryegrass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_ryegrass"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/licorice_fern"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_licorice_fern"
+    "blocks": "tfc:plant/licorice_fern",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_licorice_fern"
 }

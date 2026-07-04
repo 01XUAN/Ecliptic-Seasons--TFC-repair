@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/nasturtium"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_nasturtium"
+    "blocks": "tfc:plant/nasturtium",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_nasturtium"
 }

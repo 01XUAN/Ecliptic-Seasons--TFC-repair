@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/green_bean"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_green_bean"
+    "blocks": "tfc:crop/green_bean",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_green_bean"
 }

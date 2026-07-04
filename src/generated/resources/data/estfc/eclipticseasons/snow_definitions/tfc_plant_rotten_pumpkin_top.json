@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/rotten_pumpkin_top"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_rotten_pumpkin_top"
+    "blocks": "tfc:crop/rotten_pumpkin_top",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_rotten_pumpkin_top"
 }

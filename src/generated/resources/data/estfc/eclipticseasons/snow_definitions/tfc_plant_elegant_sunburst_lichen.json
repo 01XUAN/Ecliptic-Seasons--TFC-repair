@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/elegant_sunburst_lichen"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_elegant_sunburst_lichen"
+    "blocks": "tfc:plant/elegant_sunburst_lichen",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_elegant_sunburst_lichen"
 }

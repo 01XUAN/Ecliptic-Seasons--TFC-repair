@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/desert_flame"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_desert_flame"
+    "blocks": "tfc:plant/desert_flame",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_desert_flame"
 }

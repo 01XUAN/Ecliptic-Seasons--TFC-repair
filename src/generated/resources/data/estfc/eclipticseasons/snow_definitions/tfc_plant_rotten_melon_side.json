@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/rotten_melon_side"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_rotten_melon_side"
+    "blocks": "tfc:crop/rotten_melon_side",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_rotten_melon_side"
 }

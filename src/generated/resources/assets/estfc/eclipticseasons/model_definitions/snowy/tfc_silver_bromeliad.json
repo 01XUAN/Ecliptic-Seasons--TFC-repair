@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/plant/silver_bromeliad/silver_bromeliad"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/plant/silver_bromeliad/silver_bromeliad"
+        }
     }
-  }
 }

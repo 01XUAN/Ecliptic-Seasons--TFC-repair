@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/perovskia"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_perovskia"
+    "blocks": "tfc:plant/perovskia",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_perovskia"
 }

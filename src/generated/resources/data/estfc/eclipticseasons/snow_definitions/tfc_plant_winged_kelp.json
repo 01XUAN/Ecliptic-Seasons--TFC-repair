@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/winged_kelp"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_winged_kelp"
+    "blocks": "tfc:plant/winged_kelp",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_winged_kelp"
 }

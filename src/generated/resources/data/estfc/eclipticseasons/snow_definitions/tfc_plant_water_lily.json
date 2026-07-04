@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/water_lily"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_water_lily"
+    "blocks": "tfc:plant/water_lily",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_water_lily"
 }

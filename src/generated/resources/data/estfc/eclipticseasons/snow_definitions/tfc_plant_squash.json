@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/squash"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_squash"
+    "blocks": "tfc:crop/squash",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_squash"
 }

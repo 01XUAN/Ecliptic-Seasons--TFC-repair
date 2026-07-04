@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/toquilla_palm"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_toquilla_palm"
+    "blocks": "tfc:plant/toquilla_palm",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_toquilla_palm"
 }

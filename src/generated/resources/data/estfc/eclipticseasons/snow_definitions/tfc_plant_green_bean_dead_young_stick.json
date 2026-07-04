@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/green_bean_dead_young_stick"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_green_bean_dead_young_stick"
+    "blocks": "tfc:crop/green_bean_dead_young_stick",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_green_bean_dead_young_stick"
 }

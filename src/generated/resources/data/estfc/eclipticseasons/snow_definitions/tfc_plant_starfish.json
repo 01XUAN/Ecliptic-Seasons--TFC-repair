@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/starfish"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_starfish"
+    "blocks": "tfc:plant/starfish",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_starfish"
 }

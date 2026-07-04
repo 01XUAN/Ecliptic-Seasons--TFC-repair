@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/golden_bamboo"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_golden_bamboo"
+    "blocks": "tfc:plant/golden_bamboo",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_golden_bamboo"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/maize_4_top"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_maize_4_top"
+    "blocks": "tfc:crop/maize_4_top",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_maize_4_top"
 }

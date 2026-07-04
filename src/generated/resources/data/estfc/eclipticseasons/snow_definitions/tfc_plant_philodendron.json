@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/philodendron"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_philodendron"
+    "blocks": "tfc:plant/philodendron",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_philodendron"
 }

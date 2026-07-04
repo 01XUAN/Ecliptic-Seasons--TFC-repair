@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/plant/grape_hyacinth/grape_hyacinth_3"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/plant/grape_hyacinth/grape_hyacinth_3"
+        }
     }
-  }
 }

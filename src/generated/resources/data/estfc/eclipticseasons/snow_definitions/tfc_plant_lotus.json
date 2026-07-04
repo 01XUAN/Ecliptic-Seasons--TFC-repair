@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/lotus"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_lotus"
+    "blocks": "tfc:plant/lotus",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_lotus"
 }

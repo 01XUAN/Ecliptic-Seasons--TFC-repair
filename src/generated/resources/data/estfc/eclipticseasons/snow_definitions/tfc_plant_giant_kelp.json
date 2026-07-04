@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/giant_kelp"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_giant_kelp"
+    "blocks": "tfc:plant/giant_kelp",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_giant_kelp"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/pampas_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_pampas_grass"
+    "blocks": "tfc:plant/pampas_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_pampas_grass"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/kangaroo_paw"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_kangaroo_paw"
+    "blocks": "tfc:plant/kangaroo_paw",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_kangaroo_paw"
 }

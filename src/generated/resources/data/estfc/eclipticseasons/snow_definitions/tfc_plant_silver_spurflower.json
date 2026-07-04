@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/silver_spurflower"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_silver_spurflower"
+    "blocks": "tfc:plant/silver_spurflower",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_silver_spurflower"
 }

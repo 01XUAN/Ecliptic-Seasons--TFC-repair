@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/jute_wild_bottom"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_jute_wild_bottom"
+    "blocks": "tfc:crop/jute_wild_bottom",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_jute_wild_bottom"
 }

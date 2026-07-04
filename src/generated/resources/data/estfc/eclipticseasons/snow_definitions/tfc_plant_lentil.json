@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/lentil"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_lentil"
+    "blocks": "tfc:crop/lentil",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_lentil"
 }

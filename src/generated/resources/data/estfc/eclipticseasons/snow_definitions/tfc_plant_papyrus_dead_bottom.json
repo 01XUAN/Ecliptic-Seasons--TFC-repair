@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/papyrus_dead_bottom"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_papyrus_dead_bottom"
+    "blocks": "tfc:crop/papyrus_dead_bottom",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_papyrus_dead_bottom"
 }

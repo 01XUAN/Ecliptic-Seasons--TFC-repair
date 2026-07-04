@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/grape_hyacinth"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_grape_hyacinth"
+    "blocks": "tfc:plant/grape_hyacinth",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_grape_hyacinth"
 }

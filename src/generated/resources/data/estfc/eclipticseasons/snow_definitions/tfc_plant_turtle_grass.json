@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/turtle_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_turtle_grass"
+    "blocks": "tfc:plant/turtle_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_turtle_grass"
 }

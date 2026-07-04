@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/strelitzia"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_strelitzia"
+    "blocks": "tfc:plant/strelitzia",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_strelitzia"
 }

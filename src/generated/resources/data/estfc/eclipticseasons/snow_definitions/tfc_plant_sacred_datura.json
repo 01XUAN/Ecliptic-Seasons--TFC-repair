@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/sacred_datura"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_sacred_datura"
+    "blocks": "tfc:plant/sacred_datura",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_sacred_datura"
 }

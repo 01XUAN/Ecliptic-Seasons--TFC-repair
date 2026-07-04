@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/arundo"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_arundo"
+    "blocks": "tfc:plant/arundo",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_arundo"
 }

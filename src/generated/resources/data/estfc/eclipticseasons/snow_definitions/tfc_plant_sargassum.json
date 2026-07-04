@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/sargassum"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_sargassum"
+    "blocks": "tfc:plant/sargassum",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_sargassum"
 }

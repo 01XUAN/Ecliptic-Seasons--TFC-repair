@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/potato"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_potato"
+    "blocks": "tfc:crop/potato",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_potato"
 }

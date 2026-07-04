@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/sagebrush"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_sagebrush"
+    "blocks": "tfc:plant/sagebrush",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_sagebrush"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/labrador_tea"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_labrador_tea"
+    "blocks": "tfc:plant/labrador_tea",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_labrador_tea"
 }

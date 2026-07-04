@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/vriesea"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_vriesea"
+    "blocks": "tfc:plant/vriesea",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_vriesea"
 }

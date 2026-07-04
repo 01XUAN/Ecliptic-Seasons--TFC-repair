@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/gutweed"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_gutweed"
+    "blocks": "tfc:plant/gutweed",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_gutweed"
 }

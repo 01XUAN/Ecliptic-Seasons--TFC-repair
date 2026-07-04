@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/saguaro"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_saguaro"
+    "blocks": "tfc:plant/saguaro",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_saguaro"
 }

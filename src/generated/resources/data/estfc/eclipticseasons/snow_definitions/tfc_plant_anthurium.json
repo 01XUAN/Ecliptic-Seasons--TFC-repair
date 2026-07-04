@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/anthurium"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_anthurium"
+    "blocks": "tfc:plant/anthurium",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_anthurium"
 }

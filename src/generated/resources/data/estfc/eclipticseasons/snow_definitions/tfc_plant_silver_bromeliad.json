@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/silver_bromeliad"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_silver_bromeliad"
+    "blocks": "tfc:plant/silver_bromeliad",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_silver_bromeliad"
 }

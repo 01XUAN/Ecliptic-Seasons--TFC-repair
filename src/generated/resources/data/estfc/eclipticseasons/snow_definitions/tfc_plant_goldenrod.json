@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/goldenrod"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_goldenrod"
+    "blocks": "tfc:plant/goldenrod",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_goldenrod"
 }

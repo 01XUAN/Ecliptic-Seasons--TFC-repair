@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/artists_conk"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_artists_conk"
+    "blocks": "tfc:plant/artists_conk",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_artists_conk"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/palash"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_palash"
+    "blocks": "tfc:plant/palash",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_palash"
 }

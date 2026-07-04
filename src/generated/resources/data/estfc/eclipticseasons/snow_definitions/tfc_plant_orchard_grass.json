@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/orchard_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_orchard_grass"
+    "blocks": "tfc:plant/orchard_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_orchard_grass"
 }

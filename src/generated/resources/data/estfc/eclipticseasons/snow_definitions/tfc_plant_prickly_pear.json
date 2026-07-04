@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/prickly_pear"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_prickly_pear"
+    "blocks": "tfc:plant/prickly_pear",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_prickly_pear"
 }

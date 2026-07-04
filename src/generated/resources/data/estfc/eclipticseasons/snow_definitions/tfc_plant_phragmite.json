@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/phragmite"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_phragmite"
+    "blocks": "tfc:plant/phragmite",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_phragmite"
 }

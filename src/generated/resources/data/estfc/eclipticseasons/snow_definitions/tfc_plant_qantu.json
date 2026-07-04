@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/qantu"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_qantu"
+    "blocks": "tfc:plant/qantu",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_qantu"
 }

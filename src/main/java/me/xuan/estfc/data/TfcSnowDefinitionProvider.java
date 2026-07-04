@@ -32,7 +32,7 @@ public class TfcSnowDefinitionProvider extends ESClientDataMapProvider<SnowDefin
     protected void gather(HolderLookup.Provider provider) {
         HolderLookup.RegistryLookup<Block> blocks = provider.lookupOrThrow(Registries.BLOCK);
 
-        // === 第一批：地面装饰物 ===
+        // ── 地面装饰物 ──
         String[] groundcoverTypes = {
             "bone", "clam", "driftwood", "feather", "flint", "guano", "humus",
             "mollusk", "mussel", "pinecone", "pumice", "rotten_flesh",
@@ -47,7 +47,7 @@ public class TfcSnowDefinitionProvider extends ESClientDataMapProvider<SnowDefin
                     .build());
         }
 
-        // === 第一批：散落岩石 ===
+        // ── 散落岩石 ──
         String[] rockTypes = {
             "granite", "diorite", "gabbro", "shale", "claystone", "limestone",
             "conglomerate", "dolomite", "chert", "chalk", "tuff", "rhyolite",

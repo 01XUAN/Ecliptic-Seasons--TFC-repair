@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/pickerelweed"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_pickerelweed"
+    "blocks": "tfc:plant/pickerelweed",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_pickerelweed"
 }

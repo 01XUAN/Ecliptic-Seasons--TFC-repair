@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/canna"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_canna"
+    "blocks": "tfc:plant/canna",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_canna"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/jungle_vines"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_jungle_vines"
+    "blocks": "tfc:plant/jungle_vines",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_jungle_vines"
 }

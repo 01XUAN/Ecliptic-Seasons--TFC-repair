@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/lily_of_the_valley"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_lily_of_the_valley"
+    "blocks": "tfc:plant/lily_of_the_valley",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_lily_of_the_valley"
 }

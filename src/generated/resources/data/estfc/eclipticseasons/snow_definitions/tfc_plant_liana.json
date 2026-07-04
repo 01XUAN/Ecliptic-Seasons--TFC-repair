@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/liana"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_liana"
+    "blocks": "tfc:plant/liana",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_liana"
 }

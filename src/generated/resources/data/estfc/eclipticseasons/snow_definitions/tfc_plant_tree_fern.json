@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/tree_fern"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_tree_fern"
+    "blocks": "tfc:plant/tree_fern",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_tree_fern"
 }

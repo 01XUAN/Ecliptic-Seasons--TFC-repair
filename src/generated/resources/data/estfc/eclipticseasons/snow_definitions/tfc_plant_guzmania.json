@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/guzmania"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_guzmania"
+    "blocks": "tfc:plant/guzmania",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_guzmania"
 }

@@ -1,8 +1,8 @@
 {
-  "replace": true,
-  "variants": {
-    "": {
-      "model": "estfc:block/snowy/tfc/plant/ryegrass/ryegrass_lower_0b"
+    "replace": true,
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy/tfc/plant/ryegrass/ryegrass_lower_0b"
+        }
     }
-  }
 }

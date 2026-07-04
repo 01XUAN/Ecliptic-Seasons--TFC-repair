@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/reindeer_lichen"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_reindeer_lichen"
+    "blocks": "tfc:plant/reindeer_lichen",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_reindeer_lichen"
 }

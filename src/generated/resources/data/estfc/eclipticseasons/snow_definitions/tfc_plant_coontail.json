@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/coontail"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_coontail"
+    "blocks": "tfc:plant/coontail",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_coontail"
 }

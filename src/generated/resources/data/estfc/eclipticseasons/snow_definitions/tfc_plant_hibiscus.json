@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/hibiscus"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_hibiscus"
+    "blocks": "tfc:plant/hibiscus",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_hibiscus"
 }

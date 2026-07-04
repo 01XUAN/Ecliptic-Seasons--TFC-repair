@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/fountain_grass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_fountain_grass"
+    "blocks": "tfc:plant/fountain_grass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_fountain_grass"
 }

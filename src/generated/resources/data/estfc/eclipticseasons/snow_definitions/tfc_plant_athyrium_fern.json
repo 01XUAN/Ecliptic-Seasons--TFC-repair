@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/athyrium_fern"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_athyrium_fern"
+    "blocks": "tfc:plant/athyrium_fern",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_athyrium_fern"
 }

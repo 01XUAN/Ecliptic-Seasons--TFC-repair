@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/marigold"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_marigold"
+    "blocks": "tfc:plant/marigold",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_marigold"
 }

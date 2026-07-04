@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/rye"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_rye"
+    "blocks": "tfc:crop/rye",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_rye"
 }

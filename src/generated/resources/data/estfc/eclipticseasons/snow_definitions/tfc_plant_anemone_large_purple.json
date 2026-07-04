@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/anemone_large_purple"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_anemone_large_purple"
+    "blocks": "tfc:plant/anemone_large_purple",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_anemone_large_purple"
 }

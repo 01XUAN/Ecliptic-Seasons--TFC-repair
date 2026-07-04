@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/allium"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_allium"
+    "blocks": "tfc:plant/allium",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_allium"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/penwortel"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_penwortel"
+    "blocks": "tfc:plant/penwortel",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_penwortel"
 }

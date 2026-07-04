@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/beachgrass"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_beachgrass"
+    "blocks": "tfc:plant/beachgrass",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_beachgrass"
 }

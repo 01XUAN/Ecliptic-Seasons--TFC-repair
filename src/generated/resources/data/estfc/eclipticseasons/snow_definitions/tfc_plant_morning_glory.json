@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/morning_glory"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_morning_glory"
+    "blocks": "tfc:plant/morning_glory",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_morning_glory"
 }

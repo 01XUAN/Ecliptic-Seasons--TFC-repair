@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/butterfly_milkweed"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_butterfly_milkweed"
+    "blocks": "tfc:plant/butterfly_milkweed",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_butterfly_milkweed"
 }

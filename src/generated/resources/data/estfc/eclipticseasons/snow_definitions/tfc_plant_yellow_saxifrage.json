@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/yellow_saxifrage"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_yellow_saxifrage"
+    "blocks": "tfc:plant/yellow_saxifrage",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_yellow_saxifrage"
 }

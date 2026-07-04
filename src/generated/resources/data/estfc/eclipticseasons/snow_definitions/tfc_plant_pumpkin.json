@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/pumpkin"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_pumpkin"
+    "blocks": "tfc:crop/pumpkin",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_pumpkin"
 }

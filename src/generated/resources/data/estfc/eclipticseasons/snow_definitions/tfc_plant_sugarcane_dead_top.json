@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:crop/sugarcane_dead_top"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_sugarcane_dead_top"
+    "blocks": "tfc:crop/sugarcane_dead_top",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_sugarcane_dead_top"
 }

@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/sword_fern"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_sword_fern"
+    "blocks": "tfc:plant/sword_fern",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_sword_fern"
 }

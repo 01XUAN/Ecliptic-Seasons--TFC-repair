@@ -1,8 +1,6 @@
 {
-  "blocks": [
-    "tfc:plant/tropical_milkweed"
-  ],
-  "flag": 1001,
-  "offset": 1,
-  "mid": "estfc:snowy/tfc_tropical_milkweed"
+    "blocks": "tfc:plant/tropical_milkweed",
+    "flag": 1001,
+    "offset": 1,
+    "mid": "estfc:snowy/tfc_tropical_milkweed"
 }
