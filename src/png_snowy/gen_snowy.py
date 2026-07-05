@@ -119,31 +119,36 @@ def colorize_grayscale(img, tint_color=GRASS_COLOR):
 # ─── 核心：贴图覆雪处理 ──────────────────────────────
 
 def process_one(name, img, snowy, snowy_top, mask_mode=False):
-    """
-    mask_mode=False: 灰度贴图先着色再覆雪 → composited
-    mask_mode=True:  仅输出雪像素 (透明背景) → 雪遮罩
-    """
     img = img.convert("RGBA")
     w, h = img.size
-    px = img.load(); sw, sh = snowy.size
+    px = img.load()
+    sw, sh = snowy.size
 
-    # 灰度贴图 → 着上默认草色 (解决 tintindex 替换后草变灰)
+    # 灰度贴图着色
     gray = is_grayscale_texture(img)
     if gray and not mask_mode:
         img = colorize_grayscale(img)
         px = img.load()
 
-    if snowy_top and count_edge_solid(px, w, h) > 40:
+    # ─── 整张雪顶覆盖（仅当边缘固态像素较多时）───
+    if snowy_top and count_edge_solid(px, w, h) > 32:
+        snow = snowy_top.resize((w, h), Image.LANCZOS).convert("RGBA")
         if mask_mode:
-            result = snowy_top.resize((w,h), Image.LANCZOS).convert("RGBA")
-            print(f"  [{name}] 外圈>40 -> snowy_top 遮罩")
+            # 遮罩模式：只保留原图非透明区域的雪
+            mask = img.split()[3]
+            background = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+            result = Image.composite(snow, background, mask)
+            print(f"  [{name}] OK (遮罩, 整张覆盖)")
+            return result
         else:
-            result = img.copy()
-            r = Image.alpha_composite(result, snowy_top.resize((w,h), Image.LANCZOS).convert("RGBA"))
-            print(f"  [{name}] 外圈>40 -> snowy_top 覆盖")
-            return r
-        return result
+            # 合成模式：雪叠在原图上，但透明区域恢复透明
+            base = img.copy()
+            blended = Image.alpha_composite(base, snow)
+            final = Image.composite(blended, base, base.split()[3])
+            print(f"  [{name}] OK (整张覆盖)")
+            return final
 
+    # ─── 原有逐像素覆雪（条件不成立时执行）───
     sp = find_split(px, w, h)
     has = sp < h
     tu = find_top(px, w, h, 0)
