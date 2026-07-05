@@ -1,8 +1,17 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/switchgrass/switchgrass"
+        "age=0,part=upper": {
+            "model": "estfc:block/snowy/tfc/plant/morning_glory/morning_glory_flowerpot_foliage"
+        },
+        "age=1,part=upper": {
+            "model": "estfc:block/snowy/tfc/plant/morning_glory/morning_glory_flowerpot_foliage"
+        },
+        "age=2,part=upper": {
+            "model": "estfc:block/snowy/tfc/plant/morning_glory/morning_glory_flowerpot_foliage"
+        },
+        "age=3,part=upper": {
+            "model": "estfc:block/snowy/tfc/plant/morning_glory/morning_glory_flowerpot_foliage"
         }
     }
 }

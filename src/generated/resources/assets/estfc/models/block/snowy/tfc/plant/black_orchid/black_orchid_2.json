@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/black_orchid/black_orchid_2"
-    },
-    "parent": "block/cross"
-}

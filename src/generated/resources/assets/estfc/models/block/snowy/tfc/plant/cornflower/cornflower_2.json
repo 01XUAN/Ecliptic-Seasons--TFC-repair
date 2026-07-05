@@ -1,7 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/cornflower/cornflower_2",
-        "particle": "estfc:block/plant/cornflower/cornflower_2"
-    },
-    "parent": "minecraft:block/cross"
-}

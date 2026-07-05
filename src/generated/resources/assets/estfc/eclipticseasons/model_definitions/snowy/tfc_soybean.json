@@ -1,7 +1,25 @@
 {
     "replace": true,
     "variants": {
-        "": {
+        "age=0": {
+            "model": "estfc:block/snowy/tfc/crop/soybean_0"
+        },
+        "age=1": {
+            "model": "estfc:block/snowy/tfc/crop/soybean_1"
+        },
+        "age=2": {
+            "model": "estfc:block/snowy/tfc/crop/soybean_2"
+        },
+        "age=3": {
+            "model": "estfc:block/snowy/tfc/crop/soybean_3"
+        },
+        "age=4": {
+            "model": "estfc:block/snowy/tfc/crop/soybean_4"
+        },
+        "age=5": {
+            "model": "estfc:block/snowy/tfc/crop/soybean_5"
+        },
+        "age=6": {
             "model": "estfc:block/snowy/tfc/crop/soybean_6"
         }
     }

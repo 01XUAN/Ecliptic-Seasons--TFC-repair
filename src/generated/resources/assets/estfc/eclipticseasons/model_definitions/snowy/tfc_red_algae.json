@@ -1,8 +1,22 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/red_algae/red_algae"
-        }
+        "": [
+            {
+                "model": "estfc:block/snowy/tfc/plant/red_algae/red_algae",
+                "y": 90
+            },
+            {
+                "model": "estfc:block/snowy/tfc/plant/red_algae/red_algae"
+            },
+            {
+                "model": "estfc:block/snowy/tfc/plant/red_algae/red_algae",
+                "y": 180
+            },
+            {
+                "model": "estfc:block/snowy/tfc/plant/red_algae/red_algae",
+                "y": 270
+            }
+        ]
     }
 }

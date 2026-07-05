@@ -1,8 +1,6 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/silken_pincushion_cactus/cactus_1"
-        }
+        
     }
 }

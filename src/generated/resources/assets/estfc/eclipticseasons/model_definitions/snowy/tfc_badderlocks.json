@@ -1,8 +1,21 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/badderlocks/placeholder"
+    "multipart": [
+        {
+            "when": {
+                "part": "lower"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/badderlocks_lower"
+            }
+        },
+        {
+            "when": {
+                "part": "upper"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/badderlocks_upper"
+            }
         }
-    }
+    ]
 }

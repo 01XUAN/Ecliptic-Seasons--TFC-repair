@@ -1,8 +1,13 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/arrowhead/arrowhead_stem"
+    "multipart": [
+        {
+            "when": {
+                "part": "upper"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/arrowhead_0"
+            }
         }
-    }
+    ]
 }

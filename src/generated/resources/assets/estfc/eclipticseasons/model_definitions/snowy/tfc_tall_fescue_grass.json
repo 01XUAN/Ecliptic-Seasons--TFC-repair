@@ -1,8 +1,41 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/tall_fescue_grass/tall"
+    "multipart": [
+        {
+            "when": {
+                "part": "lower",
+                "age": "0"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tall_fescue_grass_shortest"
+            }
+        },
+        {
+            "when": {
+                "part": "lower",
+                "age": "1"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tall_fescue_grass_shorter"
+            }
+        },
+        {
+            "when": {
+                "part": "lower",
+                "age": "2"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tall_fescue_grass_short"
+            }
+        },
+        {
+            "when": {
+                "part": "lower",
+                "age": "3"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tall_fescue_grass"
+            }
         }
-    }
+    ]
 }

@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "crop": "estfc:block/crop/tomato_1"
+    },
+    "parent": "block/crop"
+}

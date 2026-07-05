@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/goldenrod/goldenrod_4"
-    },
-    "parent": "block/cross"
-}

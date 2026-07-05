@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "cross": "estfc:block/plant/hanging_vines/tip"
+    },
+    "parent": "minecraft:block/tinted_cross"
+}

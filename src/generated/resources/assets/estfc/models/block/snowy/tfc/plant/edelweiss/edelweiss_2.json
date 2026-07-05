@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/edelweiss/edelweiss_2"
-    },
-    "parent": "block/cross"
-}

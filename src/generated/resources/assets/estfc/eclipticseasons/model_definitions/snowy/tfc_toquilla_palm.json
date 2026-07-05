@@ -1,8 +1,27 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/toquilla_palm/toquilla_palm_2"
+    "multipart": [
+        {
+            "when": {
+                "part": "lower"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/toquilla_palm"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/toquilla_palm",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/toquilla_palm",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/toquilla_palm",
+                    "y": 270
+                }
+            ]
         }
-    }
+    ]
 }

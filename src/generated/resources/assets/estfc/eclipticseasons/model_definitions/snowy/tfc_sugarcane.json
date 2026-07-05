@@ -1,8 +1,41 @@
 {
     "replace": true,
     "variants": {
-        "": {
+        "age=0": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_0"
+        },
+        "age=1": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_1"
+        },
+        "age=2": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_2"
+        },
+        "age=3": {
             "model": "estfc:block/snowy/tfc/crop/sugarcane_3"
+        },
+        "age=4,part=bottom": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_4_bottom"
+        },
+        "age=5,part=bottom": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_5_bottom"
+        },
+        "age=6,part=bottom": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_6_bottom"
+        },
+        "age=7,part=bottom": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_7_bottom"
+        },
+        "age=4,part=top": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_4_top"
+        },
+        "age=5,part=top": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_5_top"
+        },
+        "age=6,part=top": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_6_top"
+        },
+        "age=7,part=top": {
+            "model": "estfc:block/snowy/tfc/crop/sugarcane_7_top"
         }
     }
 }

@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "crop": "estfc:block/crop/sugarcane_6_top"
+    },
+    "parent": "block/crop"
+}

@@ -1,7 +1,25 @@
 {
     "replace": true,
     "variants": {
-        "": {
+        "age=0": {
+            "model": "estfc:block/snowy/tfc/crop/onion_0"
+        },
+        "age=1": {
+            "model": "estfc:block/snowy/tfc/crop/onion_1"
+        },
+        "age=2": {
+            "model": "estfc:block/snowy/tfc/crop/onion_2"
+        },
+        "age=3": {
+            "model": "estfc:block/snowy/tfc/crop/onion_3"
+        },
+        "age=4": {
+            "model": "estfc:block/snowy/tfc/crop/onion_4"
+        },
+        "age=5": {
+            "model": "estfc:block/snowy/tfc/crop/onion_5"
+        },
+        "age=6": {
             "model": "estfc:block/snowy/tfc/crop/onion_6"
         }
     }

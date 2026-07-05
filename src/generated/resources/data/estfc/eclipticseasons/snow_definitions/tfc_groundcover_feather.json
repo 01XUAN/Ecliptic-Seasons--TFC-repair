@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:groundcover/feather"],
+  "flag": 1000,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_groundcover_feather"
+}

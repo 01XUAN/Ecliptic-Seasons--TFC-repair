@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "crop": "estfc:block/crop/red_bell_pepper_2"
+    },
+    "parent": "block/crop"
+}

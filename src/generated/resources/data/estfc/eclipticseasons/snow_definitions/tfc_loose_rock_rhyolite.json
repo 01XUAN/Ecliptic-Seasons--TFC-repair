@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:rock/loose/rhyolite"],
+  "flag": 1000,
+  "offset": 1,
+  "mid": "eclipticseasons:overlay_tiny"
+}

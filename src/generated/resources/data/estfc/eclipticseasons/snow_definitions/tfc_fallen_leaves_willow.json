@@ -1,6 +1,7 @@
 {
   "blocks": ["tfc:wood/fallen_leaves/willow"],
-  "flag": 1000,
+  "flag": 1101,
   "offset": 0,
-  "mid": "eclipticseasons:overlay_tiny"
+  "mid": "eclipticseasons:snowy_leaves_top",
+  "mid2": "eclipticseasons:snowy_leaves_attach"
 }

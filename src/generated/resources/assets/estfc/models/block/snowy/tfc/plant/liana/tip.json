@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "cross": "estfc:block/plant/liana/tip"
+    },
+    "parent": "minecraft:block/cross"
+}

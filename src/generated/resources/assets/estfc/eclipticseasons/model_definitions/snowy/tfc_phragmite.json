@@ -1,8 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/phragmite/phragmite_overlay_4"
+        "part=lower": {
+            "model": "estfc:block/snowy/tfc/plant/morning_glory/morning_glory_flowerpot_foliage"
         }
     }
 }

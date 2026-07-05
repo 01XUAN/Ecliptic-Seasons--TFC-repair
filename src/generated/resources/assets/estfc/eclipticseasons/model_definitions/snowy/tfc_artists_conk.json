@@ -1,8 +1,108 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/artists_conk/artists_conk_bottom"
+    "multipart": [
+        {
+            "when": {
+                "facing": "east"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_0",
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_1",
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_2",
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_3",
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_4",
+                    "y": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "facing": "south"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_0"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_1"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_2"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_3"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_4"
+                }
+            ]
+        },
+        {
+            "when": {
+                "facing": "west"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_0",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_1",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_2",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_3",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_4",
+                    "y": 90
+                }
+            ]
+        },
+        {
+            "when": {
+                "facing": "north"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_0",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_1",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_2",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_3",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/artists_conk_4",
+                    "y": 180
+                }
+            ]
         }
-    }
+    ]
 }

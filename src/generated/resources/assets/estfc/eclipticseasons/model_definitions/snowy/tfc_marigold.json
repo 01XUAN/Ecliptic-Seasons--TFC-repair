@@ -1,8 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/marigold/marigold_3"
+        "part=upper": {
+            "model": "estfc:block/snowy/tfc/plant/morning_glory/morning_glory_flowerpot_foliage"
         }
     }
 }

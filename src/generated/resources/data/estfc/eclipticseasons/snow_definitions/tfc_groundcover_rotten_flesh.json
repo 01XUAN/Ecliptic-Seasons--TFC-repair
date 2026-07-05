@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:groundcover/rotten_flesh"],
+  "flag": 1000,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_groundcover_rotten_flesh"
+}

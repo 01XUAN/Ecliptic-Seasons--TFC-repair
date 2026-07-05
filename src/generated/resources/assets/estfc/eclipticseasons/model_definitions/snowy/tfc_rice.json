@@ -1,7 +1,28 @@
 {
     "replace": true,
     "variants": {
-        "": {
+        "age=0": {
+            "model": "estfc:block/snowy/tfc/crop/rice_0"
+        },
+        "age=1": {
+            "model": "estfc:block/snowy/tfc/crop/rice_1"
+        },
+        "age=2": {
+            "model": "estfc:block/snowy/tfc/crop/rice_2"
+        },
+        "age=3": {
+            "model": "estfc:block/snowy/tfc/crop/rice_3"
+        },
+        "age=4": {
+            "model": "estfc:block/snowy/tfc/crop/rice_4"
+        },
+        "age=5": {
+            "model": "estfc:block/snowy/tfc/crop/rice_5"
+        },
+        "age=6": {
+            "model": "estfc:block/snowy/tfc/crop/rice_6"
+        },
+        "age=7": {
             "model": "estfc:block/snowy/tfc/crop/rice_7"
         }
     }

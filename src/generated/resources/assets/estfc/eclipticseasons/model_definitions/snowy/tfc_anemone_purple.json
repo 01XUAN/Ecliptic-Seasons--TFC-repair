@@ -1,8 +1,321 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/anemone_purple/anemone_5"
+    "multipart": [
+        {
+            "when": {
+                "down": "true",
+                "open": "true"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "y": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "east": "true",
+                "open": "true"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 90
+                }
+            ]
+        },
+        {
+            "when": {
+                "north": "true",
+                "open": "true"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "south": "true",
+                "open": "true"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 180
+                }
+            ]
+        },
+        {
+            "when": {
+                "up": "true",
+                "open": "true"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 180,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 180,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 180,
+                    "y": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "west": "true",
+                "open": "true"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple",
+                    "x": 270,
+                    "y": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "down": "true",
+                "open": "false"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "y": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "east": "true",
+                "open": "false"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 90
+                }
+            ]
+        },
+        {
+            "when": {
+                "north": "true",
+                "open": "false"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "south": "true",
+                "open": "false"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 180
+                }
+            ]
+        },
+        {
+            "when": {
+                "up": "true",
+                "open": "false"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 180,
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 180,
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 180,
+                    "y": 270
+                }
+            ]
+        },
+        {
+            "when": {
+                "west": "true",
+                "open": "false"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/anemone_purple_closed",
+                    "x": 270,
+                    "y": 270
+                }
+            ]
         }
-    }
+    ]
 }

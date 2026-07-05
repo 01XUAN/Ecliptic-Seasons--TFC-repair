@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/houstonia/houstonia_2"
-    },
-    "parent": "block/cross"
-}

@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/rose/rose_lower_1"
-    },
-    "parent": "minecraft:block/cross"
-}

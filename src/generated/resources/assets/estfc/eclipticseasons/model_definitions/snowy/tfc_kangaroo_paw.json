@@ -1,8 +1,6 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/kangaroo_paw/kangaroo_paw_1"
-        }
+        
     }
 }

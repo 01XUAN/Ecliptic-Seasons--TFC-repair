@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "crop": "estfc:block/crop/maize_5_top"
+    },
+    "parent": "block/crop"
+}

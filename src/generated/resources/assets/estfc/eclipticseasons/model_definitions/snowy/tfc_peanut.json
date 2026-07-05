@@ -1,7 +1,22 @@
 {
     "replace": true,
     "variants": {
-        "": {
+        "age=0": {
+            "model": "estfc:block/snowy/tfc/crop/peanut_0"
+        },
+        "age=1": {
+            "model": "estfc:block/snowy/tfc/crop/peanut_1"
+        },
+        "age=2": {
+            "model": "estfc:block/snowy/tfc/crop/peanut_2"
+        },
+        "age=3": {
+            "model": "estfc:block/snowy/tfc/crop/peanut_3"
+        },
+        "age=4": {
+            "model": "estfc:block/snowy/tfc/crop/peanut_4"
+        },
+        "age=5": {
             "model": "estfc:block/snowy/tfc/crop/peanut_5"
         }
     }

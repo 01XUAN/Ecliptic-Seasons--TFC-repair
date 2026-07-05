@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "crop": "estfc:block/crop/green_bean_3_stick"
+    },
+    "parent": "block/crop"
+}

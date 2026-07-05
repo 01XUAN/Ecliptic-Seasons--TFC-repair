@@ -1,8 +1,13 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/dry_grass/tall_dry_grass"
-        }
+        "": [
+            {
+                "model": "estfc:block/snowy/tfc/plant/dry_grass/tall_dry_grass"
+            },
+            {
+                "model": "estfc:block/snowy/tfc/plant/dry_grass/tall_dry_grass"
+            }
+        ]
     }
 }

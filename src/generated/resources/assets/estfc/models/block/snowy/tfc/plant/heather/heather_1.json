@@ -1,7 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/heather/heather_1",
-        "particle": "estfc:block/plant/heather/heather_1"
-    },
-    "parent": "tfc:block/large_cross"
-}

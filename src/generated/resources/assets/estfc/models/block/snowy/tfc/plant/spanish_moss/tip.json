@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "cross": "estfc:block/plant/spanish_moss/tip"
+    },
+    "parent": "minecraft:block/cross"
+}

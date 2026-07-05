@@ -1,9 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/hibiscus/cross",
-        "side": "estfc:block/plant/hibiscus/side_2",
-        "top": "estfc:block/plant/hibiscus/top_2",
-        "particle": "estfc:block/plant/hibiscus/top_2"
-    },
-    "parent": "tfc:block/tfc_azalea"
-}

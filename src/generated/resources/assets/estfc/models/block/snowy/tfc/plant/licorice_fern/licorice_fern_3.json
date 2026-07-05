@@ -48,14 +48,5 @@
                 "angle": -22.5
             }
         }
-    ],
-    "display": {
-        "thirdperson_righthand": {
-            "scale": [
-                1,
-                1,
-                1
-            ]
-        }
-    }
+    ]
 }

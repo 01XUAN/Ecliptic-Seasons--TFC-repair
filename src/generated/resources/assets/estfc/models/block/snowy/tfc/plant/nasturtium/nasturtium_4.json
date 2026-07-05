@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/nasturtium/nasturtium_4"
-    },
-    "parent": "block/cross"
-}

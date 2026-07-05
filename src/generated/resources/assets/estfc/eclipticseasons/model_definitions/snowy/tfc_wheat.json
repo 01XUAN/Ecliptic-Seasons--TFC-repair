@@ -1,7 +1,28 @@
 {
     "replace": true,
     "variants": {
-        "": {
+        "age=0": {
+            "model": "estfc:block/snowy/tfc/crop/wheat_0"
+        },
+        "age=1": {
+            "model": "estfc:block/snowy/tfc/crop/wheat_1"
+        },
+        "age=2": {
+            "model": "estfc:block/snowy/tfc/crop/wheat_2"
+        },
+        "age=3": {
+            "model": "estfc:block/snowy/tfc/crop/wheat_3"
+        },
+        "age=4": {
+            "model": "estfc:block/snowy/tfc/crop/wheat_4"
+        },
+        "age=5": {
+            "model": "estfc:block/snowy/tfc/crop/wheat_5"
+        },
+        "age=6": {
+            "model": "estfc:block/snowy/tfc/crop/wheat_6"
+        },
+        "age=7": {
             "model": "estfc:block/snowy/tfc/crop/wheat_7"
         }
     }

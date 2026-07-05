@@ -1,8 +1,29 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/water_lily/water_lily_2"
+    "multipart": [
+        {
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/water_lily_empty"
+            }
+        },
+        {
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/purple_water_lily_dynamic_east"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/purple_water_lily_dynamic_south",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/purple_water_lily_dynamic_west",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/purple_water_lily_dynamic_north",
+                    "y": 270
+                }
+            ]
         }
-    }
+    ]
 }

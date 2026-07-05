@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/plant/sea_palm/sea_palm_top"
+            "model": "estfc:block/snowy/tfc/plant/sea_palm/sea_palm"
         }
     }
 }

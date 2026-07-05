@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/red_oat_grass/red_oat_grass"
-    },
-    "parent": "minecraft:block/tinted_cross"
-}

@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/flame_vine/body_1"
-    },
-    "parent": "minecraft:block/cross"
-}

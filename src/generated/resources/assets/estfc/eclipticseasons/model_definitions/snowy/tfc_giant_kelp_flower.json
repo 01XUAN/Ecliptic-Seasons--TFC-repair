@@ -1,8 +1,129 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/giant_kelp/body"
+    "multipart": [
+        {
+            "when": {
+                "facing": "up",
+                "age": "0|1|2|3|4"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower"
+            }
+        },
+        {
+            "when": {
+                "facing": "up",
+                "age": "5"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower_dead"
+            }
+        },
+        {
+            "when": {
+                "facing": "down",
+                "age": "0|1|2|3|4"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower",
+                "x": 180
+            }
+        },
+        {
+            "when": {
+                "facing": "down",
+                "age": "5"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower_dead",
+                "x": 180
+            }
+        },
+        {
+            "when": {
+                "facing": "north",
+                "age": "0|1|2|3|4"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower",
+                "x": 90
+            }
+        },
+        {
+            "when": {
+                "facing": "north",
+                "age": "5"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower_dead",
+                "x": 90
+            }
+        },
+        {
+            "when": {
+                "facing": "east",
+                "age": "0|1|2|3|4"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower",
+                "x": 90,
+                "y": 90
+            }
+        },
+        {
+            "when": {
+                "facing": "east",
+                "age": "5"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower_dead",
+                "x": 90,
+                "y": 90
+            }
+        },
+        {
+            "when": {
+                "facing": "south",
+                "age": "0|1|2|3|4"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower",
+                "x": 90,
+                "y": 180
+            }
+        },
+        {
+            "when": {
+                "facing": "south",
+                "age": "5"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower_dead",
+                "x": 90,
+                "y": 180
+            }
+        },
+        {
+            "when": {
+                "facing": "west",
+                "age": "0|1|2|3|4"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower",
+                "x": 90,
+                "y": 270
+            }
+        },
+        {
+            "when": {
+                "facing": "west",
+                "age": "5"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/tree_kelp_flower_dead",
+                "x": 90,
+                "y": 270
+            }
         }
-    }
+    ]
 }

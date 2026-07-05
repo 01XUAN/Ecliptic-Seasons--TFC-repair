@@ -1,7 +1,19 @@
 {
     "replace": true,
     "variants": {
-        "": {
+        "age=0": {
+            "model": "estfc:block/snowy/tfc/crop/carrot_0"
+        },
+        "age=1": {
+            "model": "estfc:block/snowy/tfc/crop/carrot_1"
+        },
+        "age=2": {
+            "model": "estfc:block/snowy/tfc/crop/carrot_2"
+        },
+        "age=3": {
+            "model": "estfc:block/snowy/tfc/crop/carrot_3"
+        },
+        "age=4": {
             "model": "estfc:block/snowy/tfc/crop/carrot_4"
         }
     }

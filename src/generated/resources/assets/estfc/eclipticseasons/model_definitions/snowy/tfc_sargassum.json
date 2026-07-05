@@ -1,8 +1,22 @@
 {
     "replace": true,
     "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/sargassum/sargassum"
-        }
+        "": [
+            {
+                "model": "estfc:block/snowy/tfc/plant/sargassum/sargassum",
+                "y": 90
+            },
+            {
+                "model": "estfc:block/snowy/tfc/plant/sargassum/sargassum"
+            },
+            {
+                "model": "estfc:block/snowy/tfc/plant/sargassum/sargassum",
+                "y": 180
+            },
+            {
+                "model": "estfc:block/snowy/tfc/plant/sargassum/sargassum",
+                "y": 270
+            }
+        ]
     }
 }

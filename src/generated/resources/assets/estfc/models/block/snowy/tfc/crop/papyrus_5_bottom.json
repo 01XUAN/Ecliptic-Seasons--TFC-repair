@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "crop": "estfc:block/crop/papyrus_5_bottom"
+    },
+    "parent": "block/crop"
+}

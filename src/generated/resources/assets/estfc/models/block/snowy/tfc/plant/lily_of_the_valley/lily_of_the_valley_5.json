@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/lily_of_the_valley/lily_of_the_valley_5"
-    },
-    "parent": "block/cross"
-}

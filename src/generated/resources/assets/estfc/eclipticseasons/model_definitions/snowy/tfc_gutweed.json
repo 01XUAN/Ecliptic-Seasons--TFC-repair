@@ -1,8 +1,24 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/gutweed/gutweed"
+    "multipart": [
+        {
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/gutweed"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/gutweed",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/gutweed",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/gutweed",
+                    "y": 270
+                }
+            ]
         }
-    }
+    ]
 }

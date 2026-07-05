@@ -1,8 +1,29 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/field_horsetail/horsetail_3"
+    "multipart": [
+        {
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/field_horsetail_empty"
+            }
+        },
+        {
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/field_horsetail_dynamic_east"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/field_horsetail_dynamic_south",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/field_horsetail_dynamic_west",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/field_horsetail_dynamic_north",
+                    "y": 270
+                }
+            ]
         }
-    }
+    ]
 }

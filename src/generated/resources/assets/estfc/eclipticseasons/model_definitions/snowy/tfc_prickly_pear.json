@@ -1,8 +1,77 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/prickly_pear/flower_3"
+    "multipart": [
+        {
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/prickly_pear_empty"
+            }
+        },
+        {
+            "when": {
+                "part": "upper"
+            },
+            "apply": [
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_0"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_0",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_0",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_0",
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_1"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_1",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_1",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_1",
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_2"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_2",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_2",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_2",
+                    "y": 270
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_3"
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_3",
+                    "y": 90
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_3",
+                    "y": 180
+                },
+                {
+                    "model": "estfc:block/snowy/tfc/plant/prickly_pear_dynamic_3",
+                    "y": 270
+                }
+            ]
         }
-    }
+    ]
 }

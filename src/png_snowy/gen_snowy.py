@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
 TFC 方块覆雪贴图生成器。仅处理贴图。
-模型JSON和雪定义由 Java data gen (runData) 负责。
+模型JSON和雪定义由 gradle task 负责。
 
 用法:
   pip install Pillow
   cd src/png_snowy
-  python gen_snowy.py          # 生成覆雪贴图 (composited)
+  python gen_snowy.py          # 生成覆雪贴图 (灰度自动着色 + 覆雪)
   python gen_snowy.py --mask   # 同时生成雪遮罩 (snow-only, 透明背景)
 """
 
@@ -20,6 +20,9 @@ SNOWY_TOP_PNG = os.path.join(SCRIPT_DIR, "snowy_top.png")
 TEX_OUT       = os.path.join(ROOT_RESOURCES, "assets", "estfc", "textures", "block")
 MASK_OUT      = os.path.join(ROOT_RESOURCES, "assets", "estfc", "textures", "block", "snow")
 IGNORE_LIST   = {"snowy.png", "snowy_top.png", "gen_snowy.py"}
+
+# 默认草色 (Minecraft plains biome 近似)
+GRASS_COLOR   = (124, 189, 107)  # #7CBD6B
 
 # ─── 工具 ────────────────────────────────────────────
 
@@ -78,20 +81,60 @@ def blend(bg, fg):
             int((fg[2]*fa+bg[2]*ba*(1-fa))/oa),
             int(oa*255))
 
+# ─── 灰度检测与着色 ──────────────────────────────────
+
+def is_grayscale_texture(img):
+    """检测贴图是否主要为灰度 (用于 tintindex 着色)"""
+    px = img.load(); w, h = img.size
+    gray_px = 0; total_px = 0
+    for y in range(h):
+        for x in range(w):
+            if px[x, y][3] < 10: continue
+            total_px += 1
+            r, g, b = px[x, y][0], px[x, y][1], px[x, y][2]
+            if abs(r-g) < 8 and abs(g-b) < 8 and abs(r-b) < 8:
+                gray_px += 1
+    if total_px < 50: return False
+    return gray_px > total_px * 0.75
+
+def colorize_grayscale(img, tint_color=GRASS_COLOR):
+    """将灰度贴图的非透明像素着上 biome 颜色 (保留明暗层次)"""
+    img = img.convert("RGBA")
+    px = img.load(); w, h = img.size
+    tr, tg, tb = tint_color
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a < 10: continue
+            gray = int(0.299*r + 0.587*g + 0.114*b)
+            factor = gray / 255.0
+            nr = int(r * (1 - factor * 0.7) + tr * factor * 0.7)
+            ng = int(g * (1 - factor * 0.7) + tg * factor * 0.7)
+            nb = int(b * (1 - factor * 0.7) + tb * factor * 0.7)
+            px[x, y] = (max(0, min(255, nr)),
+                        max(0, min(255, ng)),
+                        max(0, min(255, nb)), a)
+    return img
+
 # ─── 核心：贴图覆雪处理 ──────────────────────────────
 
 def process_one(name, img, snowy, snowy_top, mask_mode=False):
     """
-    mask_mode=False: 在原始贴图上合成白雪 → 输出 composited 贴图 (用于无 tint 模型)
-    mask_mode=True:  仅输出雪像素 (透明背景) → 输出雪遮罩 (用于 mixed_cross 的非着色层)
+    mask_mode=False: 灰度贴图先着色再覆雪 → composited
+    mask_mode=True:  仅输出雪像素 (透明背景) → 雪遮罩
     """
     img = img.convert("RGBA")
     w, h = img.size
     px = img.load(); sw, sh = snowy.size
 
+    # 灰度贴图 → 着上默认草色 (解决 tintindex 替换后草变灰)
+    gray = is_grayscale_texture(img)
+    if gray and not mask_mode:
+        img = colorize_grayscale(img)
+        px = img.load()
+
     if snowy_top and count_edge_solid(px, w, h) > 40:
         if mask_mode:
-            # 遮罩模式: 直接使用 snowy_top 作为遮罩
             result = snowy_top.resize((w,h), Image.LANCZOS).convert("RGBA")
             print(f"  [{name}] 外圈>40 -> snowy_top 遮罩")
         else:
@@ -107,7 +150,6 @@ def process_one(name, img, snowy, snowy_top, mask_mode=False):
     tl = find_top(px, w, h, sp+1) if has else h
 
     if mask_mode:
-        # 遮罩模式: 从透明背景开始，只画雪像素
         r = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     else:
         r = img.copy()
@@ -127,14 +169,10 @@ def process_one(name, img, snowy, snowy_top, mask_mode=False):
             dh = min(dl, dr)
             t = min(dh, 3) / 3.0
 
-            if du == 0:
-                trans = 0.0
-            elif du == 1:
-                trans = 0.25 * t
-            elif du == 2:
-                trans = 0.45 + 0.25 * t
-            else:
-                trans = 0.80 + 0.20 * t
+            if du == 0:     trans = 0.0
+            elif du == 1:   trans = 0.25 * t
+            elif du == 2:   trans = 0.45 + 0.25 * t
+            else:           trans = 0.80 + 0.20 * t
 
             a = 1.0 - trans
             a += 0.20 * (1.0 - t)
@@ -149,12 +187,13 @@ def process_one(name, img, snowy, snowy_top, mask_mode=False):
             spx = (spx[0], spx[1], spx[2], int(spx[3] * a))
             if spx[3]:
                 if mask_mode:
-                    rp[x, y] = spx  # 仅雪像素，不混合原始纹理
+                    rp[x, y] = spx
                 else:
                     rp[x, y] = blend(rp[x, y], spx)
 
     suffix = " (遮罩)" if mask_mode else ""
-    print(f"  [{name}] OK{suffix}" + (f", split={sp}" if has else ""))
+    gray_note = " 灰度→着色" if gray and not mask_mode else ""
+    print(f"  [{name}] OK{suffix}{gray_note}" + (f", split={sp}" if has else ""))
     return r
 
 # ─── 入口 ────────────────────────────────────────────
@@ -213,7 +252,6 @@ def main():
     for rel in sorted(pngs):
         src = os.path.join(SCRIPT_DIR, rel)
         try:
-            # 1) 生成覆雪合成贴图 (composited)
             out = process_one(rel, Image.open(src), snowy, snowy_top, mask_mode=False)
         except Exception as e:
             print(f"  [{rel}] 错误: {e}")
@@ -224,7 +262,6 @@ def main():
         out.save(dest)
         ok += 1
 
-        # 2) 可选: 生成雪遮罩 (snow-only, 透明背景)
         if gen_mask:
             try:
                 mask = process_one(rel, Image.open(src), snowy, snowy_top, mask_mode=True)

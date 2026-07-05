@@ -1,8 +1,37 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/beachgrass/tall"
+    "multipart": [
+        {
+            "when": {
+                "age": "0"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/beachgrass_shortest"
+            }
+        },
+        {
+            "when": {
+                "age": "1"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/beachgrass_shorter"
+            }
+        },
+        {
+            "when": {
+                "age": "2"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/beachgrass_short"
+            }
+        },
+        {
+            "when": {
+                "age": "3"
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/beachgrass"
+            }
         }
-    }
+    ]
 }

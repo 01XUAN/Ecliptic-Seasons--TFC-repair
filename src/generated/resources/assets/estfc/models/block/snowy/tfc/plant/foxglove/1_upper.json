@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/foxglove/1_upper"
-    },
-    "parent": "minecraft:block/cross"
-}

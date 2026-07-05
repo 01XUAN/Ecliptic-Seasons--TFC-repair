@@ -1,8 +1,56 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/saguaro/bark"
+    "multipart": [
+        {
+            "when": {
+                "down": true
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/saguaro_branch_down"
+            }
+        },
+        {
+            "when": {
+                "up": true
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/saguaro_branch_up"
+            }
+        },
+        {
+            "when": {
+                "north": true
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/saguaro_branch_side",
+                "y": 90
+            }
+        },
+        {
+            "when": {
+                "south": true
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/saguaro_branch_side",
+                "y": 270
+            }
+        },
+        {
+            "when": {
+                "west": true
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/saguaro_branch_side"
+            }
+        },
+        {
+            "when": {
+                "east": true
+            },
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/saguaro_branch_side",
+                "y": 180
+            }
         }
-    }
+    ]
 }

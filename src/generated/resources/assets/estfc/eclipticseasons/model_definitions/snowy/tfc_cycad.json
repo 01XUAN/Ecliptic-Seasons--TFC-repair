@@ -1,8 +1,15 @@
 {
     "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/plant/cycad/frond"
+    "multipart": [
+        {
+            "apply": {
+                "model": "estfc:block/snowy/tfc/empty"
+            }
+        },
+        {
+            "apply": {
+                "model": "estfc:block/snowy/tfc/plant/cycad_dynamic"
+            }
         }
-    }
+    ]
 }

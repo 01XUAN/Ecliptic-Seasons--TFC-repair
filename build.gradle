@@ -132,9 +132,35 @@ tasks.register('generateTfcSnowDefinitions') {
     def modelDefDir = new File(projectDir, 'src/generated/resources/assets/estfc/eclipticseasons/model_definitions/snowy')
     def blockModelDir = new File(projectDir, 'src/generated/resources/assets/estfc/models/block/snowy/tfc')
     def tfcModelDir = new File(projectDir, '../TerraFirmaCraft-1.21.x/src/main/resources/assets/tfc/models/block')
+    def tfcBlockstateDir = new File(projectDir, '../TerraFirmaCraft-1.21.x/src/main/resources/assets/tfc/blockstates')
 
     doLast {
         outputDir.mkdirs()
+
+        // 地面装饰物 — 用 TFC 原模型 + Mixin 贴图替换
+        def groundcoverTypes = [
+            'bone', 'clam', 'driftwood', 'feather', 'flint', 'guano', 'humus',
+            'mollusk', 'mussel', 'pinecone', 'pumice', 'rotten_flesh',
+            'salt_lick', 'seaweed', 'sea_urchin', 'stick'
+        ]
+        groundcoverTypes.each { type ->
+            def f = new File(outputDir, "tfc_groundcover_${type}.json")
+            f.text = "{\n  \"blocks\": [\"tfc:groundcover/${type}\"],\n  \"flag\": 1000,\n  \"offset\": 1,\n  \"mid\": \"estfc:snowy/tfc_groundcover_${type}\"\n}"
+        }
+
+        // 散落岩石 — 小物件用 ES 内置 overlay_tiny
+        def rockTypes = [
+            'granite', 'diorite', 'gabbro', 'shale', 'claystone', 'limestone',
+            'conglomerate', 'dolomite', 'chert', 'chalk', 'tuff', 'rhyolite',
+            'basalt', 'andesite', 'dacite', 'quartzite', 'slate', 'phyllite',
+            'schist', 'gneiss', 'marble'
+        ]
+        rockTypes.each { rock ->
+            def f1 = new File(outputDir, "tfc_loose_rock_${rock}.json")
+            f1.text = "{\n  \"blocks\": [\"tfc:rock/loose/${rock}\"],\n  \"flag\": 1000,\n  \"offset\": 1,\n  \"mid\": \"eclipticseasons:overlay_tiny\"\n}"
+            def f2 = new File(outputDir, "tfc_mossy_loose_rock_${rock}.json")
+            f2.text = "{\n  \"blocks\": [\"tfc:rock/mossy_loose/${rock}\"],\n  \"flag\": 1000,\n  \"offset\": 1,\n  \"mid\": \"eclipticseasons:overlay_tiny\"\n}"
+        }
 
         // 树叶 — 双层雪模 (flag 1101: 顶层+内部斑点)
         def woodTypes = [
@@ -146,8 +172,7 @@ tasks.register('generateTfcSnowDefinitions') {
         woodTypes.each { wood ->
             def f = new File(outputDir, "tfc_leaves_${wood}.json")
             f.text = "{\n  \"blocks\": [\"tfc:wood/leaves/${wood}\"],\n  \"flag\": 1101,\n  \"offset\": 0,\n  \"mid\": \"eclipticseasons:snowy_leaves_top\",\n  \"mid2\": \"eclipticseasons:snowy_leaves_attach\"\n}"
-            def ff = new File(outputDir, "tfc_fallen_leaves_${wood}.json")
-            ff.text = "{\n  \"blocks\": [\"tfc:wood/fallen_leaves/${wood}\"],\n  \"flag\": 1000,\n  \"offset\": 0,\n  \"mid\": \"eclipticseasons:overlay_tiny\"\n}"
+            // 落叶堆是层状叠加方块, 全方块雪模不适配, 暂不覆雪
         }
 
         // ── 植物/农作物 (replace:true, 模仿 TFC 原始模型结构) ──
@@ -242,7 +267,7 @@ tasks.register('generateTfcSnowDefinitions') {
         // 第三步：扫描 TFC 模型，建立 贴图路径 → TFC模型内容 的映射
         def tfcModelByTexture = [:]  // "crop/barley_7" → model JSON string
         def slurper = new groovy.json.JsonSlurper()
-        ['crop', 'plant'].each { subDir ->
+        ['crop', 'plant', 'groundcover'].each { subDir ->
             def dir = new File(tfcModelDir, subDir)
             if (dir.exists()) {
                 dir.eachFileRecurse { f ->
@@ -295,56 +320,126 @@ tasks.register('generateTfcSnowDefinitions') {
                 mid: "estfc:snowy/tfc_${tfcName}"
             ]))
 
-            // 模型定义 (replace: true 完全替换原模型)
-            def md = new File(modelDefDir, "tfc_${tfcName}.json")
-            md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
-                replace: true,
-                variants: ["" : [model: "estfc:block/snowy/tfc/${info.best}"]]
-            ]))
+            // 模型定义 — 复制 TFC blockstate 变体结构
+            def blockstatePath = null
+            ['crop', 'plant', 'dead_crop', 'wild_crop'].each { sub ->
+                if (blockstatePath == null) {
+                    def bsFile = new File(tfcBlockstateDir, "${sub}/${tfcName}.json")
+                    if (bsFile.exists()) blockstatePath = bsFile
+                }
+            }
+            def mdVariants = null
+            def blockModelsToGen = []  // [tfcModelPath, estfcVariantKey]
 
-            // 方块模型
-            def bmFile = new File(blockModelDir, info.best + '.json')
-            bmFile.toPath().toAbsolutePath().getParent().toFile().mkdirs()
-
-            // 尝试多种 key 来匹配 TFC 原模型
-            def tfcModelText = tfcModelByTexture[info.best]
-                ?: tfcModelByTexture["plant/${info.best}"]
-                ?: tfcModelByTexture["crop/${info.best}"]
-
-            if (tfcModelText != null) {
-                // 解析 TFC 模型, **仅替换贴图值中的 tfc: → estfc:**
-                // 父模型引用保持原样 — tfc:block/xxx 在运行时由 TFC 资产提供, 始终可用
-                def tfcModel = slurper.parseText(tfcModelText)
-                def newTextures = [:]
-                def texMap = tfcModel?.textures
-                if (texMap instanceof Map) {
-                    texMap.each { k, v ->
-                        if (v instanceof String)
-                            newTextures[k] = v.replace('tfc:', 'estfc:')
-                        else
-                            newTextures[k] = v
+            def bs = blockstatePath != null ? slurper.parse(blockstatePath) : null
+            if (bs?.variants instanceof Map) {
+                    mdVariants = [:]
+                    bs.variants.each { varKey, varVal ->
+                        def tfcModelPath = (varVal instanceof List ? varVal[0] : varVal)?.model
+                        if (tfcModelPath instanceof String && tfcModelPath.startsWith('tfc:block/')) {
+                            def tfcModelFile = tfcModelPath.substring('tfc:block/'.length())
+                            def tfcM = tfcModelByTexture[tfcModelFile]
+                            if (tfcM == null) {
+                                // 模型不在缓存中, 直接读取
+                                def mf = new File(tfcModelDir, tfcModelFile + '.json')
+                                if (mf.exists()) tfcM = mf.text
+                            }
+                            if (tfcM != null) {
+                                def tfcParsed = slurper.parseText(tfcM)
+                                def tex = tfcParsed?.textures?.values()?.find { it instanceof String && it.startsWith('tfc:block/') }
+                                if (tex != null) {
+                                    def estfcKey = tex.substring('tfc:block/'.length())
+                                    def estfcModels = (varVal instanceof List ? varVal : [varVal]).collect { v ->
+                                        def m = [model: "estfc:block/snowy/tfc/${estfcKey}"]
+                                        if (v?.x) m.x = v.x; if (v?.y) m.y = v.y; if (v?.uvlock) m.uvlock = v.uvlock
+                                        if (v?.weight) m.weight = v.weight
+                                        return m
+                                    }
+                                    mdVariants[varKey] = estfcModels.size() == 1 ? estfcModels[0] : estfcModels
+                                    blockModelsToGen << [tfcM, estfcKey]
+                                }
+                            }
+                        }
+                    }
+                } else if (bs?.multipart instanceof List) {
+                    // multipart — 直接复制结构, 模型用 Mixin 替换
+                    def mpParts = []
+                    bs.multipart.each { part ->
+                        def mpEntry = [:]
+                        if (part?.when) mpEntry.when = part.when
+                        def applyParts = (part?.apply instanceof List ? part.apply : [part?.apply]).findAll { it?.model }
+                            .collect { [model: it.model.replace('tfc:block/', 'estfc:block/snowy/tfc/')] +
+                                (it.x ? [x: it.x] : [:]) + (it.y ? [y: it.y] : [:]) }
+                        if (applyParts) {
+                            mpEntry.apply = applyParts.size() == 1 ? applyParts[0] : applyParts
+                            mpParts << mpEntry
+                        }
+                    }
+                    if (mpParts) {
+                        def mdJson = [replace: true, multipart: mpParts]
+                        def md = new File(modelDefDir, "tfc_${tfcName}.json")
+                        md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mdJson))
                     }
                 }
-                // 构建输出, 保留 parent / elements / ambientocclusion 等所有字段
+
+            if (mdVariants == null) {
+                // 回退: 无 blockstate 文件, 用空 variant
+                mdVariants = ["" : [model: "estfc:block/snowy/tfc/${info.best}"]]
+                blockModelsToGen << [tfcModelByTexture[info.best]
+                    ?: tfcModelByTexture["plant/${info.best}"]
+                    ?: tfcModelByTexture["crop/${info.best}"], info.best]
+            }
+
+            if (!(bs?.multipart instanceof List) || bs.multipart == null || !(bs?.multipart)) {
+                def md = new File(modelDefDir, "tfc_${tfcName}.json")
+                md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
+                    replace: true, variants: mdVariants
+                ]))
+            }
+
+            // 方块模型 — 生成所有变体
+            blockModelsToGen.each { entry ->
+                def tfcModelText = entry[0]; def estfcKey = entry[1]
+                if (tfcModelText == null) return
+                def bmFile = new File(blockModelDir, estfcKey + '.json')
+                if (bmFile.exists()) return  // 去重
+                bmFile.toPath().toAbsolutePath().getParent().toFile().mkdirs()
+                def tfcModel = slurper.parseText(tfcModelText)
+                def newTextures = [:]; def texMap = tfcModel?.textures
+                if (texMap instanceof Map) texMap.each { k, v -> if (v instanceof String) newTextures[k] = v.replace('tfc:', 'estfc:') else newTextures[k] = v }
                 def outModel = [textures: newTextures]
                 if (tfcModel?.parent) outModel.parent = tfcModel.parent
                 if (tfcModel?.ambientocclusion != null) outModel.ambientocclusion = tfcModel.ambientocclusion
                 if (tfcModel?.elements) outModel.elements = tfcModel.elements
-                if (tfcModel?.display) outModel.display = tfcModel.display
-                if (tfcModel?.loader) outModel.loader = tfcModel.loader
                 bmFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(outModel))
                 tfcHits++
-            } else {
-                // 回退：生成简单 cross/crop 模型
-                def isCrop = info.best.startsWith('crop/')
-                bmFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
-                    parent: isCrop ? 'block/crop' : 'block/cross',
-                    textures: [(isCrop ? 'crop' : 'cross'): "estfc:block/${info.best}"]
-                ]))
             }
             count++
         }
-        println "Generated ${count} plants (${tfcHits} from TFC models, ${count - tfcHits} fallback)"
+        // ── 地面装饰物 ──
+        def gcCount = 0
+        groundcoverTypes.each { type ->
+            def bestTex = "groundcover/${type}"
+            def tfcModelText = tfcModelByTexture[bestTex]
+            if (tfcModelText == null) return  // 部分用 vanilla 贴图, 跳过
+            def md = new File(modelDefDir, "tfc_groundcover_${type}.json")
+            md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
+                replace: true,
+                variants: ["" : [model: "estfc:block/snowy/tfc/${bestTex}"]]
+            ]))
+            def bmFile = new File(blockModelDir, bestTex + '.json')
+            bmFile.toPath().toAbsolutePath().getParent().toFile().mkdirs()
+            def tfcModel = slurper.parseText(tfcModelText)
+            def newTextures = [:]; def texMap = tfcModel?.textures
+            if (texMap instanceof Map) texMap.each { k, v -> if (v instanceof String) newTextures[k] = v.replace('tfc:', 'estfc:') else newTextures[k] = v }
+            def outModel = [textures: newTextures]
+            if (tfcModel?.parent) outModel.parent = tfcModel.parent
+            if (tfcModel?.ambientocclusion != null) outModel.ambientocclusion = tfcModel.ambientocclusion
+            if (tfcModel?.elements) outModel.elements = tfcModel.elements
+            bmFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(outModel))
+            gcCount++
+        }
+        println "Generated ${count} plants (${tfcHits} from TFC models, ${count - tfcHits} fallback) + ${gcCount} groundcover"
     }
 }
 
@@ -411,12 +506,14 @@ tasks.register('verifySnowBlockIds') {
             def gcNames = extractEnum(groundcoverFile)
             gcNames.each { n -> tfcBlocks << "tfc:groundcover/${n.toLowerCase()}" }
         }
-        // Rock types (21 types, hardcoded)
+        // Groundcover & rock types
+        def groundcoverTypes = ['bone','clam','driftwood','feather','flint','guano','humus','mollusk','mussel','pinecone','pumice','rotten_flesh','salt_lick','seaweed','sea_urchin','stick']
+        groundcoverTypes.each { g -> tfcBlocks << "tfc:groundcover/${g}" }
         def rockTypes = ['granite','diorite','gabbro','shale','claystone','limestone','conglomerate','dolomite','chert','chalk','tuff','rhyolite','basalt','andesite','dacite','quartzite','slate','phyllite','schist','gneiss','marble']
         rockTypes.each { r -> tfcBlocks << "tfc:rock/loose/${r}"; tfcBlocks << "tfc:rock/mossy_loose/${r}" }
         // Wood types (from build.gradle)
         def woodTypes = ['acacia','ash','aspen','birch','blackwood','chestnut','douglas_fir','hickory','kapok','mangrove','maple','oak','palm','pine','rosewood','sequoia','spruce','sycamore','white_cedar','willow']
-        woodTypes.each { w -> tfcBlocks << "tfc:wood/leaves/${w}"; tfcBlocks << "tfc:wood/fallen_leaves/${w}" }
+        woodTypes.each { w -> tfcBlocks << "tfc:wood/leaves/${w}" }
 
         println "Total TFC blocks: ${tfcBlocks.size()}"
 

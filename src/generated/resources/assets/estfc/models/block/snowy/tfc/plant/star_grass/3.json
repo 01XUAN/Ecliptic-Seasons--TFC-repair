@@ -1,0 +1,6 @@
+{
+    "textures": {
+        "texture": "estfc:block/plant/star_grass/3"
+    },
+    "parent": "minecraft:block/template_seagrass"
+}
