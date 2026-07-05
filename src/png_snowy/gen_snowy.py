@@ -199,11 +199,16 @@ def process_one(name, img, snowy, snowy_top, mask_mode=False):
 # ─── 入口 ────────────────────────────────────────────
 
 def collect_inputs(base_dir, ignore):
+    """只收集子目录中的 PNG 文件，跳过 base_dir 直下的文件"""
     pngs = []
     for root, dirs, files in os.walk(base_dir):
         for f in files:
             if f.lower().endswith(".png") and f.lower() not in ignore:
-                pngs.append(os.path.relpath(os.path.join(root, f), base_dir))
+                rel_path = os.path.relpath(os.path.join(root, f), base_dir)
+                # 跳过 base_dir 直下的文件 (与 py 同目录)
+                if os.sep not in rel_path:
+                    continue
+                pngs.append(rel_path)
     return pngs
 
 def clean_output(output_dir, keep_rel_paths):
@@ -215,11 +220,15 @@ def clean_output(output_dir, keep_rel_paths):
         for f in files:
             if f.lower().endswith(".png"):
                 rel = os.path.relpath(os.path.join(root, f), output_dir)
+                # 只清理子目录中的文件，保留根目录文件
+                if os.sep not in rel:
+                    continue
                 if rel not in keep:
                     os.remove(os.path.join(root, f))
                     removed += 1
                     print(f"  清理旧贴图: {rel}")
-        if not os.listdir(root) and root != output_dir:
+        # 不删除输出根目录本身
+        if root != output_dir and not os.listdir(root):
             try: os.rmdir(root)
             except OSError: pass
     if removed:
@@ -236,7 +245,7 @@ def main():
 
     pngs = collect_inputs(SCRIPT_DIR, IGNORE_LIST)
     if not pngs:
-        print("无待处理 PNG"); sys.exit(1)
+        print("无待处理 PNG (子目录中)"); sys.exit(1)
 
     print(f"输入贴图: {len(pngs)} 个")
     print(f"输出目录: {os.path.abspath(TEX_OUT)}")
