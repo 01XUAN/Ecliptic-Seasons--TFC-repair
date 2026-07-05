@@ -228,6 +228,24 @@ tasks.register('generateTfcSnowDefinitions') {
             md.text = "{\n  \"replace\": true,\n  \"variants\": {\n    \"\": {\n      \"model\": \"estfc:block/snowy_empty\"\n    }\n  }\n}"
         }
 
+        // 灌木/浆果丛 — Mixin + model_definition
+        def berryBushes = [
+            'blackberry_bush', 'blackberry_bush_cane',
+            'blueberry_bush', 'blueberry_bush_cane',
+            'bunchberry_bush', 'cloudberry_bush', 'cranberry_bush',
+            'dead_berry_bush', 'dead_bush', 'dead_cane',
+            'elderberry_bush', 'elderberry_bush_cane',
+            'gooseberry_bush',
+            'raspberry_bush', 'raspberry_bush_cane',
+            'snowberry_bush', 'strawberry_bush', 'wintergreen_berry_bush'
+        ]
+        berryBushes.each { bush ->
+            def f = new File(outputDir, "tfc_bush_${bush}.json")
+            f.text = "{\n  \"blocks\": [\"tfc:plant/${bush}\"],\n  \"flag\": 1001,\n  \"offset\": 1,\n  \"mid\": \"estfc:snowy/tfc_bush_${bush}\"\n}"
+            def md = new File(modelDefDir, "tfc_bush_${bush}.json")
+            md.text = "{\n  \"replace\": true,\n  \"variants\": {\n    \"\": {\n      \"model\": \"estfc:block/snowy_empty\"\n    }\n  }\n}"
+        }
+
         def blockIdFix = [
             'pumpkin_side':       [id: 'tfc:pumpkin',        name: 'pumpkin_fruit'],
             'melon_side':         [id: 'tfc:melon',          name: 'melon_fruit'],
@@ -335,7 +353,28 @@ tasks.register('generateTfcSnowDefinitions') {
             ]))
             count++
         }
-        println "Generated ${count} plants (all via Mixin) + groundcover/fallen_leaves/krummholz/wild_crops/twigs (overlay_tiny)"
+        // ── 生成 atlas 注册模型：引用所有 estfc snowy 贴图，使其进入 block texture atlas ──
+        def texDir = new File(projectDir, 'src/main/resources/assets/estfc/textures/block')
+        def atlasModelDir = new File(projectDir, 'src/generated/resources/assets/estfc/models/block')
+        atlasModelDir.mkdirs()
+        def atlasModel = new File(atlasModelDir, 'snowy_empty.json')
+        def texRefs = [:]
+        int idx = 0
+        if (texDir.exists()) {
+            texDir.eachFileRecurse { f ->
+                if (f.name.endsWith('.png')) {
+                    // 相对路径去掉 .png → estfc:texture_path
+                    def rel = texDir.toPath().relativize(f.toPath()).toString().replace('\\', '/')
+                    rel = rel.substring(0, rel.length() - 4) // 去 .png
+                    texRefs["_${idx}"] = "estfc:block/${rel}"
+                    idx++
+                }
+            }
+        }
+        // 构建带贴图引用的 snowy_empty 模型（elements 为空 → 不渲染任何几何，但贴图注册到 atlas）
+        def atlasJson = ['textures': texRefs + ['particle': 'minecraft:block/snow']]
+        atlasModel.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(atlasJson))
+        println "Generated ${count} plants + ${idx} atlas textures (snowy_empty.json)"
     }
 }
 

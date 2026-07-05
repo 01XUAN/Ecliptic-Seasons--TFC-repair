@@ -64,6 +64,12 @@ public abstract class SnowyMapCheckerMixin {
             // 性能优化：非加载且无雪 → 跳过
             if (!loadingChunk && keeper.getPosMap().isEmpty()) return;
 
+            // 性能优化：区块中心 Y=64 温度 > 2°C → 不可能有雪，跳过
+            if (!loadingChunk) {
+                BlockPos cp = chunk.getPos().getMiddleBlockPosition(64);
+                if (model.getInstantTemperature(level, cp) > 2.0f) return;
+            }
+
             BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
             int minX = chunk.getPos().getMinBlockX();
             int minZ = chunk.getPos().getMinBlockZ();

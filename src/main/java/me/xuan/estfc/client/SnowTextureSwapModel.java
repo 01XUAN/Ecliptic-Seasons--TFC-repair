@@ -69,8 +69,7 @@ public class SnowTextureSwapModel implements BakedModel, IESReplaceModel {
                     "estfc", tfcName.getPath());
                 TextureAtlasSprite estfcSprite = atlas.getSprite(estfcName);
 
-                // 如果 estfc snowy 贴图不在 atlas 上，Minecraft 返回 missingno 贴图
-                // 此时保留原 TFC 贴图，避免黑紫方块
+                // estfc 贴图不在 atlas → 保留 TFC 原贴图（不生成悬浮雪层）
                 if (isMissingSprite(estfcSprite)) {
                     out.add(quad);
                 } else {

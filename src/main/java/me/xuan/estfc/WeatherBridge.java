@@ -49,8 +49,12 @@ public class WeatherBridge {
             WeatherManager.BiomeWeather biomeWeather = biomes.get(index);
             if (biomeWeather == null || biomeWeather.biomeHolder == null) return;
 
-            // 用 Y=64 代表群系级温度判断
-            BlockPos pos = new BlockPos(0, 64, 0);
+            // 用玩家位置做温度采样（避免固定(0,64,0)导致未加载区块的同步加载）
+            BlockPos pos = level.players().isEmpty()
+                ? BlockPos.ZERO.above(64)
+                : level.players().getFirst().blockPosition();
+            // 区块未加载则跳过本轮（不触发同步加载）
+            if (!level.isLoaded(pos)) return;
             int depth = calcSnowDepth(level, pos);
             boolean precip = isPrecipitating(level, pos);
 
