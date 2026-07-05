@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "crop": "estfc:block/crop/jute_5_bottom"
-    },
-    "parent": "block/crop"
-}

@@ -75,8 +75,12 @@ public abstract class SnowyMapCheckerMixin {
                     int surfaceHeight = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
                     int solidHeight = chunkMap.getHeight(x, z);
 
-                    // 每列用顶部温度代表整列的雪深（同列温差可忽略）
-                    checkPos.set(x, solidHeight, z);
+                    // 用 surfaceHeight 做温度采样（vanilla heightmap 可靠），
+                    // solidHeight（ES ChunkInfoMap）在地形边缘可能不准，
+                    // 导致边缘列温度偏高、雪深偏低。
+                    // 取两者最大值确保不低估雪深。
+                    int tempCheckY = Math.max(solidHeight, surfaceHeight);
+                    checkPos.set(x, tempCheckY, z);
                     int snowDepth = estfc$tempToSnowDepth(model, level, checkPos);
 
                     for (int y = solidHeight; y <= surfaceHeight; y++) {

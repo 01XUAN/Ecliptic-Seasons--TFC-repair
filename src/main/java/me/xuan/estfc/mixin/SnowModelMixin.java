@@ -33,8 +33,18 @@ public abstract class SnowModelMixin {
         BakedModel tfcModel = shaper.getBlockModel(state);
 
         if (tfcModel != null) {
-            cir.setReturnValue(new SnowTextureSwapModel(tfcModel));
+            boolean useSimpleSnow = isSimpleSnowBlock(state);
+            cir.setReturnValue(new SnowTextureSwapModel(tfcModel, useSimpleSnow));
         }
+    }
+
+    /** 地面装饰物/散落岩石等薄片方块 — 所有 quad 统一换为 snow.png */
+    private static boolean isSimpleSnowBlock(BlockState state) {
+        ResourceLocation id = state.getBlockHolder().getKey().location();
+        String path = id.getPath();
+        return path.startsWith("groundcover/")
+            || path.startsWith("rock/loose/")
+            || path.startsWith("rock/mossy_loose/");
     }
 
     private static boolean isTfcBlock(BlockState state) {
@@ -42,6 +52,8 @@ public abstract class SnowModelMixin {
         if (!"tfc".equals(id.getNamespace())) return false;
         String path = id.getPath();
         return path.startsWith("plant/") || path.startsWith("crop/")
-            || path.startsWith("groundcover/");
+            || path.startsWith("groundcover/") || path.startsWith("wild_crop/")
+            || path.startsWith("wood/fallen_leaves/") || path.startsWith("wood/twig/")
+            || path.startsWith("rock/loose/") || path.startsWith("rock/mossy_loose/");
     }
 }

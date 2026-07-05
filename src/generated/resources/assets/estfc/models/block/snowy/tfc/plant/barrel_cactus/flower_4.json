@@ -1,7 +1,0 @@
-{
-    "textures": {
-        "flower": "estfc:block/plant/barrel_cactus/flower_4",
-        "particle": "estfc:block/plant/barrel_cactus/flower_4"
-    },
-    "parent": "tfc:block/plant/barrel_cactus_flower_0"
-}

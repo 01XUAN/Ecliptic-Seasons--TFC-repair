@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "crop": "estfc:block/crop/lentil_2"
-    },
-    "parent": "block/crop"
-}

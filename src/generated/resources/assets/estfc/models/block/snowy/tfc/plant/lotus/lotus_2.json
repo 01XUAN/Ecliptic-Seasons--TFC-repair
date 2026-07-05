@@ -1,7 +1,0 @@
-{
-    "textures": {
-        "pad": "estfc:block/plant/lotus/lotus",
-        "flower": "estfc:block/plant/lotus/lotus_2"
-    },
-    "parent": "tfc:block/plant/template_floating_tinted_flower"
-}

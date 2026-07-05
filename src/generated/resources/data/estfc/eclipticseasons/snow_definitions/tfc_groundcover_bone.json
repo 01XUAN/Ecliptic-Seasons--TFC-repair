@@ -1,6 +1,6 @@
 {
   "blocks": ["tfc:groundcover/bone"],
-  "flag": 1000,
+  "flag": 1001,
   "offset": 1,
   "mid": "estfc:snowy/tfc_groundcover_bone"
 }

@@ -1,37 +1,8 @@
 {
     "replace": true,
-    "multipart": [
-        {
-            "when": {
-                "age": "0"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/fountain_grass_shortest"
-            }
-        },
-        {
-            "when": {
-                "age": "1"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/fountain_grass_shorter"
-            }
-        },
-        {
-            "when": {
-                "age": "2"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/fountain_grass_short"
-            }
-        },
-        {
-            "when": {
-                "age": "3"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/fountain_grass"
-            }
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
-    ]
+    }
 }

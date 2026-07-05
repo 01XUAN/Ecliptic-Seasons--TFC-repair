@@ -1,59 +1,8 @@
 {
     "replace": true,
-    "multipart": [
-        {
-            "when": {
-                "age": "0"
-            },
-            "apply": [
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo1_age0"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo2_age0"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo3_age0"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo4_age0"
-                }
-            ]
-        },
-        {
-            "when": {
-                "age": "1"
-            },
-            "apply": [
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo1_age1"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo2_age1"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo3_age1"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/golden_bamboo4_age1"
-                }
-            ]
-        },
-        {
-            "when": {
-                "leaves": "small"
-            },
-            "apply": {
-                "model": "minecraft:block/bamboo_small_leaves"
-            }
-        },
-        {
-            "when": {
-                "leaves": "large"
-            },
-            "apply": {
-                "model": "minecraft:block/bamboo_large_leaves"
-            }
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
-    ]
+    }
 }

@@ -1,26 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "age=0": {
-            "model": "estfc:block/snowy/tfc/crop/red_bell_pepper_0"
-        },
-        "age=1": {
-            "model": "estfc:block/snowy/tfc/crop/red_bell_pepper_1"
-        },
-        "age=2": {
-            "model": "estfc:block/snowy/tfc/crop/red_bell_pepper_2"
-        },
-        "age=3": {
-            "model": "estfc:block/snowy/tfc/crop/red_bell_pepper_3"
-        },
-        "age=4": {
-            "model": "estfc:block/snowy/tfc/crop/red_bell_pepper_4"
-        },
-        "age=5": {
-            "model": "estfc:block/snowy/tfc/crop/red_bell_pepper_5"
-        },
-        "age=6": {
-            "model": "estfc:block/snowy/tfc/crop/red_bell_pepper_6"
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

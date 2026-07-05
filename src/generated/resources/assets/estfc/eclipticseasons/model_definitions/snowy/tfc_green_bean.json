@@ -1,65 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "age=0,stick=false": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_0"
-        },
-        "age=1,stick=false": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_1"
-        },
-        "age=2,stick=false": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_2"
-        },
-        "age=3,stick=false": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_3"
-        },
-        "age=0,stick=true,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_0_stick"
-        },
-        "age=1,stick=true,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_1_stick"
-        },
-        "age=2,stick=true,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_2_stick"
-        },
-        "age=3,stick=true,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_3_stick"
-        },
-        "age=0,stick=true,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/stick_top"
-        },
-        "age=1,stick=true,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/stick_top"
-        },
-        "age=2,stick=true,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/stick_top"
-        },
-        "age=3,stick=true,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/stick_top"
-        },
-        "age=4,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_4_bottom"
-        },
-        "age=5,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_5_bottom"
-        },
-        "age=6,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_6_bottom"
-        },
-        "age=7,part=bottom": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_7_bottom"
-        },
-        "age=4,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_4_top"
-        },
-        "age=5,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_5_top"
-        },
-        "age=6,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_6_top"
-        },
-        "age=7,part=top": {
-            "model": "estfc:block/snowy/tfc/crop/green_bean_7_top"
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

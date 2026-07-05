@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "pad": "estfc:block/plant/sargassum/sargassum"
-    },
-    "parent": "tfc:block/plant/template_floating"
-}

@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/plant/laminaria/large"
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

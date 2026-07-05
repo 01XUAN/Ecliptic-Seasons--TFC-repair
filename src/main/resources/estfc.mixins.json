@@ -13,6 +13,7 @@
         "MapCheckerMixin"
     ],
     "client": [
+        "ClientConMixin",
         "NetworkUtilMixin",
         "SnowModelMixin"
     ],

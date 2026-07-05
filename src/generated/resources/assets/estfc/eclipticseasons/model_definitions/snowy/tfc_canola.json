@@ -1,23 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "age=0": {
-            "model": "estfc:block/snowy/tfc/crop/canola_0"
-        },
-        "age=1": {
-            "model": "estfc:block/snowy/tfc/crop/canola_1"
-        },
-        "age=2": {
-            "model": "estfc:block/snowy/tfc/crop/canola_2"
-        },
-        "age=3": {
-            "model": "estfc:block/snowy/tfc/crop/canola_3"
-        },
-        "age=4": {
-            "model": "estfc:block/snowy/tfc/crop/canola_4"
-        },
-        "age=5": {
-            "model": "estfc:block/snowy/tfc/crop/canola_5"
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

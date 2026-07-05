@@ -1,20 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "age=0": {
-            "model": "estfc:block/snowy/tfc/crop/garlic_0"
-        },
-        "age=1": {
-            "model": "estfc:block/snowy/tfc/crop/garlic_1"
-        },
-        "age=2": {
-            "model": "estfc:block/snowy/tfc/crop/garlic_2"
-        },
-        "age=3": {
-            "model": "estfc:block/snowy/tfc/crop/garlic_3"
-        },
-        "age=4": {
-            "model": "estfc:block/snowy/tfc/crop/garlic_4"
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

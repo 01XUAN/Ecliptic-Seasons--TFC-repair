@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/dry_phragmite/tip"
-    },
-    "parent": "minecraft:block/cross"
-}

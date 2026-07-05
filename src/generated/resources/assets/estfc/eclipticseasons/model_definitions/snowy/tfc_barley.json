@@ -1,29 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "age=0": {
-            "model": "estfc:block/snowy/tfc/crop/barley_0"
-        },
-        "age=1": {
-            "model": "estfc:block/snowy/tfc/crop/barley_1"
-        },
-        "age=2": {
-            "model": "estfc:block/snowy/tfc/crop/barley_2"
-        },
-        "age=3": {
-            "model": "estfc:block/snowy/tfc/crop/barley_3"
-        },
-        "age=4": {
-            "model": "estfc:block/snowy/tfc/crop/barley_4"
-        },
-        "age=5": {
-            "model": "estfc:block/snowy/tfc/crop/barley_5"
-        },
-        "age=6": {
-            "model": "estfc:block/snowy/tfc/crop/barley_6"
-        },
-        "age=7": {
-            "model": "estfc:block/snowy/tfc/crop/barley_7"
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

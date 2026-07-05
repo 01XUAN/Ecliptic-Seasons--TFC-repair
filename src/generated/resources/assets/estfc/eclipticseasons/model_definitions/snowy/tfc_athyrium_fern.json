@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/plant/athyrium_fern/double"
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

@@ -1,8 +1,8 @@
 {
-    "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/groundcover/mussel"
-        }
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy_empty"
     }
+  }
 }

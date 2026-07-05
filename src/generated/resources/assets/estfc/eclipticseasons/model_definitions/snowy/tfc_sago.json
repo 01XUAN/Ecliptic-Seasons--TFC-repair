@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/plant/sago/sago"
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

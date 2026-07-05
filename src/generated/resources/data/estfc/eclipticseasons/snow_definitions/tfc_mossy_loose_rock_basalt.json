@@ -1,6 +1,6 @@
 {
   "blocks": ["tfc:rock/mossy_loose/basalt"],
-  "flag": 1000,
+  "flag": 1001,
   "offset": 1,
-  "mid": "eclipticseasons:overlay_tiny"
+  "mid": "estfc:snowy/tfc_mossy_loose_rock_basalt"
 }

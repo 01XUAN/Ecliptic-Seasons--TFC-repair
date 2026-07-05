@@ -1,6 +1,6 @@
 {
   "blocks": ["tfc:groundcover/pinecone"],
-  "flag": 1000,
+  "flag": 1001,
   "offset": 1,
   "mid": "estfc:snowy/tfc_groundcover_pinecone"
 }

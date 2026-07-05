@@ -1,29 +1,8 @@
 {
     "replace": true,
-    "multipart": [
-        {
-            "when": {
-                "part": "lower"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/barrel_cactus_lower"
-            }
-        },
-        {
-            "when": {
-                "part": "upper"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/barrel_cactus_flower_dynamic"
-            }
-        },
-        {
-            "when": {
-                "part": "upper"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/barrel_cactus_upper"
-            }
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
-    ]
+    }
 }

@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/liana/body"
-    },
-    "parent": "minecraft:block/cross"
-}

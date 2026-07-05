@@ -1,32 +1,8 @@
 {
     "replace": true,
-    "multipart": [
-        {
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/pickerelweed_empty"
-            }
-        },
-        {
-            "when": {
-                "part": "upper"
-            },
-            "apply": [
-                {
-                    "model": "estfc:block/snowy/tfc/plant/pickerelweed_dynamic_east"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/pickerelweed_dynamic_south",
-                    "y": 90
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/pickerelweed_dynamic_west",
-                    "y": 180
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/pickerelweed_dynamic_north",
-                    "y": 270
-                }
-            ]
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
-    ]
+    }
 }

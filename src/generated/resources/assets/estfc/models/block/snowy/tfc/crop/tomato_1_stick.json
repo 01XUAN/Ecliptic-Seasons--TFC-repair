@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "crop": "estfc:block/crop/tomato_1_stick"
-    },
-    "parent": "block/crop"
-}

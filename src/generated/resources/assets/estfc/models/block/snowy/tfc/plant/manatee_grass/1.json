@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "texture": "estfc:block/plant/manatee_grass/1"
-    },
-    "parent": "minecraft:block/template_seagrass"
-}

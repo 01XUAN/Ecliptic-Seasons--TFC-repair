@@ -1,8 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "part=lower": {
-            "model": "estfc:block/snowy/tfc/plant/morning_glory/morning_glory_flowerpot_foliage"
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

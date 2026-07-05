@@ -1,56 +1,8 @@
 {
     "replace": true,
-    "multipart": [
-        {
-            "when": {
-                "down": "true"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/tree_kelp_down"
-            }
-        },
-        {
-            "when": {
-                "east": "true"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/tree_kelp_side",
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "north": "true"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/tree_kelp_side",
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "south": "true"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/tree_kelp_side",
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "up": "true"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/tree_kelp_up"
-            }
-        },
-        {
-            "when": {
-                "west": "true"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/tree_kelp_side"
-            }
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
-    ]
+    }
 }

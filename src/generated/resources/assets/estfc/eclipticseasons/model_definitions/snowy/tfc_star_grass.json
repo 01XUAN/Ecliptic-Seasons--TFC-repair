@@ -1,17 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "age=0": {
-            "model": "estfc:block/snowy/tfc/plant/star_grass/0"
-        },
-        "age=1": {
-            "model": "estfc:block/snowy/tfc/plant/star_grass/1"
-        },
-        "age=2": {
-            "model": "estfc:block/snowy/tfc/plant/star_grass/2"
-        },
-        "age=3": {
-            "model": "estfc:block/snowy/tfc/plant/star_grass/3"
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

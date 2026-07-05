@@ -1,38 +1,8 @@
 {
     "replace": true,
-    "multipart": [
-        {
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/sagebrush_empty"
-            }
-        },
-        {
-            "apply": [
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_0"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_1"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_2"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_3"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_4"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_5"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_6"
-                },
-                {
-                    "model": "estfc:block/snowy/tfc/plant/sagebrush_dynamic_7"
-                }
-            ]
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
-    ]
+    }
 }

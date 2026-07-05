@@ -1,22 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "": [
-            {
-                "model": "estfc:block/snowy/tfc/plant/green_algae/green_algae",
-                "y": 90
-            },
-            {
-                "model": "estfc:block/snowy/tfc/plant/green_algae/green_algae"
-            },
-            {
-                "model": "estfc:block/snowy/tfc/plant/green_algae/green_algae",
-                "y": 180
-            },
-            {
-                "model": "estfc:block/snowy/tfc/plant/green_algae/green_algae",
-                "y": 270
-            }
-        ]
+        "": {
+            "model": "estfc:block/snowy_empty"
+        }
     }
 }

@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "crop": "estfc:block/crop/garlic_4"
-    },
-    "parent": "block/crop"
-}

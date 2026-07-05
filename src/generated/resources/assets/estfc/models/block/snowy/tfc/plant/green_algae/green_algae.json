@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "pad": "estfc:block/plant/green_algae/green_algae"
-    },
-    "parent": "tfc:block/plant/template_floating"
-}

@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/plant/tree_fern/tree_fern_trunk"
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

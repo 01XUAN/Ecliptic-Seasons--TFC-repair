@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "crop": "estfc:block/crop/onion_2"
-    },
-    "parent": "block/crop"
-}

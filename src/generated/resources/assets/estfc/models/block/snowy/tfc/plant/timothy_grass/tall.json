@@ -1,7 +1,0 @@
-{
-    "textures": {
-        "cross": "estfc:block/plant/timothy_grass/tall",
-        "particle": "estfc:block/plant/timothy_grass/tall"
-    },
-    "parent": "block/tinted_cross"
-}

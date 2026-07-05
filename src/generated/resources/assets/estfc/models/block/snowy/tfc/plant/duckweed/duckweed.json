@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "pad": "estfc:block/plant/duckweed/duckweed"
-    },
-    "parent": "tfc:block/plant/template_floating_tinted"
-}

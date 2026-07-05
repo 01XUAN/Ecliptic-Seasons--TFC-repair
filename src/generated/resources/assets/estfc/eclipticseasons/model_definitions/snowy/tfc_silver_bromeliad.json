@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/plant/silver_bromeliad/silver_bromeliad"
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

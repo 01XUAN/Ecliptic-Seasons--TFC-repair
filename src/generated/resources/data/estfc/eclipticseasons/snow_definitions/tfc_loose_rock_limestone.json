@@ -1,6 +1,6 @@
 {
   "blocks": ["tfc:rock/loose/limestone"],
-  "flag": 1000,
+  "flag": 1001,
   "offset": 1,
-  "mid": "eclipticseasons:overlay_tiny"
+  "mid": "estfc:snowy/tfc_loose_rock_limestone"
 }

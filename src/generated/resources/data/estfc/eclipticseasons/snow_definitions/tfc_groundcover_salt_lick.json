@@ -1,6 +1,6 @@
 {
   "blocks": ["tfc:groundcover/salt_lick"],
-  "flag": 1000,
+  "flag": 1001,
   "offset": 1,
   "mid": "estfc:snowy/tfc_groundcover_salt_lick"
 }

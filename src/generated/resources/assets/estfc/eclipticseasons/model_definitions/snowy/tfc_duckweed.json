@@ -1,22 +1,8 @@
 {
     "replace": true,
     "variants": {
-        "": [
-            {
-                "model": "estfc:block/snowy/tfc/plant/duckweed/duckweed",
-                "y": 90
-            },
-            {
-                "model": "estfc:block/snowy/tfc/plant/duckweed/duckweed"
-            },
-            {
-                "model": "estfc:block/snowy/tfc/plant/duckweed/duckweed",
-                "y": 180
-            },
-            {
-                "model": "estfc:block/snowy/tfc/plant/duckweed/duckweed",
-                "y": 270
-            }
-        ]
+        "": {
+            "model": "estfc:block/snowy_empty"
+        }
     }
 }

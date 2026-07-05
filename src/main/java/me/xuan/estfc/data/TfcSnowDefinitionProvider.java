@@ -68,6 +68,60 @@ public class TfcSnowDefinitionProvider extends ESClientDataMapProvider<SnowDefin
                     .mid(ClientModelDefinitions.OVERLAY_TINY)
                     .build());
         }
+
+        // ── 落叶堆 ──
+        String[] woodTypes = {
+            "acacia", "ash", "aspen", "birch", "blackwood", "chestnut",
+            "douglas_fir", "hickory", "kapok", "mangrove", "maple", "oak",
+            "palm", "pine", "rosewood", "sequoia", "spruce", "sycamore",
+            "white_cedar", "willow"
+        };
+        for (String wood : woodTypes) {
+            addSnowDef(blocks, "wood/fallen_leaves/" + wood,
+                SnowDefinition.Info.builder()
+                    .flag(MapChecker.FLAG_CUSTOM_JSON_PLANTS)
+                    .offset(1)
+                    .mid(ClientModelDefinitions.OVERLAY_TINY)
+                    .build());
+        }
+
+        // ── 树枝 ──
+        for (String wood : woodTypes) {
+            addSnowDef(blocks, "wood/twig/" + wood,
+                SnowDefinition.Info.builder()
+                    .flag(MapChecker.FLAG_CUSTOM_JSON_PLANTS)
+                    .offset(1)
+                    .mid(ClientModelDefinitions.OVERLAY_TINY)
+                    .build());
+        }
+
+        // ── 高山矮曲林 (Krummholz) ──
+        String[] krummholzWoods = {"pine", "spruce", "douglas_fir", "white_cedar", "aspen"};
+        for (String wood : krummholzWoods) {
+            addSnowDef(blocks, "plant/" + wood + "_krummholz",
+                SnowDefinition.Info.builder()
+                    .flag(MapChecker.FLAG_CUSTOM_JSON_PLANTS)
+                    .offset(1)
+                    .mid(ClientModelDefinitions.OVERLAY_TINY)
+                    .build());
+        }
+
+        // ── 野生作物 ──
+        String[] cropTypes = {
+            "alfalfa", "barley", "beet", "cabbage", "canola", "carrot", "cassava",
+            "garlic", "green_bean", "jute", "lentil", "maize", "melon", "oat",
+            "onion", "papyrus", "peanut", "potato", "pumpkin", "radish",
+            "red_bell_pepper", "rice", "rye", "soybean", "squash", "sugarcane",
+            "tomato", "wheat", "yellow_bell_pepper"
+        };
+        for (String crop : cropTypes) {
+            addSnowDef(blocks, "wild_crop/" + crop,
+                SnowDefinition.Info.builder()
+                    .flag(MapChecker.FLAG_CUSTOM_JSON_PLANTS)
+                    .offset(1)
+                    .mid(ClientModelDefinitions.OVERLAY_TINY)
+                    .build());
+        }
     }
 
     private void addSnowDef(HolderLookup.RegistryLookup<Block> blocks, String tfcPath,

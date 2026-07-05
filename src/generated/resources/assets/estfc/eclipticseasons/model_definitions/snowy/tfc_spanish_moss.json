@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/plant/spanish_moss/tip"
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

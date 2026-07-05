@@ -2,7 +2,7 @@
     "replace": true,
     "variants": {
         "": {
-            "model": "estfc:block/snowy/tfc/crop/rotten_melon_side"
+            "model": "estfc:block/snowy_empty"
         }
     }
 }

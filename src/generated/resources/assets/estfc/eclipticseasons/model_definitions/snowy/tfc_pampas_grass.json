@@ -1,21 +1,8 @@
 {
     "replace": true,
-    "multipart": [
-        {
-            "when": {
-                "part": "lower"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/pampas_grass_lower"
-            }
-        },
-        {
-            "when": {
-                "part": "upper"
-            },
-            "apply": {
-                "model": "estfc:block/snowy/tfc/plant/pampas_grass_dynamic"
-            }
+    "variants": {
+        "": {
+            "model": "estfc:block/snowy_empty"
         }
-    ]
+    }
 }

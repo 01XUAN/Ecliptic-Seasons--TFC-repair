@@ -1,6 +1,0 @@
-{
-    "textures": {
-        "texture": "estfc:block/plant/eel_grass/2"
-    },
-    "parent": "minecraft:block/template_seagrass"
-}

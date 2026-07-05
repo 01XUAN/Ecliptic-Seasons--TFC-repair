@@ -1,8 +1,8 @@
 {
-    "replace": true,
-    "variants": {
-        "": {
-            "model": "estfc:block/snowy/tfc/groundcover/driftwood"
-        }
+  "replace": true,
+  "variants": {
+    "": {
+      "model": "estfc:block/snowy_empty"
     }
+  }
 }

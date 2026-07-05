@@ -1,7 +1,6 @@
 {
   "blocks": ["tfc:wood/fallen_leaves/kapok"],
-  "flag": 1101,
-  "offset": 0,
-  "mid": "eclipticseasons:snowy_leaves_top",
-  "mid2": "eclipticseasons:snowy_leaves_attach"
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_fallen_leaves_kapok"
 }
