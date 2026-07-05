@@ -1,5 +1,5 @@
 {
-    "parent": "minecraft:block/cross",
+    "parent": "block/cross",
     "textures": {
         "cross": "estfc:block/plant/desert_flame/desert_flame_1"
     }

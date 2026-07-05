@@ -1,5 +1,5 @@
 {
-    "parent": "minecraft:block/cross",
+    "parent": "block/cross",
     "textures": {
         "cross": "estfc:block/plant/bird_nest_fern/bird_nest_fern"
     }

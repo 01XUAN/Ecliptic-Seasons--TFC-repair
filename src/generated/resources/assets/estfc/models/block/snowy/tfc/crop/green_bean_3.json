@@ -1,6 +1,6 @@
 {
-    "parent": "minecraft:block/cross",
+    "parent": "block/crop",
     "textures": {
-        "cross": "estfc:block/crop/green_bean_3"
+        "crop": "estfc:block/crop/green_bean_3"
     }
 }

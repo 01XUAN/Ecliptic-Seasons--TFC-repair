@@ -174,11 +174,9 @@ tasks.register('generateTfcSnowDefinitions') {
             ff.text = "{\n  \"blocks\": [\"tfc:wood/fallen_leaves/${wood}\"],\n  \"flag\": 1000,\n  \"offset\": 0,\n  \"mid\": \"estfc:snowy_groundcover\"\n}"
         }
 
-        // ── 植物/农作物 ──
-        // 方块 ID 来自 TFC Crop/Plant 枚举 (权威来源, 不依赖 manifest 推导)
-        // Manifest 仅用于查找最佳覆雪贴图
+        // ── 植物/农作物 (replace:true, 模仿 TFC 原始模型结构) ──
+        // 方块 ID 来自 TFC Crop/Plant 枚举; manifest 用于查找最佳贴图
 
-        // TFC Crop 枚举所有作物 (block ID: tfc:crop/<name>)
         def tfcCrops = [
             'alfalfa', 'barley', 'beet', 'cabbage', 'canola', 'carrot', 'cassava',
             'garlic', 'green_bean', 'jute', 'lentil', 'maize', 'melon', 'oat',
@@ -187,25 +185,20 @@ tasks.register('generateTfcSnowDefinitions') {
             'tomato', 'wheat', 'yellow_bell_pepper'
         ] as Set
 
-        // manifest 中有贴图但非独立 TFC 方块 — 修正为真实方块 ID
-        // 格式: manifestKey -> [blockId, tfcName]
         def blockIdFix = [
             'pumpkin_side':       [id: 'tfc:pumpkin',        name: 'pumpkin_fruit'],
             'melon_side':         [id: 'tfc:melon',          name: 'melon_fruit'],
             'rotten_pumpkin_side':[id: 'tfc:rotten_pumpkin', name: 'rotten_pumpkin'],
-            'rotten_pumpkin_top': [id: 'tfc:rotten_pumpkin', name: 'rotten_pumpkin'], // 同方块
+            'rotten_pumpkin_top': [id: 'tfc:rotten_pumpkin', name: 'rotten_pumpkin'],
             'rotten_melon_side':  [id: 'tfc:rotten_melon',   name: 'rotten_melon'],
-            'rotten_melon_top':   [id: 'tfc:rotten_melon',   name: 'rotten_melon'],   // 同方块
+            'rotten_melon_top':   [id: 'tfc:rotten_melon',   name: 'rotten_melon'],
         ]
-        // manifest 里存在但不是 TFC 方块的 key (贴图目录名 ≠ 方块 ID)
         def skipKeys = ['stick_top', 'wild_crop_grass', 'rattan'] as Set
 
-        // 一个贴图目录对应多个 TFC 方块
         def texToTfcBlocks = [
             'tulip':      ['tulip_orange','tulip_pink','tulip_red','tulip_white'],
             'water_lily': ['white_water_lily','purple_water_lily','yellow_water_lily'],
             'snapdragon': ['snapdragon_pink','snapdragon_red','snapdragon_white','snapdragon_yellow'],
-            // 配对植物 (两个方块共用一个贴图目录)
             'hanging_vines':   ['hanging_vines_plant','hanging_vines'],
             'spanish_moss':    ['spanish_moss_plant','spanish_moss'],
             'liana':           ['liana_plant','liana'],
@@ -235,81 +228,69 @@ tasks.register('generateTfcSnowDefinitions') {
 
         def manifest = new groovy.json.JsonSlurper().parse(manifestFile)
 
-        // 第一步：从 manifest 提取贴图映射 (只取每个 plant_key 的第一个条目)
-        def texLookup = [:]  // plant_key -> [best: ..., flag: ...]
+        // 第一步：从 manifest 提取贴图信息 (plant_key -> best_texture)
+        def texLookup = [:]  // plant_key -> best_texture
         manifest.each { p ->
             def key = p.plant_key
-            if (!texLookup.containsKey(key) && !skipKeys.contains(key)) {
-                texLookup[key] = [best: p.best_texture, flag: p.flag]
-            }
+            if (!texLookup.containsKey(key) && !skipKeys.contains(key))
+                texLookup[key] = p.best_texture
         }
 
-        // 第二步：构建 TFC 方块 → 贴图信息映射
-        def blockInfoMap = [:]  // tfcBlockName -> [best: ..., flag: ..., blockId: ...]
+        // 第二步：构建 TFC 方块 → [blockId, best_texture] 映射
+        def blockInfoMap = [:]  // tfcName -> [blockId, best]
 
-        // 作物 (1:1 映射, tfc:crop/<name>)
         tfcCrops.each { name ->
-            if (texLookup.containsKey(name)) {
-                blockInfoMap[name] = texLookup[name] + [blockId: "tfc:crop/${name}"]
-            }
+            if (texLookup.containsKey(name))
+                blockInfoMap[name] = [id: "tfc:crop/${name}", best: texLookup[name]]
         }
-
-        // 修正方块 ID 的条目 (pumpkin/melon 果实等)
         blockIdFix.each { manifestKey, fix ->
-            if (texLookup.containsKey(manifestKey) && !blockInfoMap.containsKey(fix.name)) {
-                blockInfoMap[fix.name] = texLookup[manifestKey] + [blockId: fix.id]
-            }
+            if (texLookup.containsKey(manifestKey) && !blockInfoMap.containsKey(fix.name))
+                blockInfoMap[fix.name] = [id: fix.id, best: texLookup[manifestKey]]
         }
-
-        // 多色变体 + 配对植物
         texToTfcBlocks.each { texKey, tfcNames ->
             if (texLookup.containsKey(texKey)) {
                 tfcNames.each { name ->
-                    if (!blockInfoMap.containsKey(name)) {
-                        blockInfoMap[name] = texLookup[texKey] + [blockId: "tfc:plant/${name}"]
-                    }
+                    if (!blockInfoMap.containsKey(name))
+                        blockInfoMap[name] = [id: "tfc:plant/${name}", best: texLookup[texKey]]
                 }
             }
         }
-
-        // manifest 中剩余的独立植物 (1:1 映射)
-        texLookup.each { key, info ->
-            // 作物变体 (如 green_bean_0_stick): 正身已在作物段, 跳过
+        texLookup.each { key, best ->
             def cropVariant = tfcCrops.find { key.startsWith(it) && (key.length() == it.length() || key.charAt(it.length()) == '_') }
             if (cropVariant) return
-            // 附属方块 (如 melon_side): 正身已在 blockIdFix 段, 跳过
             if (blockIdFix.containsKey(key)) return
-            if (!texToTfcBlocks.containsKey(key)
-                && !blockInfoMap.containsKey(key)) {
-                blockInfoMap[key] = info + [blockId: "tfc:plant/${key}"]
-            }
+            if (!texToTfcBlocks.containsKey(key) && !blockInfoMap.containsKey(key))
+                blockInfoMap[key] = [id: "tfc:plant/${key}", best: best]
         }
 
-        // 第三步：生成 JSON
+        // 第三步：生成 JSON (模仿 TFC 模型: crop→block/crop, 其他→block/cross)
         int count = 0
         blockInfoMap.each { tfcName, info ->
             // 雪定义
             def sd = new File(outputDir, "tfc_plant_${tfcName}.json")
             sd.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
-                blocks: info.blockId,
-                flag: info.flag,
+                blocks: info.id,
+                flag: 1001,
                 offset: 1,
                 mid: "estfc:snowy/tfc_${tfcName}"
             ]))
 
-            // 模型定义 (指向方块模型)
+            // 模型定义
             def md = new File(modelDefDir, "tfc_${tfcName}.json")
             md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
                 replace: true,
                 variants: ["" : [model: "estfc:block/snowy/tfc/${info.best}"]]
             ]))
 
-            // 方块模型 (使用覆雪贴图)
+            // 方块模型 — 模拟 TFC 原始模型结构
+            def isCrop = info.best.startsWith('crop/')
+            def modelParent = isCrop ? 'block/crop' : 'block/cross'
+            def texKey = isCrop ? 'crop' : 'cross'
             def bmFile = new File(blockModelDir, info.best + '.json')
             bmFile.toPath().toAbsolutePath().getParent().toFile().mkdirs()
             bmFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
-                parent: "minecraft:block/cross",
-                textures: [cross: "estfc:block/${info.best}"]
+                parent: modelParent,
+                textures: [(texKey): "estfc:block/${info.best}"]
             ]))
             count++
         }

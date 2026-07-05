@@ -1,5 +1,5 @@
 {
-    "parent": "minecraft:block/cross",
+    "parent": "block/cross",
     "textures": {
         "cross": "estfc:block/plant/morning_glory/morning_glory_bottom_2"
     }

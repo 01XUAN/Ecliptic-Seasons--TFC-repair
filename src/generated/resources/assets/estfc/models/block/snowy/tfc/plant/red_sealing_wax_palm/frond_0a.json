@@ -1,5 +1,5 @@
 {
-    "parent": "minecraft:block/cross",
+    "parent": "block/cross",
     "textures": {
         "cross": "estfc:block/plant/red_sealing_wax_palm/frond_0a"
     }

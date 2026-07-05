@@ -1,5 +1,5 @@
 {
-    "parent": "minecraft:block/cross",
+    "parent": "block/cross",
     "textures": {
         "cross": "estfc:block/plant/toquilla_palm/toquilla_palm_2"
     }
