@@ -65,15 +65,13 @@ public class SnowTextureSwapModel implements BakedModel, IESReplaceModel {
             ResourceLocation tfcName = tfcSprite.contents().name();
 
             if (tfcName.getNamespace().equals("tfc")) {
-                ResourceLocation estfcName = ResourceLocation.fromNamespaceAndPath(
-                    "estfc", tfcName.getPath());
-                TextureAtlasSprite estfcSprite = atlas.getSprite(estfcName);
+                String tfcPath = tfcName.getPath();
+                TextureAtlasSprite estfcSprite = estfc$findSprite(atlas, tfcPath);
 
-                // estfc 贴图不在 atlas → 保留 TFC 原贴图（不生成悬浮雪层）
-                if (isMissingSprite(estfcSprite)) {
-                    out.add(quad);
-                } else {
+                if (estfcSprite != null) {
                     out.add(new BakedQuadRetexturedAndReUV(quad, estfcSprite, false));
+                } else {
+                    out.add(quad); // 无匹配 → 保留 TFC 原贴图
                 }
             } else {
                 out.add(quad);
@@ -83,8 +81,30 @@ public class SnowTextureSwapModel implements BakedModel, IESReplaceModel {
     }
 
     /**
+     * 查找 estfc 覆雪贴图，带路径回退：
+     * 1. estfc:<原路径>
+     * 2. dense_leaves/ → leaves/ (krummholz/fallen_leaves 的 dense 贴图用普通树叶贴图)
+     */
+    @Nullable
+    private static TextureAtlasSprite estfc$findSprite(TextureAtlas atlas, String tfcPath) {
+        // 1. 精确匹配
+        ResourceLocation rl = ResourceLocation.fromNamespaceAndPath("estfc", tfcPath);
+        TextureAtlasSprite sprite = atlas.getSprite(rl);
+        if (!isMissingSprite(sprite)) return sprite;
+
+        // 2. dense_leaves → leaves 回退（落叶堆/krummholz 树叶用）
+        if (tfcPath.contains("dense_leaves/")) {
+            String fallback = tfcPath.replace("leaves/dense_leaves/", "leaves/");
+            rl = ResourceLocation.fromNamespaceAndPath("estfc", fallback);
+            sprite = atlas.getSprite(rl);
+            if (!isMissingSprite(sprite)) return sprite;
+        }
+
+        return null;
+    }
+
+    /**
      * 检查 sprite 是否为 missing texture（贴图未注册到 atlas）。
-     * 当 estfc snowy 贴图文件存在但未被 block model 引用时，atlas 返回 missingno。
      */
     private static boolean isMissingSprite(TextureAtlasSprite sprite) {
         return sprite.contents().name().getPath().equals("missingno");
