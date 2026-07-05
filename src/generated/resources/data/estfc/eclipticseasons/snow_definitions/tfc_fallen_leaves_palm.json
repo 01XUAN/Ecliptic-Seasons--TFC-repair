@@ -2,5 +2,5 @@
   "blocks": ["tfc:wood/fallen_leaves/palm"],
   "flag": 1000,
   "offset": 0,
-  "mid": "estfc:snowy_groundcover"
+  "mid": "eclipticseasons:overlay_tiny"
 }

@@ -13,7 +13,8 @@
         "MapCheckerMixin"
     ],
     "client": [
-        "NetworkUtilMixin"
+        "NetworkUtilMixin",
+        "SnowModelMixin"
     ],
     "server": [],
     "refmap": "estfc.refmap.json"

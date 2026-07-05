@@ -2,5 +2,5 @@
   "blocks": ["tfc:wood/fallen_leaves/white_cedar"],
   "flag": 1000,
   "offset": 0,
-  "mid": "estfc:snowy_groundcover"
+  "mid": "eclipticseasons:overlay_tiny"
 }
