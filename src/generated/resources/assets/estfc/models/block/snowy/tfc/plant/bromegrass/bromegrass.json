@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/tinted_cross",
-  "textures": {
-    "cross": "estfc:block/plant/bromegrass/bromegrass"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/bromegrass/bromegrass"
+    },
+    "parent": "minecraft:block/tinted_cross"
 }

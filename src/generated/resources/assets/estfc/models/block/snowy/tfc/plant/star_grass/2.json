@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "minecraft:block/template_seagrass",
-  "textures": {
-    "texture": "estfc:block/plant/star_grass/2"
-  }
+    "textures": {
+        "texture": "estfc:block/plant/star_grass/2"
+    },
+    "parent": "minecraft:block/template_seagrass"
 }

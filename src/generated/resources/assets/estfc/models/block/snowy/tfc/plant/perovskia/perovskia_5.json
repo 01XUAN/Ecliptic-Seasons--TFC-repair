@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/perovskia/perovskia_5"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/perovskia/perovskia_5"
+    },
+    "parent": "block/cross"
 }

@@ -1,7 +1,7 @@
 {
-  "parent": "estfc:block/large_tinted_cross",
-  "textures": {
-    "cross": "estfc:block/plant/tall_fescue_grass/tall",
-    "particle": "estfc:block/plant/tall_fescue_grass/tall"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/tall_fescue_grass/tall",
+        "particle": "estfc:block/plant/tall_fescue_grass/tall"
+    },
+    "parent": "tfc:block/large_tinted_cross"
 }

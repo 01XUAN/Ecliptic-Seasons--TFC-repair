@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/primrose/primrose_2"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/primrose/primrose_2"
+    },
+    "parent": "block/cross"
 }

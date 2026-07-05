@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/liana/body"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/liana/body"
+    },
+    "parent": "minecraft:block/cross"
 }

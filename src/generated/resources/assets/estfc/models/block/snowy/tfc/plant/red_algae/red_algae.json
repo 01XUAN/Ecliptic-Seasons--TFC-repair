@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "estfc:block/plant/template_floating",
-  "textures": {
-    "pad": "estfc:block/plant/red_algae/red_algae"
-  }
+    "textures": {
+        "pad": "estfc:block/plant/red_algae/red_algae"
+    },
+    "parent": "tfc:block/plant/template_floating"
 }

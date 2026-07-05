@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "minecraft:block/template_seagrass",
-  "textures": {
-    "texture": "estfc:block/plant/coontail/3"
-  }
+    "textures": {
+        "texture": "estfc:block/plant/coontail/3"
+    },
+    "parent": "minecraft:block/template_seagrass"
 }

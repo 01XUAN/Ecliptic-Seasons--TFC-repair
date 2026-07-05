@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "estfc:block/crop/spreading_crop_side",
-  "textures": {
-    "crop": "estfc:block/crop/melon_side"
-  }
+    "textures": {
+        "crop": "estfc:block/crop/melon_side"
+    },
+    "parent": "tfc:block/crop/spreading_crop_side"
 }

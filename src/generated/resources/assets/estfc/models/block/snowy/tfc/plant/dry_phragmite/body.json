@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/dry_phragmite/body"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/dry_phragmite/body"
+    },
+    "parent": "minecraft:block/cross"
 }

@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/goldenrod/goldenrod_4"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/goldenrod/goldenrod_4"
+    },
+    "parent": "block/cross"
 }

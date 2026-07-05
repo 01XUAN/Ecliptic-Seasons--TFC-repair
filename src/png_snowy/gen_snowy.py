@@ -6,7 +6,8 @@ TFC 方块覆雪贴图生成器。仅处理贴图。
 用法:
   pip install Pillow
   cd src/png_snowy
-  python gen_snowy.py
+  python gen_snowy.py          # 生成覆雪贴图 (composited)
+  python gen_snowy.py --mask   # 同时生成雪遮罩 (snow-only, 透明背景)
 """
 
 import os, sys
@@ -17,6 +18,7 @@ ROOT_RESOURCES = os.path.join(SCRIPT_DIR, "..", "main", "resources")
 SNOWY_PNG     = os.path.join(SCRIPT_DIR, "snowy.png")
 SNOWY_TOP_PNG = os.path.join(SCRIPT_DIR, "snowy_top.png")
 TEX_OUT       = os.path.join(ROOT_RESOURCES, "assets", "estfc", "textures", "block")
+MASK_OUT      = os.path.join(ROOT_RESOURCES, "assets", "estfc", "textures", "block", "snow")
 IGNORE_LIST   = {"snowy.png", "snowy_top.png", "gen_snowy.py"}
 
 # ─── 工具 ────────────────────────────────────────────
@@ -78,23 +80,37 @@ def blend(bg, fg):
 
 # ─── 核心：贴图覆雪处理 ──────────────────────────────
 
-def process_one(name, img, snowy, snowy_top):
+def process_one(name, img, snowy, snowy_top, mask_mode=False):
+    """
+    mask_mode=False: 在原始贴图上合成白雪 → 输出 composited 贴图 (用于无 tint 模型)
+    mask_mode=True:  仅输出雪像素 (透明背景) → 输出雪遮罩 (用于 mixed_cross 的非着色层)
+    """
     img = img.convert("RGBA")
     w, h = img.size
     px = img.load(); sw, sh = snowy.size
 
     if snowy_top and count_edge_solid(px, w, h) > 40:
-        result = img.copy()
-        r = Image.alpha_composite(result, snowy_top.resize((w,h), Image.LANCZOS).convert("RGBA"))
-        print(f"  [{name}] 外圈>40 -> snowy_top 覆盖")
-        return r
+        if mask_mode:
+            # 遮罩模式: 直接使用 snowy_top 作为遮罩
+            result = snowy_top.resize((w,h), Image.LANCZOS).convert("RGBA")
+            print(f"  [{name}] 外圈>40 -> snowy_top 遮罩")
+        else:
+            result = img.copy()
+            r = Image.alpha_composite(result, snowy_top.resize((w,h), Image.LANCZOS).convert("RGBA"))
+            print(f"  [{name}] 外圈>40 -> snowy_top 覆盖")
+            return r
+        return result
 
     sp = find_split(px, w, h)
     has = sp < h
     tu = find_top(px, w, h, 0)
     tl = find_top(px, w, h, sp+1) if has else h
 
-    r = img.copy()
+    if mask_mode:
+        # 遮罩模式: 从透明背景开始，只画雪像素
+        r = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    else:
+        r = img.copy()
     rp = r.load()
 
     for y in range(h):
@@ -132,9 +148,13 @@ def process_one(name, img, snowy, snowy_top):
             spx = (*spx, 255) if len(spx) == 3 else spx
             spx = (spx[0], spx[1], spx[2], int(spx[3] * a))
             if spx[3]:
-                rp[x, y] = blend(rp[x, y], spx)
+                if mask_mode:
+                    rp[x, y] = spx  # 仅雪像素，不混合原始纹理
+                else:
+                    rp[x, y] = blend(rp[x, y], spx)
 
-    print(f"  [{name}] OK" + (f", split={sp}" if has else ""))
+    suffix = " (遮罩)" if mask_mode else ""
+    print(f"  [{name}] OK{suffix}" + (f", split={sp}" if has else ""))
     return r
 
 # ─── 入口 ────────────────────────────────────────────
@@ -170,6 +190,8 @@ def main():
     if not os.path.exists(SNOWY_PNG):
         print(f"缺少 {SNOWY_PNG}"); sys.exit(1)
 
+    gen_mask = "--mask" in sys.argv
+
     snowy = Image.open(SNOWY_PNG).convert("RGBA")
     snowy_top = Image.open(SNOWY_TOP_PNG).convert("RGBA") if os.path.exists(SNOWY_TOP_PNG) else None
 
@@ -178,15 +200,21 @@ def main():
         print("无待处理 PNG"); sys.exit(1)
 
     print(f"输入贴图: {len(pngs)} 个")
-    print(f"输出目录: {os.path.abspath(TEX_OUT)}\n")
+    print(f"输出目录: {os.path.abspath(TEX_OUT)}")
+    if gen_mask:
+        print(f"遮罩目录: {os.path.abspath(MASK_OUT)}")
+    print()
 
     clean_output(TEX_OUT, pngs)
+    if gen_mask:
+        clean_output(MASK_OUT, pngs)
 
-    ok, skipped = 0, 0
+    ok, skipped, mask_ok = 0, 0, 0
     for rel in sorted(pngs):
         src = os.path.join(SCRIPT_DIR, rel)
         try:
-            out = process_one(rel, Image.open(src), snowy, snowy_top)
+            # 1) 生成覆雪合成贴图 (composited)
+            out = process_one(rel, Image.open(src), snowy, snowy_top, mask_mode=False)
         except Exception as e:
             print(f"  [{rel}] 错误: {e}")
             skipped += 1
@@ -196,8 +224,24 @@ def main():
         out.save(dest)
         ok += 1
 
+        # 2) 可选: 生成雪遮罩 (snow-only, 透明背景)
+        if gen_mask:
+            try:
+                mask = process_one(rel, Image.open(src), snowy, snowy_top, mask_mode=True)
+            except Exception as e:
+                print(f"  [{rel}] 遮罩错误: {e}")
+                continue
+            mask_dest = os.path.join(MASK_OUT, rel)
+            os.makedirs(os.path.dirname(mask_dest), exist_ok=True)
+            mask.save(mask_dest)
+            mask_ok += 1
+
     print(f"\n贴图: {ok} 成功, {skipped} 跳过")
+    if gen_mask:
+        print(f"遮罩: {mask_ok} 成功")
     print(f"\n完成。贴图: {os.path.abspath(TEX_OUT)}")
+    if gen_mask:
+        print(f"遮罩: {os.path.abspath(MASK_OUT)}")
 
 if __name__ == "__main__":
     try:

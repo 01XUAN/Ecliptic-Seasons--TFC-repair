@@ -1,7 +1,7 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/canna/canna_3",
-    "particle": "estfc:block/plant/canna/canna_3"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/canna/canna_3",
+        "particle": "estfc:block/plant/canna/canna_3"
+    },
+    "parent": "minecraft:block/cross"
 }

@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/tinted_cross",
-  "textures": {
-    "cross": "estfc:block/plant/arundo/body"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/arundo/body"
+    },
+    "parent": "minecraft:block/tinted_cross"
 }

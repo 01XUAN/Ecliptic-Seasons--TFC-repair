@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "block/cross",
-  "textures": {
-    "cross": "estfc:block/plant/anthurium/anthurium_1"
-  }
+    "textures": {
+        "cross": "estfc:block/plant/anthurium/anthurium_1"
+    },
+    "parent": "block/cross"
 }

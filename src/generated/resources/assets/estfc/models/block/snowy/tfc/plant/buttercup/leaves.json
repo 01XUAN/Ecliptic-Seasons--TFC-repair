@@ -1,7 +1,7 @@
 {
-  "parent": "estfc:block/plant/flowerbed_tinted_1",
-  "textures": {
-    "flowerbed": "estfc:block/plant/buttercup/leaves",
-    "stem": "estfc:block/plant/buttercup/stem"
-  }
+    "textures": {
+        "flowerbed": "estfc:block/plant/buttercup/leaves",
+        "stem": "estfc:block/plant/buttercup/stem"
+    },
+    "parent": "tfc:block/plant/flowerbed_tinted_1"
 }

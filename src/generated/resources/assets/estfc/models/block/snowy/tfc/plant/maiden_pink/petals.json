@@ -1,7 +1,7 @@
 {
-  "parent": "estfc:block/plant/flowerbed_1",
-  "textures": {
-    "flowerbed": "estfc:block/plant/maiden_pink/petals",
-    "stem": "estfc:block/plant/maiden_pink/stem"
-  }
+    "textures": {
+        "flowerbed": "estfc:block/plant/maiden_pink/petals",
+        "stem": "estfc:block/plant/maiden_pink/stem"
+    },
+    "parent": "tfc:block/plant/flowerbed_1"
 }

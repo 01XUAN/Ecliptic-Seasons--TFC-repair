@@ -1,7 +1,6 @@
 {
-  "__comment__": "This file was automatically created by mcresources",
-  "parent": "block/crop",
-  "textures": {
-    "crop": "estfc:block/crop/cabbage_5"
-  }
+    "textures": {
+        "crop": "estfc:block/crop/cabbage_5"
+    },
+    "parent": "block/crop"
 }

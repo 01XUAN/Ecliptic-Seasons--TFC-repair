@@ -291,36 +291,73 @@ tasks.register('generateTfcSnowDefinitions') {
         }
         println "Indexed ${tfcModelByTexture.size()} TFC models"
 
-        // 第四步：生成 JSON — 复制 TFC 模型，贴图替换为覆雪版
+        // 第四步：生成 JSON — 复制 TFC 模型，仅替换贴图引用（保留父模型引用）
         int count = 0
         int tfcHits = 0
+
+        // 墙植/藤蔓植物 (用 flag 1200, 藤蔓类, 不计算高度偏移)
+        def wallPlants = [
+            'hanging_vines', 'hanging_vines_plant',
+            'spanish_moss', 'spanish_moss_plant',
+            'liana', 'liana_plant',
+            'flame_vine', 'flame_vine_plant',
+            'ivy', 'jungle_vines',
+            // CREEPING_STONE 类型 (贴在方块面上的地衣/苔藓)
+            'cobblestone_lichen', 'elegant_sunburst_lichen'
+        ] as Set
+
         blockInfoMap.each { tfcName, info ->
+            // 判断是否为墙植植物
+            def isWallPlant = wallPlants.contains(tfcName)
+            def flag = isWallPlant ? 1200 : 1001
+
             // 雪定义
             def sd = new File(outputDir, "tfc_plant_${tfcName}.json")
             sd.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
                 blocks: info.id,
-                flag: 1001,
-                offset: 1,
+                flag: flag,
+                offset: isWallPlant ? 0 : 1,
                 mid: "estfc:snowy/tfc_${tfcName}"
             ]))
 
-            // 模型定义
+            // 模型定义 (replace: true 完全替换原模型)
             def md = new File(modelDefDir, "tfc_${tfcName}.json")
             md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
                 replace: true,
                 variants: ["" : [model: "estfc:block/snowy/tfc/${info.best}"]]
             ]))
 
-            // 方块模型 — 优先复制 TFC 原版模型，替换贴图路径
+            // 方块模型
             def bmFile = new File(blockModelDir, info.best + '.json')
             bmFile.toPath().toAbsolutePath().getParent().toFile().mkdirs()
-            // 尝试多种 key 来匹配 (manifest best_texture 前缀可能和 TFC 纹理路径不同)
-            def tfcModel = tfcModelByTexture[info.best]
+
+            // 尝试多种 key 来匹配 TFC 原模型
+            def tfcModelText = tfcModelByTexture[info.best]
                 ?: tfcModelByTexture["plant/${info.best}"]
                 ?: tfcModelByTexture["crop/${info.best}"]
-            if (tfcModel != null) {
-                // 复制 TFC 模型，替换所有 tfc: 贴图引用 → estfc:
-                bmFile.text = tfcModel.replaceAll('"tfc:', '"estfc:')
+
+            if (tfcModelText != null) {
+                // 解析 TFC 模型, **仅替换贴图值中的 tfc: → estfc:**
+                // 父模型引用保持原样 — tfc:block/xxx 在运行时由 TFC 资产提供, 始终可用
+                def tfcModel = slurper.parseText(tfcModelText)
+                def newTextures = [:]
+                def texMap = tfcModel?.textures
+                if (texMap instanceof Map) {
+                    texMap.each { k, v ->
+                        if (v instanceof String)
+                            newTextures[k] = v.replace('tfc:', 'estfc:')
+                        else
+                            newTextures[k] = v
+                    }
+                }
+                // 构建输出, 保留 parent / elements / ambientocclusion 等所有字段
+                def outModel = [textures: newTextures]
+                if (tfcModel?.parent) outModel.parent = tfcModel.parent
+                if (tfcModel?.ambientocclusion != null) outModel.ambientocclusion = tfcModel.ambientocclusion
+                if (tfcModel?.elements) outModel.elements = tfcModel.elements
+                if (tfcModel?.display) outModel.display = tfcModel.display
+                if (tfcModel?.loader) outModel.loader = tfcModel.loader
+                bmFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(outModel))
                 tfcHits++
             } else {
                 // 回退：生成简单 cross/crop 模型

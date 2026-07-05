@@ -1,7 +1,7 @@
 {
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "particle": "estfc:block/plant/sagebrush/sagebrush_7",
-    "cross": "estfc:block/plant/sagebrush/sagebrush_7"
-  }
+    "textures": {
+        "particle": "estfc:block/plant/sagebrush/sagebrush_7",
+        "cross": "estfc:block/plant/sagebrush/sagebrush_7"
+    },
+    "parent": "minecraft:block/cross"
 }
