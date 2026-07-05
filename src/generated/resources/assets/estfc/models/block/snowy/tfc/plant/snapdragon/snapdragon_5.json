@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/snapdragon/snapdragon_5"
-    }
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/snapdragon/snapdragon_5",
+    "particle": "estfc:block/plant/snapdragon/snapdragon_5"
+  }
 }

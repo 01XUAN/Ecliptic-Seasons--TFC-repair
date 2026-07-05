@@ -1,6 +1,9 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/qantu/top_1"
-    }
+  "parent": "estfc:block/tfc_azalea",
+  "textures": {
+    "cross": "estfc:block/plant/qantu/cross_1",
+    "side": "estfc:block/plant/qantu/side_1",
+    "top": "estfc:block/plant/qantu/top_1",
+    "particle": "estfc:block/plant/qantu/top_1"
+  }
 }

@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/sargassum/sargassum"
-    }
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "estfc:block/plant/template_floating",
+  "textures": {
+    "pad": "estfc:block/plant/sargassum/sargassum"
+  }
 }

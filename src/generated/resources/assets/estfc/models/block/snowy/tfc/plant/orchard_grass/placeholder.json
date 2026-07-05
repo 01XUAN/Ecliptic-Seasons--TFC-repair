@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/orchard_grass/placeholder"
-    }
+  "parent": "block/tinted_cross",
+  "textures": {
+    "cross": "estfc:block/plant/orchard_grass/placeholder",
+    "particle": "estfc:block/plant/orchard_grass/placeholder"
+  }
 }

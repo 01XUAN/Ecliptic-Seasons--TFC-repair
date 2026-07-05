@@ -131,6 +131,7 @@ tasks.register('generateTfcSnowDefinitions') {
     def manifestFile = new File(projectDir, 'src/generated/resources/plant_manifest.json')
     def modelDefDir = new File(projectDir, 'src/generated/resources/assets/estfc/eclipticseasons/model_definitions/snowy')
     def blockModelDir = new File(projectDir, 'src/generated/resources/assets/estfc/models/block/snowy/tfc')
+    def tfcModelDir = new File(projectDir, '../TerraFirmaCraft-1.21.x/src/main/resources/assets/tfc/models/block')
 
     doLast {
         outputDir.mkdirs()
@@ -263,8 +264,36 @@ tasks.register('generateTfcSnowDefinitions') {
                 blockInfoMap[key] = [id: "tfc:plant/${key}", best: best]
         }
 
-        // 第三步：生成 JSON (模仿 TFC 模型: crop→block/crop, 其他→block/cross)
+        // 第三步：扫描 TFC 模型，建立 贴图路径 → TFC模型内容 的映射
+        def tfcModelByTexture = [:]  // "crop/barley_7" → model JSON string
+        def slurper = new groovy.json.JsonSlurper()
+        ['crop', 'plant'].each { subDir ->
+            def dir = new File(tfcModelDir, subDir)
+            if (dir.exists()) {
+                dir.eachFileRecurse { f ->
+                    if (f.name.endsWith('.json')) {
+                        try {
+                            def model = slurper.parse(f)
+                            def textures = model?.textures
+                            if (textures instanceof Map) {
+                                textures.values().each { v ->
+                                    if (v instanceof String && v.startsWith('tfc:block/')) {
+                                        def key = v.substring('tfc:block/'.length())
+                                        if (!tfcModelByTexture.containsKey(key))
+                                            tfcModelByTexture[key] = f.text
+                                    }
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+        }
+        println "Indexed ${tfcModelByTexture.size()} TFC models"
+
+        // 第四步：生成 JSON — 复制 TFC 模型，贴图替换为覆雪版
         int count = 0
+        int tfcHits = 0
         blockInfoMap.each { tfcName, info ->
             // 雪定义
             def sd = new File(outputDir, "tfc_plant_${tfcName}.json")
@@ -282,19 +311,28 @@ tasks.register('generateTfcSnowDefinitions') {
                 variants: ["" : [model: "estfc:block/snowy/tfc/${info.best}"]]
             ]))
 
-            // 方块模型 — 模拟 TFC 原始模型结构
-            def isCrop = info.best.startsWith('crop/')
-            def modelParent = isCrop ? 'block/crop' : 'block/cross'
-            def texKey = isCrop ? 'crop' : 'cross'
+            // 方块模型 — 优先复制 TFC 原版模型，替换贴图路径
             def bmFile = new File(blockModelDir, info.best + '.json')
             bmFile.toPath().toAbsolutePath().getParent().toFile().mkdirs()
-            bmFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
-                parent: modelParent,
-                textures: [(texKey): "estfc:block/${info.best}"]
-            ]))
+            // 尝试多种 key 来匹配 (manifest best_texture 前缀可能和 TFC 纹理路径不同)
+            def tfcModel = tfcModelByTexture[info.best]
+                ?: tfcModelByTexture["plant/${info.best}"]
+                ?: tfcModelByTexture["crop/${info.best}"]
+            if (tfcModel != null) {
+                // 复制 TFC 模型，替换所有 tfc: 贴图引用 → estfc:
+                bmFile.text = tfcModel.replaceAll('"tfc:', '"estfc:')
+                tfcHits++
+            } else {
+                // 回退：生成简单 cross/crop 模型
+                def isCrop = info.best.startsWith('crop/')
+                bmFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
+                    parent: isCrop ? 'block/crop' : 'block/cross',
+                    textures: [(isCrop ? 'crop' : 'cross'): "estfc:block/${info.best}"]
+                ]))
+            }
             count++
         }
-        println "Generated ${count} plant snow definitions + model definitions + block models"
+        println "Generated ${count} plants (${tfcHits} from TFC models, ${count - tfcHits} fallback)"
     }
 }
 

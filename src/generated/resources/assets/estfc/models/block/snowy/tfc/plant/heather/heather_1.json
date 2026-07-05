@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/heather/heather_1"
-    }
+  "parent": "estfc:block/large_cross",
+  "textures": {
+    "cross": "estfc:block/plant/heather/heather_1",
+    "particle": "estfc:block/plant/heather/heather_1"
+  }
 }

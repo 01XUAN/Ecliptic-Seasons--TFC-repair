@@ -1,6 +1,6 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/raddia_grass/raddia_grass"
-    }
+  "parent": "block/tinted_cross",
+  "textures": {
+    "cross": "estfc:block/plant/raddia_grass/raddia_grass"
+  }
 }

@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/yellow_saxifrage/leaves"
-    }
+  "parent": "estfc:block/plant/flowerbed_tinted_1",
+  "textures": {
+    "flowerbed": "estfc:block/plant/yellow_saxifrage/leaves",
+    "stem": "estfc:block/plant/yellow_saxifrage/stem"
+  }
 }

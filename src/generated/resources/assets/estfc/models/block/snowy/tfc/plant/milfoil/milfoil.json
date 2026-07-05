@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/milfoil/milfoil"
-    }
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/milfoil/milfoil",
+    "particle": "estfc:block/plant/milfoil/milfoil"
+  }
 }

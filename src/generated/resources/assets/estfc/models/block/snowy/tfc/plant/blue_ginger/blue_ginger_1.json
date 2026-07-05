@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/blue_ginger/blue_ginger_1"
-    }
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/blue_ginger/blue_ginger_1"
+  }
 }

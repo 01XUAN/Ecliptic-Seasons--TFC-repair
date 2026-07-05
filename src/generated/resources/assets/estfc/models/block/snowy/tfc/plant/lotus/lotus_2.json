@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/lotus/lotus_2"
-    }
+  "parent": "estfc:block/plant/template_floating_tinted_flower",
+  "textures": {
+    "pad": "estfc:block/plant/lotus/lotus",
+	"flower": "estfc:block/plant/lotus/lotus_2"
+  }
 }

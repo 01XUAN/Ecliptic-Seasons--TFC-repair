@@ -1,6 +1,6 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/moss_campion/moss_campion_3"
-    }
+  "parent": "estfc:block/moss_campion",
+  "textures": {
+    "texture": "estfc:block/plant/moss_campion/moss_campion_3"
+  }
 }

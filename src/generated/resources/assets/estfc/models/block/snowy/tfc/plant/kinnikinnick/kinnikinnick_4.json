@@ -1,6 +1,8 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/kinnikinnick/kinnikinnick_4"
-    }
+  "parent": "estfc:block/short_bush",
+  "textures": {
+    "side": "estfc:block/plant/kinnikinnick/kinnikinnick_4",
+    "top": "estfc:block/plant/kinnikinnick/kinnikinnick_4",
+    "particle": "estfc:block/plant/kinnikinnick/kinnikinnick_4"
+  }
 }

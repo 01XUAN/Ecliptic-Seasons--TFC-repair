@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/barrel_cactus/flower_4"
-    }
+  "parent": "estfc:block/plant/barrel_cactus_flower_0",
+  "textures": {
+    "flower": "estfc:block/plant/barrel_cactus/flower_4",
+    "particle": "estfc:block/plant/barrel_cactus/flower_4"
+  }
 }

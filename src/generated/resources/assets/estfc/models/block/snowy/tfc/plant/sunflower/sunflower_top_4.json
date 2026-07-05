@@ -1,6 +1,6 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/sunflower/sunflower_top_4"
-    }
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/sunflower/sunflower_top_4"
+  }
 }

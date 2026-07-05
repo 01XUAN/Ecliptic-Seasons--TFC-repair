@@ -1,6 +1,6 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/hanging_vines/body"
-    }
+  "parent": "minecraft:block/tinted_cross",
+  "textures": {
+    "cross": "estfc:block/plant/hanging_vines/body"
+  }
 }

@@ -1,6 +1,8 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/prickly_pear/flower_3"
-    }
+  "parent": "estfc:block/plant/prickly_pear_0",
+  "textures": {
+    "particle": "estfc:block/plant/prickly_pear/flower_2",
+	"base": "estfc:block/plant/prickly_pear/base",
+    "flower": "estfc:block/plant/prickly_pear/flower_3"
+  }
 }

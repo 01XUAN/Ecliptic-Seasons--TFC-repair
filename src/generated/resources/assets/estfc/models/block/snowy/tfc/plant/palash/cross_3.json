@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/palash/cross_3"
-    }
+  "parent": "block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/palash/cross_3",
+    "particle": "estfc:block/plant/palash/cross_3"
+  }
 }

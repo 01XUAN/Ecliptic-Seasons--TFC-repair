@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/azalea/cross_3"
-    }
+  "parent": "block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/azalea/cross_3",
+    "particle": "estfc:block/plant/azalea/cross_3"
+  }
 }

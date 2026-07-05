@@ -1,6 +1,7 @@
 {
-    "parent": "block/cross",
-    "textures": {
-        "cross": "estfc:block/plant/dandelion/dandelion_3"
-    }
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "estfc:block/plant/dandelion/dandelion_3",
+    "particle": "estfc:block/plant/dandelion/dandelion_3"
+  }
 }
