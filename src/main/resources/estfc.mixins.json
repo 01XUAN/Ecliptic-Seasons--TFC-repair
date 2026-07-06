@@ -10,12 +10,14 @@
         "EclipticUtilMixin",
         "ServerLevelMixin",
         "SnowyMapCheckerMixin",
-        "MapCheckerMixin"
+        "MapCheckerMixin",
+        "SnowyStatusKeeperMixin"
     ],
     "client": [
         "ClientConMixin",
         "NetworkUtilMixin",
-        "SnowModelMixin"
+        "SnowModelMixin",
+        "ExtraModelManagerMixin"
     ],
     "server": [],
     "refmap": "estfc.refmap.json"

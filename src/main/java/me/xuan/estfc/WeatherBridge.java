@@ -49,19 +49,25 @@ public class WeatherBridge {
             WeatherManager.BiomeWeather biomeWeather = biomes.get(index);
             if (biomeWeather == null || biomeWeather.biomeHolder == null) return;
 
-            // 用玩家位置做温度采样（避免固定(0,64,0)导致未加载区块的同步加载）
-            BlockPos pos = level.players().isEmpty()
+            // 每个 biome 需要各自的海拔来获得不同的温度（而不是所有 biome 共享玩家位置的温度）
+            // 策略：用玩家 X/Z（保证已加载），按 biome index 变化 Y 来模拟不同海拔
+            // → TFC 海拔递减率 (-1.6°C/10m) 确保不同"海拔"的 biome 获得不同深度
+            // 降水仍用玩家位置（降水不依赖海拔）
+            BlockPos playerPos = level.players().isEmpty()
                 ? BlockPos.ZERO.above(64)
                 : level.players().getFirst().blockPosition();
-            // 区块未加载则跳过本轮（不触发同步加载）
-            if (!level.isLoaded(pos)) return;
-            int depth = calcSnowDepth(level, pos);
-            boolean precip = isPrecipitating(level, pos);
+            if (!level.isLoaded(playerPos)) return;
+
+            // 不同 biome 分配不同采样海拔 (64~180)，提供温度多样性
+            int sampleY = 64 + (index * 17) % 116;
+            BlockPos samplePos = playerPos.atY(Math.min(sampleY, level.getMaxBuildHeight() - 1));
+            int depth = calcSnowDepth(level, samplePos);
+            boolean precip = isPrecipitating(level, playerPos);
 
             if (!LOGGED) {
                 LOGGED = true;
-                LOG.info("[estfc] tickWeatherCycle active: biome={} depth={} precip={}",
-                    biomeWeather.biomeHolder.getKey().location(), depth, precip);
+                LOG.info("[estfc] tickWeatherCycle active: biome={} depth={} precip={} sampleY={}",
+                    biomeWeather.biomeHolder.getKey().location(), depth, precip, sampleY);
             }
 
             // 更新群系级雪深 (rate = 1, 群系轮转提供自然的渐变速率)
@@ -87,6 +93,20 @@ public class WeatherBridge {
     }
 
     /**
+     * TFC 温度 → ES 雪深 (0-100)。所有地方统一的转换公式。
+     * <ul>
+     *   <li>temp > 0°C → 0（零上无雪）</li>
+     *   <li>temp ∈ [-4, 0] → |temp| * 25（0%~100% 线性渐变）</li>
+     *   <li>temp < -4°C → 100（满雪）</li>
+     * </ul>
+     */
+    public static int tempToSnowDepth(float temp) {
+        if (temp > 0) return 0;
+        if (temp < -4) return 100;
+        return (int)(Math.abs(temp) * 25);
+    }
+
+    /**
      * TFC 瞬时温度 → ES 雪深 (0-100)。
      */
     public static int calcSnowDepth(ServerLevel level, BlockPos pos) {
@@ -97,10 +117,7 @@ public class WeatherBridge {
         if (!tracker.isWeatherEnabled()) return 0;
 
         float temp = model.getInstantTemperature(level, pos);
-
-        if (temp < -10) return 100;
-        if (temp <= 0)  return 20 + (int)(Math.abs(temp) * 8);
-        return 0;
+        return tempToSnowDepth(temp);
     }
 
     /**

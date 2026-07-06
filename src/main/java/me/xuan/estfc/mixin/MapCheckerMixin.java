@@ -1,14 +1,13 @@
 package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.map.MapChecker;
-import com.teamtea.eclipticseasons.common.core.biome.BiomeClimateManager;
-import me.xuan.estfc.SnowDepthCache;
+import me.xuan.estfc.EstfcConfig;
+import me.xuan.estfc.WeatherBridge;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.util.RandomSource;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,96 +20,84 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 覆盖 shouldSnowAtBiome — DH 远景 + 客户端渲染入口。
+ * 客户端 shouldSnowAtBiome — DH/Voxy 远景入口。
  *
- * <h3>三层回退策略</h3>
- * <ol>
- *   <li><b>TFC 精确温度</b> — 客户端直接调用 TFC Climate API 获取位置温度，
- *       对附近有 ChunkData 的区块最准确</li>
- *   <li><b>SnowDepthCache</b> — 从服务端 BiomeWeatherMessage 同步的群系级雪深，
- *       DH 远距离区块降级使用</li>
- *   <li><b>雪线检查</b> — 海拔超过雪线直接返回 true，兜底</li>
- * </ol>
+ * <h3>核心设计</h3>
+ * TFC 温度完全由 (z纬度, y海拔, 时间) 决定，与群系类型<b>无关</b>。
+ * 客户端始终可用——ChunkData.EMPTY baseline=10°C + 纬度/海拔调整。
+ *
+ * <p><b>未加载区块偏移</b>：对于 {@code !isLoaded(pos)} 的位置，
+ * 温度加上 {@link EstfcConfig#unloadedTempOffset}（默认 +5°C）来抵消
+ * ChunkData.EMPTY 的 baseline 偏差，避免温暖纬度错误覆雪。
+ *
+ * <h3>温度→雪深</h3>
+ * 委托 {@link WeatherBridge#tempToSnowDepth(float)}：
+ * temp > 0 → 0, temp ∈ [-4,0] → |temp|*25, temp < -4 → 100
  */
 @Mixin(value = MapChecker.class, remap = false)
 public abstract class MapCheckerMixin {
 
     @Unique
-    private static final Logger ESTFC_LOG = LoggerFactory.getLogger("estfc");
-    @Unique
-    private static boolean LOGGED = false;
+    private static final Logger LOG = LoggerFactory.getLogger("estfc");
 
+    @Unique
+    private static boolean LOGGED_FIRST = false;
+
+    @Unique
+    private static int DEBUG_COUNT = 0;
+
+    @Unique
+    private static final int DEBUG_LIMIT = 50;
+
+    /**
+     * 拦截客户端 shouldSnowAtBiome，由 TFC 温度直接决策。
+     * 服务端走 ES 原生（群系列表正确初始化，biome 级雪深由 WeatherBridge.tickWeatherCycle 驱动）。
+     */
     @Inject(method = "shouldSnowAtBiome", at = @At("HEAD"), cancellable = true)
     private static void estfc$shouldSnowAtBiome(
         Level level, Biome biome, BlockState state, RandomSource random, long seed, BlockPos mcPos,
         CallbackInfoReturnable<Boolean> cir) {
 
-        // 服务端走 ES 原生逻辑（群系列表已正确初始化）
+        // 服务端：ES 原生（群系雪深由 WeatherBridge.tickWeatherCycle 维护）
         if (level instanceof ServerLevel) return;
 
         // ============ 客户端 ============
+        boolean loaded = level.isLoaded(mcPos);
 
-        // Tier 1: TFC 精确温度（需要 ChunkData，DH 远距离可能不可用）
+        // TFC 温度 = f(z纬度, y海拔, 日历时间)
+        // 客户端始终可用——ChunkData.EMPTY baseline=10°C + 纬度/海拔调整
         try {
             ClimateModel model = Climate.get(level);
-            if (model.supportsRain()) {
-                float temp = model.getInstantTemperature(level, mcPos);
-                int depth = estfc$tempToSnowDepth(temp);
-                if (depth > Math.abs(seed % 100)) {
-                    cir.setReturnValue(true);
-                    return;
-                }
-                if (depth == 0) {
-                    // 零上且不满足雪深条件 → 无雪
-                    cir.setReturnValue(false);
-                    return;
-                }
-                // depth > 0 但 seed 不匹配 → 继续 fallback
+            if (!model.supportsRain()) return; // 非 TFC 世界 → 回退 ES 原生
+
+            float temp = model.getInstantTemperature(level, mcPos);
+
+            // 未加载区块：加温度偏移（默认 +5°C），抵消 ChunkData.EMPTY baseline 偏差
+            // 避免 DH 远景在温暖纬度出现不应有的覆雪
+            if (!loaded) {
+                temp += EstfcConfig.unloadedTempOffset;
             }
+
+            int depth = WeatherBridge.tempToSnowDepth(temp);
+
+            boolean snow = depth > Math.abs(seed % 100);
+            cir.setReturnValue(snow);
+
+            debugLog(mcPos, loaded, temp, depth, snow);
         } catch (Exception e) {
-            // TFC ChunkData 不可用（DH 远距离区块），回退到缓存
-        }
-
-        // Tier 2: SnowDepthCache（服务端同步的群系级雪深）
-        // 仅在缓存已初始化时才使用，避免 Voxy/DH 首帧时读到全零缓存误判无雪
-        if (SnowDepthCache.INITIALIZED) {
-            int biomeId = level.registryAccess().registryOrThrow(Registries.BIOME).getId(biome);
-            if (biomeId >= 0 && biomeId < SnowDepthCache.DEPTHS.length) {
-                int depth = SnowDepthCache.DEPTHS[biomeId] & 0xFF;
-                if (depth > Math.abs(seed % 100)) {
-                    cir.setReturnValue(true);
-                    return;
-                }
-                if (depth == 0) {
-                    // 缓存已初始化且深度为0 → 该群系确实无雪
-                    cir.setReturnValue(false);
-                    return;
-                }
+            // TFC 不可用 → 回退 ES 原生
+            if (!LOGGED_FIRST) {
+                LOGGED_FIRST = true;
+                LOG.warn("[estfc] TFC unavailable on client, falling back to ES native snow", e);
             }
         }
-
-        // Tier 3: 雪线检查（缓存未初始化或深度不足以覆盖时的兜底）
-        int snowLine = BiomeClimateManager.getSnowLine(biome, false);
-        if (mcPos.getY() > snowLine) {
-            cir.setReturnValue(true);
-            return;
-        }
-
-        // 缓存未初始化时无法确定 → 不做判断，让调用方走自己的默认逻辑
-        if (!SnowDepthCache.INITIALIZED) {
-            return; // 不 cancel，让 ES 原生 shouldSnowAtBiome 执行
-        }
-
-        cir.setReturnValue(false);
     }
 
-    /**
-     * TFC 温度 → ES 雪深 (0-100)。与 WeatherManagerMixin 逻辑一致。
-     */
     @Unique
-    private static int estfc$tempToSnowDepth(float temp) {
-        if (temp < -10) return 100;
-        if (temp <= 0)  return 20 + (int)(Math.abs(temp) * 8);
-        return 0;
+    private static void debugLog(BlockPos pos, boolean loaded, float temp, int depth, boolean snow) {
+        if (DEBUG_COUNT >= DEBUG_LIMIT) return;
+        DEBUG_COUNT++;
+        LOG.info("[estfc:shouldSnow] #{} ({},{},{}) loaded={} temp={} depth={} -> {}",
+            DEBUG_COUNT, pos.getX(), pos.getY(), pos.getZ(), loaded, temp, depth, snow);
     }
 }

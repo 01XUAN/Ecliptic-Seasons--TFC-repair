@@ -6,15 +6,18 @@ import com.teamtea.eclipticseasons.common.core.map.MapChecker;
 import com.teamtea.eclipticseasons.common.core.snow.SnowyMapChecker;
 import com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper;
 import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
+import me.xuan.estfc.WeatherBridge;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
-import net.dries007.tfc.util.tracker.WorldTracker;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,12 +40,20 @@ import javax.annotation.Nullable;
  *   <li>temp > 0°C → 0</li>
  * </ul>
  * <p>
- * 配合 WeatherManagerMixin 覆盖的 getSnowStatus，已加载区块通过
- * tickChunk 维持雪状态，新区块通过本 mixin 即时初始化。
- * biome 级雪深同步到客户端实现全局视觉一致性。
+ * 覆雪判断与远端视图（MapCheckerMixin）使用完全相同的公式：
+ * snowDepth > |state.getSeed(pos) % 100|，保证近景远景一致。
  */
 @Mixin(value = SnowyMapChecker.class, remap = false)
 public abstract class SnowyMapCheckerMixin {
+
+    @Unique
+    private static final Logger LOG = LoggerFactory.getLogger("estfc");
+
+    @Unique
+    private static boolean DEBUG_DONE = false;
+
+    @Unique
+    private static final int DEBUG_COLUMNS = 5; // log first N columns per first chunk
 
     @Inject(method = "forceChunkUpdateHeight", at = @At("RETURN"))
     private static void estfc$afterForceChunkUpdate(
@@ -55,20 +66,13 @@ public abstract class SnowyMapCheckerMixin {
             ClimateModel model = Climate.get(level);
             if (!model.supportsRain()) return;
 
-            WorldTracker tracker = WorldTracker.get(level);
-            if (!tracker.isWeatherEnabled()) return;
+            // 不检查 WorldTracker.isWeatherEnabled()——
+            // 首次加载时 WorldTracker 可能未初始化 → 会导致我们被跳过
+            // → ES 原生逻辑用 biome 级深度处理边缘方块 → 边缘无雪
+            // TFC 温度本身不依赖 WorldTracker，直接计算即可
 
             SnowyStatusKeeper keeper = SnowyMapChecker.getSnowyStatusKeeper(chunk);
             WeatherStatusKeeper weatherKeeper = SnowyMapChecker.getWeatherStatusKeeper(chunk);
-
-            // 性能优化：非加载且无雪 → 跳过
-            if (!loadingChunk && keeper.getPosMap().isEmpty()) return;
-
-            // 性能优化：区块中心 Y=64 温度 > 2°C → 不可能有雪，跳过
-            if (!loadingChunk) {
-                BlockPos cp = chunk.getPos().getMiddleBlockPosition(64);
-                if (model.getInstantTemperature(level, cp) > 2.0f) return;
-            }
 
             BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
             int minX = chunk.getPos().getMinBlockX();
@@ -76,29 +80,55 @@ public abstract class SnowyMapCheckerMixin {
             int maxX = chunk.getPos().getMaxBlockX();
             int maxZ = chunk.getPos().getMaxBlockZ();
 
+            boolean firstChunkLog = !DEBUG_DONE;
+            int colLogged = 0;
+            int chunkStartX = chunk.getPos().getMinBlockX();
+            int chunkStartZ = chunk.getPos().getMinBlockZ();
+
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     int surfaceHeight = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
                     int solidHeight = chunkMap.getHeight(x, z);
 
-                    // 用 surfaceHeight 做温度采样（vanilla heightmap 可靠），
-                    // solidHeight（ES ChunkInfoMap）在地形边缘可能不准，
-                    // 导致边缘列温度偏高、雪深偏低。
-                    // 取两者最大值确保不低估雪深。
-                    int tempCheckY = Math.max(solidHeight, surfaceHeight);
-                    checkPos.set(x, tempCheckY, z);
-                    int snowDepth = estfc$tempToSnowDepth(model, level, checkPos);
+                    int minY = Math.min(solidHeight, surfaceHeight);
+                    int maxY = Math.max(solidHeight, surfaceHeight);
 
-                    for (int y = solidHeight; y <= surfaceHeight; y++) {
+                    // 诊断：检查区块边缘（x 在边界 3 格以内）或 solidHeight≠surfaceHeight
+                    boolean edgeColumn = x <= minX + 2 || x >= maxX - 2
+                        || z <= minZ + 2 || z >= maxZ - 2;
+                    boolean heightMismatch = solidHeight != surfaceHeight;
+                    boolean logThisCol = firstChunkLog && colLogged < DEBUG_COLUMNS
+                        && (edgeColumn || heightMismatch);
+
+                    if (logThisCol) {
+                        LOG.info("[estfc:snowCol] chunk({},{}) pos({},{}) solidH={} surfH={} minY={} maxY={} edge={} mismatch={}",
+                            chunkStartX >> 4, chunkStartZ >> 4,
+                            x, z, solidHeight, surfaceHeight, minY, maxY,
+                            edgeColumn, heightMismatch);
+                    }
+
+                    int yLogged = 0;
+                    for (int y = minY; y <= maxY; y++) {
                         checkPos.set(x, y, z);
                         BlockState state = chunk.getBlockState(checkPos);
                         int flag = MapChecker.getDefaultBlockTypeFlag(state);
 
                         if (flag == MapChecker.FLAG_NONE) continue;
 
-                        // 温度雪深 vs 随机种子 → 该方块是否覆雪
-                        boolean shouldSnow = snowDepth > Math.abs(state.getSeed(checkPos) % 100);
+                        // 每个 Y 独立取样温度，与 DH shouldSnowAtBiome 保持一致
+                        int snowDepth = estfc$sampleSnowDepth(model, level, checkPos);
+
+                        // 统一的覆雪判断公式：depth > |seed % 100|
+                        int seedMod = Math.abs((int)(state.getSeed(checkPos) % 100));
+                        boolean shouldSnow = snowDepth > seedMod;
                         boolean hasSnow = keeper.isSnowyBlock(checkPos);
+
+                        if (logThisCol && yLogged < 3) {
+                            LOG.info("[estfc:snowBlock] ({},{},{}) flag={} depth={} seed%100={} should={} has={} state={}",
+                                x, y, z, flag, snowDepth, seedMod, shouldSnow, hasSnow,
+                                state.getBlock().builtInRegistryHolder().key().location());
+                            yLogged++;
+                        }
 
                         if (shouldSnow && !hasSnow) {
                             keeper.set(checkPos, SnowyStatusKeeper.FLAG_SNOW);
@@ -106,7 +136,15 @@ public abstract class SnowyMapCheckerMixin {
                             keeper.set(checkPos, SnowyStatusKeeper.FLAG_NONE);
                         }
                     }
+
+                    if (logThisCol) colLogged++;
                 }
+            }
+
+            if (firstChunkLog && !DEBUG_DONE) {
+                DEBUG_DONE = true;
+                LOG.info("[estfc:snowCol] debug done for chunk({},{}) — logged {} columns",
+                    chunkStartX >> 4, chunkStartZ >> 4, colLogged);
             }
 
             if (chunk instanceof LevelChunk levelChunk) {
@@ -119,13 +157,11 @@ public abstract class SnowyMapCheckerMixin {
     }
 
     /**
-     * TFC 温度 → 雪深 (0-100)。与 WeatherManagerMixin 中逻辑完全一致。
+     * TFC 温度 → 雪深 (0-100)。委托给 WeatherBridge.tempToSnowDepth（所有地方统一公式）。
      */
     @Unique
-    private static int estfc$tempToSnowDepth(ClimateModel model, ServerLevel level, BlockPos pos) {
+    private static int estfc$sampleSnowDepth(ClimateModel model, ServerLevel level, BlockPos pos) {
         float temp = model.getInstantTemperature(level, pos);
-        if (temp < -10) return 100;
-        if (temp <= 0)  return 20 + (int)(Math.abs(temp) * 8);
-        return 0;
+        return WeatherBridge.tempToSnowDepth(temp);
     }
 }

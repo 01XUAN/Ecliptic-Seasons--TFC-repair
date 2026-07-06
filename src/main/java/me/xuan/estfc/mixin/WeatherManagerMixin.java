@@ -171,28 +171,7 @@ public abstract class WeatherManagerMixin {
 
     // ==================== 核心计算 ====================
 
-    /**
-     * TFC 瞬时温度 → ES 雪深 (0-100)。
-     * <ul>
-     *   <li>temp < -10°C → 100（极寒满雪）</li>
-     *   <li>temp ∈ [-10, 0] → 20 + |temp| * 8（线性 20~100）</li>
-     *   <li>temp > 0°C → 0（零上无雪）</li>
-     * </ul>
-     */
-    @Unique
-    private static int estfc$calcSnowDepth(ServerLevel level, BlockPos pos) {
-        ClimateModel model = Climate.get(level);
-        if (!model.supportsRain()) return 0;
-
-        WorldTracker tracker = WorldTracker.get(level);
-        if (!tracker.isWeatherEnabled()) return 0;
-
-        float temp = model.getInstantTemperature(level, pos);
-
-        if (temp < -10) return 100;
-        if (temp <= 0)  return 20 + (int)(Math.abs(temp) * 8);
-        return 0;
-    }
+    // estfc$calcSnowDepth removed — use WeatherBridge.tempToSnowDepth() instead
 
     /**
      * 检查 TFC 是否正在降水（结合全局 rain 信号 + 本地 rainfall）。
