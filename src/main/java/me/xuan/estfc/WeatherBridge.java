@@ -94,16 +94,20 @@ public class WeatherBridge {
 
     /**
      * TFC 温度 → ES 雪深 (0-100)。所有地方统一的转换公式。
+     * 阈值从 {@link Config} 读取（支持运行时修改）。
      * <ul>
-     *   <li>temp > 0°C → 0（零上无雪）</li>
-     *   <li>temp ∈ [-4, 0] → |temp| * 25（0%~100% 线性渐变）</li>
-     *   <li>temp < -4°C → 100（满雪）</li>
+     *   <li>temp > snowAppearanceTemp → 0（零上无雪）</li>
+     *   <li>temp ∈ [snowFullCoverageTemp, snowAppearanceTemp] → 线性渐变</li>
+     *   <li>temp < snowFullCoverageTemp → 100（满雪）</li>
      * </ul>
      */
     public static int tempToSnowDepth(float temp) {
-        if (temp > 0) return 0;
-        if (temp < -4) return 100;
-        return (int)(Math.abs(temp) * 25);
+        float appear = Config.snowAppearanceTemp();
+        float full = Config.snowFullCoverageTemp();
+        if (temp > appear) return 0;
+        if (temp < full) return 100;
+        // 线性插值: (appear - temp) / (appear - full) * 100
+        return (int)((appear - temp) / (appear - full) * 100);
     }
 
     /**

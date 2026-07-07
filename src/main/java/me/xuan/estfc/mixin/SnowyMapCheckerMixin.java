@@ -9,6 +9,7 @@ import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
 import me.xuan.estfc.WeatherBridge;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
+import net.dries007.tfc.world.chunkdata.ChunkData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -71,6 +72,12 @@ public abstract class SnowyMapCheckerMixin {
             // → ES 原生逻辑用 biome 级深度处理边缘方块 → 边缘无雪
             // TFC 温度本身不依赖 WorldTracker，直接计算即可
 
+            // 安全检查：确保 TFC ChunkData 已就绪（非 EMPTY 哨兵）
+            // 在服务器首次生成区块时，ChunkData 可能尚未完整填充
+            ChunkData chunkData = ChunkData.get(level, new BlockPos(
+                chunk.getPos().getMinBlockX(), 64, chunk.getPos().getMinBlockZ()));
+            if (chunkData == ChunkData.EMPTY) return;
+
             SnowyStatusKeeper keeper = SnowyMapChecker.getSnowyStatusKeeper(chunk);
             WeatherStatusKeeper weatherKeeper = SnowyMapChecker.getWeatherStatusKeeper(chunk);
 
@@ -113,7 +120,13 @@ public abstract class SnowyMapCheckerMixin {
                         BlockState state = chunk.getBlockState(checkPos);
                         int flag = MapChecker.getDefaultBlockTypeFlag(state);
 
-                        if (flag == MapChecker.FLAG_NONE) continue;
+                        // TFC 地面方块（泥土/草/石头）在 ES 中 flag=FLAG_NONE(0)，
+                        // 因为它们没有注册 SnowDefinition。ES 原版靠 isAboveSnowLine
+                        // 给"足够冷"的地面覆雪，但接近 0°C 的地区 isAboveSnowLine=false
+                        // → 地面永远无雪。
+                        // 修复：固体方块即使 flag=0 也要基于 TFC 温度判断覆雪。
+                        // 只跳过空气/流体等非固体（blocksMotion=false）。
+                        if (flag == MapChecker.FLAG_NONE && !state.blocksMotion()) continue;
 
                         // 每个 Y 独立取样温度，与 DH shouldSnowAtBiome 保持一致
                         int snowDepth = estfc$sampleSnowDepth(model, level, checkPos);

@@ -24,6 +24,7 @@ public class EclipticSeasonsTFCrepair {
 
     public EclipticSeasonsTFCrepair(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modEventBus.addListener(Config::UpdateConfig);
         LOGGER.info("节气模组 ↔ 群峦模组 兼容层已加载 (Ecliptic Seasons TFC Compat loaded)");
     }
 }

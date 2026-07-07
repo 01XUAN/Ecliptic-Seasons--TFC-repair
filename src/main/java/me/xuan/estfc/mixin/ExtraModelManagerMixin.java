@@ -2,6 +2,7 @@ package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.client.core.ExtraModelManager;
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
+import com.teamtea.eclipticseasons.common.core.map.MapChecker;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.xuan.estfc.WeatherBridge;
@@ -11,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,16 +22,17 @@ import org.slf4j.LoggerFactory;
 /**
  * 修复客户端 ExtraModelManager.getLayer 的雪层深度计算。
  *
- * <h3>问题</h3>
- * getLayer 在第 1337 行调用 WeatherManager.getSnowDepthAtBiome(useLevel, biome)
- * ——这是 biome 级缓存深度，在 TFC 纬度制气候下完全不正确。
- * 导致温暖地区（生物群系缓存深度被玩家冷位置污染）渲染雪层，
- * 且区块边界处因 biome 深度跳变产生网格花纹。
+ * <h3>问题 #1</h3>
+ * getLayer 调用 WeatherManager.getSnowDepthAtBiome(level, biome)
+ * —— biome 级缓存深度，在 TFC 纬度制气候下完全不正确。
+ *
+ * <h3>问题 #2</h3>
+ * getLayer 第 1316 行检查 getDefaultBlockTypeFlag(state) <= FLAG_NONE → return 0。
+ * TFC 地面方块（泥土/草/石头）flag=0 → 直接返回 0，永远走不到雪深计算。
  *
  * <h3>修复</h3>
- * 拦截 getLayer 中对 getSnowDepthAtBiome 的调用，
- * 替换为 TFC 瞬时温度 → tempToSnowDepth。
- * TFC 温度是 f(z纬度, y海拔, 时间) 的确定性函数，在客户端始终可用。
+ * 1. 拦截 getDefaultBlockTypeFlag → 固体方块返回非零 → 通过 flag 检查
+ * 2. 拦截 getSnowDepthAtBiome → 替换为 TFC 瞬时温度 → tempToSnowDepth
  */
 @Mixin(value = ExtraModelManager.class, remap = false)
 public abstract class ExtraModelManagerMixin {
@@ -41,9 +44,24 @@ public abstract class ExtraModelManagerMixin {
     private static boolean LOGGED_FIRST = false;
 
     /**
-     * 替换 getLayer 中的 getSnowDepthAtBiome 调用。
-     * pos 是雪层渲染的目标位置（已经被 getLayer 修改为 Y+1，
-     * 即雪层所处方块上方的方块位置。TFC 海拔差 1m ≈ 0.16°C，可忽略）。
+     * 修复 #1: 让固体地面方块通过 getLayer 的 flag <= FLAG_NONE 检查。
+     * TFC 地面方块 flag=0(FLAG_NONE) → 原版直接 return 0 → 客户端不渲染雪层。
+     */
+    @WrapOperation(
+        method = "getLayer",
+        at = @At(value = "INVOKE",
+            target = "Lcom/teamtea/eclipticseasons/common/core/map/MapChecker;getDefaultBlockTypeFlag(Lnet/minecraft/world/level/block/state/BlockState;)I")
+    )
+    private static int estfc$fixGroundFlagInGetLayer(BlockState state, Operation<Integer> original) {
+        int flag = original.call(state);
+        if (flag == MapChecker.FLAG_NONE && state.blocksMotion()) {
+            return 1; // 非零 → 通过 getLayer 的 flag<=0 检查
+        }
+        return flag;
+    }
+
+    /**
+     * 修复 #2: 替换 biome 级雪深为 TFC 温度 → 雪深。
      */
     @WrapOperation(
         method = "getLayer",

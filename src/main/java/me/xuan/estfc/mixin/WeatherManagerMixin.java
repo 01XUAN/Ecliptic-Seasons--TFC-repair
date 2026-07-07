@@ -1,6 +1,7 @@
 package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
+import me.xuan.estfc.Config;
 import net.dries007.tfc.util.calendar.Calendars;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
@@ -130,7 +131,7 @@ public abstract class WeatherManagerMixin {
             }
 
             float temp = model.getInstantTemperature(level, pos);
-            if (temp > 0) {
+            if (temp > Config.snowMeltTemp()) {
                 cir.setReturnValue(Biome.Precipitation.RAIN);
             } else {
                 cir.setReturnValue(Biome.Precipitation.SNOW);
@@ -155,15 +156,16 @@ public abstract class WeatherManagerMixin {
 
             float temp = model.getInstantTemperature(level, pos);
             boolean precipitating = estfc$isPrecipitating(level, pos);
+            float meltTemp = Config.snowMeltTemp();
 
-            if (temp > 0) {
-                // 零上 → 必定融雪
+            if (temp > meltTemp) {
+                // 高于融雪温度 → 必定融雪
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW_MELT);
             } else if (precipitating) {
-                // 零下 + 正在降水 → 积雪
+                // 低于融雪温度 + 正在降水 → 积雪
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW);
             } else {
-                // 零下 + 无降水 → 不动（雪保持）
+                // 低于融雪温度 + 无降水 → 不动（雪保持）
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.NONE);
             }
         } catch (Exception e) {}
