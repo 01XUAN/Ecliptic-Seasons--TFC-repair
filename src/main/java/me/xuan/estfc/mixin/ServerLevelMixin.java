@@ -51,10 +51,22 @@ public abstract class ServerLevelMixin {
 
             if (snowyKeeper == null || weatherKeeper == null || chunkInfoMap == null) return;
 
+            // use the chunk's actual Y range instead of hardcoded 0-15
+            int minY = chunk.getMinBuildHeight();
+            int maxY = chunk.getMaxBuildHeight() - 1;
+            int yRange = Math.max(0, maxY - minY);
             BlockPos randomPos = level.getBlockRandomPos(
-                chunk.getPos().getMinBlockX(), 0,
+                chunk.getPos().getMinBlockX(), minY,
                 chunk.getPos().getMinBlockZ(), 15
             );
+            // fixup Y to cover the full chunk height (getBlockRandomPos only does [y, y+15])
+            if (yRange > 15) {
+                randomPos = new BlockPos(
+                    randomPos.getX(),
+                    minY + level.random.nextInt(yRange + 1),
+                    randomPos.getZ()
+                );
+            }
 
             snowyKeeper.tickChunk(level, chunk, chunk.getPos(), randomPos, chunkInfoMap, weatherKeeper);
             snowyKeeper.updateAndSend(level, chunk);

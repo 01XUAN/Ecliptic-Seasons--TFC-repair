@@ -41,8 +41,8 @@ import javax.annotation.Nullable;
  *   <li>temp > 0°C → 0</li>
  * </ul>
  * <p>
- * 覆雪判断与远端视图（MapCheckerMixin）使用完全相同的公式：
- * snowDepth > |state.getSeed(pos) % 100|，保证近景远景一致。
+ * 覆雪判断：snowDepth > 0（不抖动），保证零下即覆雪。
+ * 远景（MapCheckerMixin）也使用相同阈值。
  */
 @Mixin(value = SnowyMapChecker.class, remap = false)
 public abstract class SnowyMapCheckerMixin {
@@ -52,9 +52,8 @@ public abstract class SnowyMapCheckerMixin {
 
     @Unique
     private static boolean DEBUG_DONE = false;
-
     @Unique
-    private static final int DEBUG_COLUMNS = 5; // log first N columns per first chunk
+    private static int DEBUG_CHUNK_COUNT = 0;
 
     @Inject(method = "forceChunkUpdateHeight", at = @At("RETURN"))
     private static void estfc$afterForceChunkUpdate(
@@ -63,20 +62,27 @@ public abstract class SnowyMapCheckerMixin {
 
         if (chunkMap == null) return;
 
+        boolean logDetail = DEBUG_CHUNK_COUNT < 20;
+
+        if (logDetail) {
+            LOG.info("[estfc:diag] forceChunkUpdateHeight RETURN — chunk({},{}) loadingChunk={} biomeHolder={}",
+                chunk.getPos().x, chunk.getPos().z, loadingChunk,
+                biomeHolder != null ? "present(v=" + biomeHolder.version() + ")" : "null");
+        }
+
         try {
             ClimateModel model = Climate.get(level);
-            if (!model.supportsRain()) return;
+            if (!model.supportsRain()) {
+                if (logDetail) LOG.info("[estfc:diag] TFC not available, skipping");
+                return;
+            }
 
-            // 不检查 WorldTracker.isWeatherEnabled()——
-            // 首次加载时 WorldTracker 可能未初始化 → 会导致我们被跳过
-            // → ES 原生逻辑用 biome 级深度处理边缘方块 → 边缘无雪
-            // TFC 温度本身不依赖 WorldTracker，直接计算即可
-
-            // 安全检查：确保 TFC ChunkData 已就绪（非 EMPTY 哨兵）
-            // 在服务器首次生成区块时，ChunkData 可能尚未完整填充
             ChunkData chunkData = ChunkData.get(level, new BlockPos(
                 chunk.getPos().getMinBlockX(), 64, chunk.getPos().getMinBlockZ()));
-            if (chunkData == ChunkData.EMPTY) return;
+            if (chunkData == ChunkData.EMPTY) {
+                if (logDetail) LOG.info("[estfc:diag] ChunkData EMPTY, skipping");
+                return;
+            }
 
             SnowyStatusKeeper keeper = SnowyMapChecker.getSnowyStatusKeeper(chunk);
             WeatherStatusKeeper weatherKeeper = SnowyMapChecker.getWeatherStatusKeeper(chunk);
@@ -87,10 +93,10 @@ public abstract class SnowyMapCheckerMixin {
             int maxX = chunk.getPos().getMaxBlockX();
             int maxZ = chunk.getPos().getMaxBlockZ();
 
-            boolean firstChunkLog = !DEBUG_DONE;
-            int colLogged = 0;
-            int chunkStartX = chunk.getPos().getMinBlockX();
-            int chunkStartZ = chunk.getPos().getMinBlockZ();
+            int snowSet = 0, snowRemoved = 0, blocksProcessed = 0;
+            int edgeSnowSet = 0, edgeBlocksProcessed = 0;
+            int surfaceGroundBlocks = 0, edgeGroundBlocks = 0;
+            float minTemp = Float.MAX_VALUE, maxTemp = Float.MIN_VALUE;
 
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
@@ -100,64 +106,62 @@ public abstract class SnowyMapCheckerMixin {
                     int minY = Math.min(solidHeight, surfaceHeight);
                     int maxY = Math.max(solidHeight, surfaceHeight);
 
-                    // 诊断：检查区块边缘（x 在边界 3 格以内）或 solidHeight≠surfaceHeight
                     boolean edgeColumn = x <= minX + 2 || x >= maxX - 2
                         || z <= minZ + 2 || z >= maxZ - 2;
-                    boolean heightMismatch = solidHeight != surfaceHeight;
-                    boolean logThisCol = firstChunkLog && colLogged < DEBUG_COLUMNS
-                        && (edgeColumn || heightMismatch);
 
-                    if (logThisCol) {
-                        LOG.info("[estfc:snowCol] chunk({},{}) pos({},{}) solidH={} surfH={} minY={} maxY={} edge={} mismatch={}",
-                            chunkStartX >> 4, chunkStartZ >> 4,
-                            x, z, solidHeight, surfaceHeight, minY, maxY,
-                            edgeColumn, heightMismatch);
-                    }
-
-                    int yLogged = 0;
                     for (int y = minY; y <= maxY; y++) {
                         checkPos.set(x, y, z);
                         BlockState state = chunk.getBlockState(checkPos);
                         int flag = MapChecker.getDefaultBlockTypeFlag(state);
 
-                        // TFC 地面方块（泥土/草/石头）在 ES 中 flag=FLAG_NONE(0)，
-                        // 因为它们没有注册 SnowDefinition。ES 原版靠 isAboveSnowLine
-                        // 给"足够冷"的地面覆雪，但接近 0°C 的地区 isAboveSnowLine=false
-                        // → 地面永远无雪。
-                        // 修复：固体方块即使 flag=0 也要基于 TFC 温度判断覆雪。
-                        // 只跳过空气/流体等非固体（blocksMotion=false）。
                         if (flag == MapChecker.FLAG_NONE && !state.blocksMotion()) continue;
 
-                        // 每个 Y 独立取样温度，与 DH shouldSnowAtBiome 保持一致
                         int snowDepth = estfc$sampleSnowDepth(model, level, checkPos);
-
-                        // 统一的覆雪判断公式：depth > |seed % 100|
-                        int seedMod = Math.abs((int)(state.getSeed(checkPos) % 100));
-                        boolean shouldSnow = snowDepth > seedMod;
+                        float temp = model.getInstantTemperature(level, checkPos);
+                        if (temp < minTemp) minTemp = temp;
+                        if (temp > maxTemp) maxTemp = temp;
+                        boolean shouldSnow = snowDepth > 0;
                         boolean hasSnow = keeper.isSnowyBlock(checkPos);
 
-                        if (logThisCol && yLogged < 3) {
-                            LOG.info("[estfc:snowBlock] ({},{},{}) flag={} depth={} seed%100={} should={} has={} state={}",
-                                x, y, z, flag, snowDepth, seedMod, shouldSnow, hasSnow,
-                                state.getBlock().builtInRegistryHolder().key().location());
-                            yLogged++;
+                        blocksProcessed++;
+                        if (edgeColumn) edgeBlocksProcessed++;
+
+                        // Y == solidHeight 意味着这是"地表"方块（地面本身）
+                        boolean isSurfaceBlock = (y == solidHeight);
+                        if (isSurfaceBlock) {
+                            surfaceGroundBlocks++;
+                            if (edgeColumn) edgeGroundBlocks++;
                         }
 
                         if (shouldSnow && !hasSnow) {
                             keeper.set(checkPos, SnowyStatusKeeper.FLAG_SNOW);
+                            snowSet++;
+                            if (edgeColumn) edgeSnowSet++;
                         } else if (!shouldSnow && hasSnow) {
                             keeper.set(checkPos, SnowyStatusKeeper.FLAG_NONE);
+                            snowRemoved++;
                         }
                     }
-
-                    if (logThisCol) colLogged++;
                 }
             }
 
-            if (firstChunkLog && !DEBUG_DONE) {
-                DEBUG_DONE = true;
-                LOG.info("[estfc:snowCol] debug done for chunk({},{}) — logged {} columns",
-                    chunkStartX >> 4, chunkStartZ >> 4, colLogged);
+            // 始终输出每个 chunk 的摘要（前 20 个 chunk）
+            if (DEBUG_CHUNK_COUNT <= 20) {
+                float logMin = minTemp == Float.MAX_VALUE ? -99f : minTemp;
+                float logMax = maxTemp == Float.MIN_VALUE ? 99f : maxTemp;
+                // 取 chunk 中心点做参考位置
+                int cx = chunk.getPos().getMinBlockX() + 8;
+                int cz = chunk.getPos().getMinBlockZ() + 8;
+                int cy = chunkMap.getHeight(cx, cz);
+                LOG.info("[estfc:diag] chunk({},{}) refPos=({},{},{}) temp=[{},{}] processed={} set={} removed={} "
+                    + "surfaceGnd={} edgeGnd={} edgeSet={} loadingChunk={}",
+                    chunk.getPos().x, chunk.getPos().z,
+                    cx, cy, cz,
+                    String.format("%.1f", logMin), String.format("%.1f", logMax),
+                    blocksProcessed, snowSet, snowRemoved,
+                    surfaceGroundBlocks, edgeGroundBlocks, edgeSnowSet,
+                    loadingChunk);
+                DEBUG_CHUNK_COUNT++;
             }
 
             if (chunk instanceof LevelChunk levelChunk) {
@@ -165,7 +169,7 @@ public abstract class SnowyMapCheckerMixin {
                 weatherKeeper.updateAndSend(level, levelChunk);
             }
         } catch (Exception e) {
-            // TFC 不可用时跳过
+            LOG.warn("[estfc:diag] forceChunkUpdateHeight failed: {}", e.toString());
         }
     }
 
