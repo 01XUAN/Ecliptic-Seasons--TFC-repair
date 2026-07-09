@@ -21,9 +21,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * 替代 ES 不可靠的 @ModifyExpressionValue 注入点，
  * 在 tickChunk 尾部直接驱动 SnowyStatusKeeper.tickChunk()。
  *
- * 实际的雪判断（SNOW/SNOW_MELT/snowDepth）由
+ * <p>实际的雪判断（SNOW/SNOW_MELT/snowDepth）由
  * WeatherManagerMixin 在 WeatherManager 方法级覆盖，
- * 使用 TFC Climate API，对 biome 全局层和 per-chunk 层统一生效。
+ * 使用 TFC Climate API，对 biome 全局层和 per-chunk 层统一生效。</p>
+ *
+ * <h3>与 ES 的协同</h3>
+ * <p>ES 的 {@code MixinServerLevel.tickChunk_our_snow}（@ModifyExpressionValue）处理一个随机位置，
+ * 然后 {@code tickChunk_sync}（@At RETURN）调用 {@code updateAndSend} 同步。</p>
+ *
+ * <p>本 Mixin 在 TAIL（RETURN 之后）额外处理一个随机位置，并<b>自行调用 updateAndSend</b>。
+ * 因为 TAIL 在 RETURN 之后执行，ES 的 RETURN sync 已经错过了我们的修改。</p>
+ *
+ * <h3>节奏控制</h3>
+ * <p>每个 chunk 每 20 tick (~1秒) 才额外处理一个随机位置，分散 CPU 负载。
+ * 无玩家时跳过 — 没有人能看到雪，不需要更新。</p>
  */
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin {
@@ -39,10 +50,17 @@ public abstract class ServerLevelMixin {
 
         if (!LOGGED) {
             LOGGED = true;
-            ESTFC_LOG.info("[estfc] ServerLevelMixin active — tickChunk snow processing enabled");
+            ESTFC_LOG.info("[estfc] ServerLevelMixin active — extra tickChunk processing (1/20 rate, self-sync)");
         }
 
         if (!EclipticUtil.canSnowyBlockInteract()) return;
+
+        // 无玩家时不需要额外处理 — 没有人能看到雪，避免关闭时浪费 CPU
+        if (level.players().isEmpty()) return;
+
+        // 每个 chunk 每 20 tick (~1秒) 才额外处理一个随机位置，避免过载
+        long chunkKey = chunk.getPos().toLong();
+        if (Math.floorMod(chunkKey, 20) != Math.floorMod(level.getGameTime(), 20)) return;
 
         try {
             SnowyStatusKeeper snowyKeeper = SnowyMapChecker.getSnowyStatusKeeper(chunk);
@@ -66,6 +84,7 @@ public abstract class ServerLevelMixin {
                 );
             }
 
+            // tickChunk 在 TAIL 中执行（ES 的 RETURN sync 已经错过），必须自行 sync
             snowyKeeper.tickChunk(level, chunk, chunk.getPos(), randomPos, chunkInfoMap, weatherKeeper);
             snowyKeeper.updateAndSend(level, chunk);
             weatherKeeper.updateAndSend(level, chunk);
