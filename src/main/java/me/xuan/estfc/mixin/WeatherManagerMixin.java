@@ -7,6 +7,7 @@ import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.dries007.tfc.util.tracker.WeatherHelpers;
 import net.dries007.tfc.util.tracker.WorldTracker;
+import net.dries007.tfc.world.chunkdata.ChunkData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -153,6 +154,14 @@ public abstract class WeatherManagerMixin {
             ClimateModel model = Climate.get(level);
             if (!model.supportsRain()) return;
             if (!WorldTracker.get(level).isWeatherEnabled()) return;
+
+            // ChunkData.EMPTY 守卫: 区块未完全加载时 TFC 返回默认温度 ~10°C,
+            // 会导致错误触发 SNOW_MELT。此时不改变现有雪状态 (返回 NONE)。
+            ChunkData chunkData = ChunkData.get(level, pos);
+            if (chunkData == ChunkData.EMPTY) {
+                cir.setReturnValue(WeatherManager.SnowRenderStatus.NONE);
+                return;
+            }
 
             float temp = model.getInstantTemperature(level, pos);
             boolean precipitating = estfc$isPrecipitating(level, pos);

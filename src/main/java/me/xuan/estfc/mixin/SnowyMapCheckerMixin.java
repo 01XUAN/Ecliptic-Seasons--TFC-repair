@@ -51,8 +51,6 @@ public abstract class SnowyMapCheckerMixin {
     private static final Logger LOG = LoggerFactory.getLogger("estfc");
 
     @Unique
-    private static boolean DEBUG_DONE = false;
-    @Unique
     private static int DEBUG_CHUNK_COUNT = 0;
 
     @Inject(method = "forceChunkUpdateHeight", at = @At("RETURN"))
@@ -94,8 +92,7 @@ public abstract class SnowyMapCheckerMixin {
             int maxZ = chunk.getPos().getMaxBlockZ();
 
             int snowSet = 0, snowRemoved = 0, blocksProcessed = 0;
-            int edgeSnowSet = 0, edgeBlocksProcessed = 0;
-            int surfaceGroundBlocks = 0, edgeGroundBlocks = 0;
+            int edgeSnowSet = 0, edgeGroundBlocks = 0, surfaceGroundBlocks = 0;
             float minTemp = Float.MAX_VALUE, maxTemp = Float.MIN_VALUE;
 
             for (int x = minX; x <= maxX; x++) {
@@ -104,7 +101,12 @@ public abstract class SnowyMapCheckerMixin {
                     int solidHeight = chunkMap.getHeight(x, z);
 
                     int minY = Math.min(solidHeight, surfaceHeight);
-                    int maxY = Math.max(solidHeight, surfaceHeight);
+                    // +1: 区块边缘列的高度图可能落后于实际方块放置
+                    // （如 TFC 草方块在 Y=68 但 solidHeight/surfaceHeight 返回 67），
+                    // 导致边缘方块永远不会被标记为覆雪。
+                    // air 会在循环体内被 flag==NONE && !blocksMotion() 跳过，
+                    // 因此正常列不会受影响。
+                    int maxY = Math.max(solidHeight, surfaceHeight) + 1;
 
                     boolean edgeColumn = x <= minX + 2 || x >= maxX - 2
                         || z <= minZ + 2 || z >= maxZ - 2;
@@ -116,19 +118,16 @@ public abstract class SnowyMapCheckerMixin {
 
                         if (flag == MapChecker.FLAG_NONE && !state.blocksMotion()) continue;
 
-                        int snowDepth = estfc$sampleSnowDepth(model, level, checkPos);
                         float temp = model.getInstantTemperature(level, checkPos);
+                        int snowDepth = WeatherBridge.tempToSnowDepth(temp);
                         if (temp < minTemp) minTemp = temp;
                         if (temp > maxTemp) maxTemp = temp;
                         boolean shouldSnow = snowDepth > 0;
                         boolean hasSnow = keeper.isSnowyBlock(checkPos);
 
                         blocksProcessed++;
-                        if (edgeColumn) edgeBlocksProcessed++;
 
-                        // Y == solidHeight 意味着这是"地表"方块（地面本身）
-                        boolean isSurfaceBlock = (y == solidHeight);
-                        if (isSurfaceBlock) {
+                        if (y == solidHeight) {
                             surfaceGroundBlocks++;
                             if (edgeColumn) edgeGroundBlocks++;
                         }
@@ -145,11 +144,9 @@ public abstract class SnowyMapCheckerMixin {
                 }
             }
 
-            // 始终输出每个 chunk 的摘要（前 20 个 chunk）
-            if (DEBUG_CHUNK_COUNT <= 20) {
+            if (logDetail) {
                 float logMin = minTemp == Float.MAX_VALUE ? -99f : minTemp;
                 float logMax = maxTemp == Float.MIN_VALUE ? 99f : maxTemp;
-                // 取 chunk 中心点做参考位置
                 int cx = chunk.getPos().getMinBlockX() + 8;
                 int cz = chunk.getPos().getMinBlockZ() + 8;
                 int cy = chunkMap.getHeight(cx, cz);
@@ -171,14 +168,5 @@ public abstract class SnowyMapCheckerMixin {
         } catch (Exception e) {
             LOG.warn("[estfc:diag] forceChunkUpdateHeight failed: {}", e.toString());
         }
-    }
-
-    /**
-     * TFC 温度 → 雪深 (0-100)。委托给 WeatherBridge.tempToSnowDepth（所有地方统一公式）。
-     */
-    @Unique
-    private static int estfc$sampleSnowDepth(ClimateModel model, ServerLevel level, BlockPos pos) {
-        float temp = model.getInstantTemperature(level, pos);
-        return WeatherBridge.tempToSnowDepth(temp);
     }
 }
