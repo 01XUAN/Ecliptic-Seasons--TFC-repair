@@ -2,15 +2,11 @@ package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.map.MapChecker;
 import me.xuan.estfc.Config;
-import me.xuan.estfc.WeatherBridge;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,24 +19,40 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * 客户端 shouldSnowAtBiome — DH/Voxy 远景入口。
+ * 将 TFC 温度数据注入 ES 的雪线判断，使 DH/Voxy 远景正确覆雪。
  *
  * <h3>核心设计</h3>
- * TFC 温度公式（OverworldClimateModel.getInstantTemperature）：
+ * ES 的 {@code shouldSnowAtBiome} 首先调用 {@code isAboveSnowLine(Level, Biome, BlockPos)}
+ * 判断位置是否在雪线以上——如果是则直接返回 true，覆雪。
+ * <p>
+ * 本 Mixin 覆盖 {@code isAboveSnowLine(Level, Biome, BlockPos)}，
+ * 用 TFC 瞬时温度替代 {@code BiomeClimateManager} 的数据包雪线高度。
+ * 这样 DH 的 {@code DHTool.computeBaseColor → shouldSnowAtBiome → isAboveSnowLine}
+ * 整条链路都不需要修改 ES 代码，只需提供正确的温度数据。
+ *
+ * <h3>为什么不用数据包？</h3>
+ * TFC 温度是 (x, y, z, 日历) 的函数，雪线随纬度和时间动态变化。
+ * {@code BiomeClimateManager.SNOW_LINE_MAP} 是静态 biome→高度 映射，
+ * 无法捕捉位置和时间的双重动态性。在 {@code isAboveSnowLine} 中
+ * 直接查询 TFC 温度是最精确的方案。
+ *
+ * <h3>未加载区块 (DH LOD)</h3>
+ * 对于远距离未加载区块，TFC 的 {@code getInstantTemperature} 使用
+ * {@code ChunkData.EMPTY}（avgSeaLevelTemp 恒为 10°C）。
+ * 我们从已加载区块采样真实的 avgSeaLevelTemp 并沿 Z 轴插值修正：
  * <pre>
- *   temp = avgSeaLevelTemp(pos)          ← ChunkData 提供，EMPTY=10°C
- *        + monthlyTemperature(pos.z)     ← 只依赖 Z 坐标 ✓
- *        + dailyTemperature(pos.z, cal)  ← 只依赖 Z+日历 ✓
- *        + elevationAdjustment(pos.y)    ← 只依赖 Y 坐标 ✓
+ *   temp_REAL = temp_EMPTY - 10 + avgSeaTemp_estimated(z)
  * </pre>
  *
- * <p>{@code getInstantTemperature} 即使使用 ChunkData.EMPTY，其
- * monthly/daily/elevation 分量仍然<b>完全正确</b>。唯一错误的是
- * avgSeaLevelTemp（恒为 10°C）。</p>
- *
- * <h3>修复策略</h3>
- * 从已加载区块采样不同 Z 坐标的 avgSeaLevelTemp，建立 Z→温度缓存，
- * 对未加载区块按目标 Z 坐标插值估算，替换掉错误的 10°C。
+ * <h3>与 shouldSnowAtBiome 的配合</h3>
+ * 本 Mixin 只覆写 {@code isAboveSnowLine}，不碰 {@code shouldSnowAtBiome}。
+ * ES 原生的 {@code shouldSnowAtBiome} 逻辑完整保留：
+ * <ol>
+ *   <li>{@code isAboveSnowLine} → TFC 温度判断（本 Mixin 提供）</li>
+ *   <li>若不在雪线以上 → fallback 到 biome 雪深累积检查
+ *       （由 {@code WeatherBridge.tickWeatherCycle} 驱动）</li>
+ * </ol>
+ * 两条路径都基于 TFC 数据，且互不干扰。
  */
 @Mixin(value = MapChecker.class, remap = false)
 public abstract class MapCheckerMixin {
@@ -83,57 +95,53 @@ public abstract class MapCheckerMixin {
     @Unique
     private static int lastPlayerZ = Integer.MAX_VALUE;
 
-    // ========== 核心注入 ==========
+    // ========== 核心注入：isAboveSnowLine ==========
 
     /**
-     * 拦截客户端 shouldSnowAtBiome，由 TFC 温度直接决策。
-     * 服务端走 ES 原生（群系雪深由 WeatherBridge.tickWeatherCycle 驱动）。
+     * 覆盖 {@code MapChecker.isAboveSnowLine(Level, Biome, BlockPos)}，
+     * 用 TFC 瞬时温度判断位置是否在雪线以上。
+     *
+     * <p>此方法是 {@code shouldSnowAtBiome} 的第一道检查，
+     * 也是 DH/Voxy 远景覆雪的关键入口。</p>
+     *
+     * @param level 当前世界（客户端或服务端）
+     * @param biome 群系（ES 从 DH LOD 数据还原）
+     * @param pos   要检查的方块位置
+     * @param cir   取消回调，设为 true=在雪线以上应覆雪
      */
-    @Inject(method = "shouldSnowAtBiome", at = @At("HEAD"), cancellable = true)
-    private static void estfc$shouldSnowAtBiome(
-        Level level, Biome biome, BlockState state, RandomSource random, long seed, BlockPos mcPos,
+    @Inject(method = "isAboveSnowLine", at = @At("HEAD"), cancellable = true)
+    private static void estfc$isAboveSnowLine(
+        Level level, Biome biome, BlockPos pos,
         CallbackInfoReturnable<Boolean> cir) {
-
-        // 服务端：ES 原生
-        if (level instanceof ServerLevel) return;
 
         try {
             ClimateModel model = Climate.get(level);
-            if (!model.supportsRain()) return;
+            if (!model.supportsRain()) return; // 非 TFC 世界，回退到 ES 原生
 
-            boolean loaded = level.isLoaded(mcPos);
-            float temp = model.getInstantTemperature(level, mcPos);
+            boolean loaded = level.isLoaded(pos);
+            float temp;
 
-            // 未加载区块：替换错误的 avgSeaLevelTemp
-            // temp_EMPTY = 10 + monthEffect(z) + dailyEffect(z) + elevEffect(y)
-            // temp_REAL  = avg(z) + monthEffect(z) + dailyEffect(z) + elevEffect(y)
-            // → temp_REAL = temp_EMPTY - 10 + avg(z)
-            if (!loaded) {
-                float estAvgSea = estimateAvgSeaLevelTemp(level, model, mcPos.getZ());
-                float estTemp = temp - 10.0f + estAvgSea + Config.dhUnloadedTempOffset();
-                temp = estTemp;
-            }
-
-            int depth = WeatherBridge.tempToSnowDepth(temp);
-
-            // 远景（未加载区块）不用 seed%100 抖动，纯净基于温度决定覆雪。
-            // 原因：DH 在 LOD 渲染时每个 LOD 块只调用一次 shouldSnowAtBiome，
-            // 同一个 LOD 块内的所有真实方块共享同一个 seed → 产生 64×64 网格
-            // 和噪声曲线。远距离尺度下温度等高线已经足够自然。
-            // 近场（已加载区块）保持 per-block seed 抖动，与 SnowyMapChecker 一致。
-            boolean snow;
             if (loaded) {
-                snow = depth > Math.abs(seed % 100);
+                temp = model.getInstantTemperature(level, pos);
             } else {
-                snow = depth > 0;
+                // 未加载区块（DH/Voxy 远景）：修正 ChunkData.EMPTY 的虚假 10°C
+                // temp_EMPTY = 10 + monthEffect(z) + dailyEffect(z) + elevAdjustment(y)
+                // temp_REAL  = avg(z) + monthEffect(z) + dailyEffect(z) + elevAdjustment(y)
+                // → temp_REAL = temp_EMPTY - 10 + avg(z)
+                float tempEmpty = model.getInstantTemperature(level, pos);
+                float estAvgSea = estimateAvgSeaLevelTemp(level, model, pos.getZ());
+                temp = tempEmpty - 10.0f + estAvgSea + Config.dhUnloadedTempOffset();
             }
-            cir.setReturnValue(snow);
 
-            debugLog(mcPos, loaded, temp, depth, snow);
+            float threshold = Config.snowAppearanceTemp();
+            boolean aboveSnowLine = temp <= threshold;
+            cir.setReturnValue(aboveSnowLine);
+
+            debugLog(pos, loaded, temp, threshold, aboveSnowLine);
         } catch (Exception e) {
             if (!LOGGED_FIRST) {
                 LOGGED_FIRST = true;
-                LOG.warn("[estfc] TFC unavailable on client, falling back to ES native snow", e);
+                LOG.warn("[estfc] TFC unavailable for snow line, falling back to ES native", e);
             }
         }
     }
@@ -147,12 +155,11 @@ public abstract class MapCheckerMixin {
      */
     @Unique
     private static float estimateAvgSeaLevelTemp(Level level, ClimateModel model, int targetZ) {
-        // 检查是否需要更新缓存
         long now = System.currentTimeMillis();
         boolean needUpdate = zAvgTempCache.isEmpty()
             || (now - lastCacheUpdateMs) > CACHE_TTL_MS;
 
-        // 如果玩家移动到不同气候带，立即更新
+        // 玩家移动到不同气候带时立即刷新
         if (!level.players().isEmpty()) {
             int playerZ = level.players().getFirst().blockPosition().getZ();
             if (Math.abs(playerZ - lastPlayerZ) > 128) {
@@ -168,7 +175,6 @@ public abstract class MapCheckerMixin {
             }
         }
 
-        // 从缓存中按 Z 坐标插值
         if (zAvgTempCache.isEmpty()) {
             return 10.0f; // 无可用数据，退回 EMPTY 默认值
         }
@@ -235,10 +241,11 @@ public abstract class MapCheckerMixin {
     // ========== 调试 ==========
 
     @Unique
-    private static void debugLog(BlockPos pos, boolean loaded, float temp, int depth, boolean snow) {
+    private static void debugLog(BlockPos pos, boolean loaded, float temp, float threshold, boolean snow) {
         if (DEBUG_COUNT >= DEBUG_LIMIT) return;
         DEBUG_COUNT++;
-        LOG.info("[estfc:shouldSnow] #{} ({},{},{}) loaded={} temp={} depth={} -> {}",
-            DEBUG_COUNT, pos.getX(), pos.getY(), pos.getZ(), loaded, temp, depth, snow);
+        LOG.info("[estfc:snowLine] #{} ({},{},{}) loaded={} temp={} threshold={} -> {}",
+            DEBUG_COUNT, pos.getX(), pos.getY(), pos.getZ(), loaded,
+            String.format("%.1f", temp), String.format("%.1f", threshold), snow);
     }
 }
