@@ -10,8 +10,6 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * 拦截 BiomeWeatherMessage，将 biome 雪深缓存到 SnowDepthCache。
- * 客户端侧 DH 等调用 shouldSnowAtBiome 时从缓存读取，绕开 ES 内部
- * getBiomeWeather→bindId 查表可能失败的问题。
  */
 @Mixin(value = com.teamtea.eclipticseasons.common.network.NetworkUtil.class, remap = false)
 public abstract class NetworkUtilMixin {

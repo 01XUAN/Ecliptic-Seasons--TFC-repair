@@ -1,6 +1,56 @@
 {
-    "estfc.configuration.title": "Ecliptic Seasons TFC Compat Config",
-    "estfc.configuration.section.estfc.common.toml": "Ecliptic Seasons TFC Compat Config",
-    "estfc.configuration.section.estfc.common.toml.title": "Ecliptic Seasons TFC Compat Config",
-    "estfc.configuration.enableTFCCompat": "Enable TFC Compatibility Mode"
+    "estfc.config.title": "Ecliptic Seasons TFC Compat Configuration",
+    "estfc.config.back": "Back",
+    "estfc.config.done": "Done",
+
+    "estfc.config.section.general": "General",
+    "estfc.config.section.snowTemperature": "Snow Temperature",
+    "estfc.config.section.climateCalculation": "Climate Calculation",
+    "estfc.config.section.snowTexture": "Snow Texture",
+    "estfc.config.section.tfcBlockSnowPrefixes": "TFC Block Snow Prefixes",
+
+    "estfc.config.enableTFCCompat": "Enable TFC Compatibility",
+    "estfc.config.enableTFCCompat.tooltip": "When enabled, solar terms and weather are derived from TFC's calendar and climate system.\nWhen disabled, falls back to vanilla Ecliptic Seasons behavior.",
+
+    "estfc.config.snowAppearanceTemp": "Snow Appearance Temperature",
+    "estfc.config.snowAppearanceTemp.tooltip": "Temperature at which snow starts to appear (°C).\nAbove this temperature → no snow (depth=0).\nDefault: 0.0",
+
+    "estfc.config.snowFullCoverageTemp": "100% Snow Coverage Temperature",
+    "estfc.config.snowFullCoverageTemp.tooltip": "Temperature at which snow reaches 100% coverage (depth=100).\nBelow this temperature → full snow.\nDefault: -4.0",
+
+    "estfc.config.snowSnowfallFullTemp": "Full Snow Temp During Snowfall",
+    "estfc.config.snowSnowfallFullTemp.tooltip": "Temperature for 100% snow coverage during active snowfall (°C).\nWarmer than normal full temp → boosted snow probability while precipitating.\nAfter snowfall stops, curve falls back and excess snow melts naturally via tickChunk.\nDefault: -2.0",
+
+    "estfc.config.snowMeltTemp": "Snow Melt Temperature",
+    "estfc.config.snowMeltTemp.tooltip": "Temperature above which snow starts to melt (°C).\nShould match the snow appearance temperature.\nDefault: 0.0",
+
+    "estfc.config.dhUnloadedTempOffset": "DH/Voxy LOD Temperature Offset",
+    "estfc.config.dhUnloadedTempOffset.tooltip": "Temperature fine-tuning offset for DH/Voxy distant view (°C).\nPrimary correction is automatic via Z→avgSeaLevelTemp cache (sampled and interpolated/gradient-extrapolated from loaded chunks).\nElevation lapse rate (0.16225°C/block) and N/S hemisphere handled by TFC.\nThis offset is for fine-tuning: positive=warmer distant (less snow), negative=colder distant (more snow).\nDefault: 0.0",
+
+    "estfc.config.unloadedTempSampleRange": "LOD Temperature Sample Range",
+    "estfc.config.unloadedTempSampleRange.tooltip": "Sampling radius of TfcUnloadedTempEstimator along Z axis (blocks).\nLarger = more accurate distant temperature, negligible performance impact (cached positions are skipped).\nDefault: 10240",
+
+    "estfc.config.elevationLapseRate": "Elevation Lapse Rate",
+    "estfc.config.elevationLapseRate.tooltip": "Elevation lapse rate (°C per 10 blocks).\nTFC precise value is -1.6225°C/10m (0.16225°C/block).\nHandled internally by TFC adjustTemperatureByElevation. Kept for future use.\nDefault: -1.6225",
+
+    "estfc.config.snowAccumulationSpeedMultiplier": "Snow Accumulation Speed",
+    "estfc.config.snowAccumulationSpeedMultiplier.tooltip": "Snow accumulation speed multiplier.\nAffects biome snow depth growth per tick.\nDefault: 1.0",
+
+    "estfc.config.snowMeltSpeedMultiplier": "Snow Melt Speed",
+    "estfc.config.snowMeltSpeedMultiplier.tooltip": "Snow melt speed multiplier.\nAffects biome snow depth reduction per tick.\nDefault: 1.0",
+
+    "estfc.config.snowTextureSimpleMode": "Simple Snow Mode",
+    "estfc.config.snowTextureSimpleMode.tooltip": "When enabled, uses estfc:block/snow texture for all TFC blocks.\nWhen disabled, differentiates textures by block type.\nDefault: false",
+
+    "estfc.config.snowTextureReplaceMode": "Replacement Render Mode",
+    "estfc.config.snowTextureReplaceMode.tooltip": "When enabled, ES replaces the original block model with our snow model.\nWhen disabled, uses ES overlay mode (may cause double textures).\nDefault: true",
+
+    "estfc.config.snowTextureDefaultPath": "Default Snow Texture Path",
+    "estfc.config.snowTextureDefaultPath.tooltip": "Default snow texture path in ResourceLocation format (no namespace prefix).\nDefault: block/snow",
+
+    "estfc.config.tfcSnowBlockPrefixes": "Snow Block Path Prefixes",
+    "estfc.config.tfcSnowBlockPrefixes.tooltip": "Comma-separated list of TFC block path prefixes.\nBlocks matching these prefixes get snow model replacement.\nA trailing / matches all blocks whose path starts with that prefix.",
+
+    "estfc.config.tfcSimpleSnowBlocks": "Simple Snow Block List",
+    "estfc.config.tfcSimpleSnowBlocks.tooltip": "Comma-separated list of blocks using simple snow mode.\nThese blocks use uniform snow.png on all faces.\nSupports full IDs (tfc:groundcover/bone) and path prefixes (rock/loose/)."
 }

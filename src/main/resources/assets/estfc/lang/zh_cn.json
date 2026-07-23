@@ -1,3 +1,56 @@
 {
-    "estfc.config.enableTFCCompat": "启用群峦兼容模式"
+    "estfc.config.title": "Ecliptic Seasons TFC Compat 配置",
+    "estfc.config.back": "返回",
+    "estfc.config.done": "完成",
+
+    "estfc.config.section.general": "通用",
+    "estfc.config.section.snowTemperature": "覆雪温度",
+    "estfc.config.section.climateCalculation": "气候计算",
+    "estfc.config.section.snowTexture": "覆雪贴图",
+    "estfc.config.section.tfcBlockSnowPrefixes": "TFC 方块覆雪前缀",
+
+    "estfc.config.enableTFCCompat": "启用 TFC 兼容模式",
+    "estfc.config.enableTFCCompat.tooltip": "启用后，节气和天气从 TFC 日历和气候系统派生。\n关闭则回退到 Ecliptic Seasons 原生系统。",
+
+    "estfc.config.snowAppearanceTemp": "雪出现温度",
+    "estfc.config.snowAppearanceTemp.tooltip": "雪开始出现的温度 (°C)。\n高于此温度 → 无雪 (depth=0)。\n默认: 0.0",
+
+    "estfc.config.snowFullCoverageTemp": "100% 覆雪温度",
+    "estfc.config.snowFullCoverageTemp.tooltip": "100% 覆雪的温度 (°C)。\n低于此温度 → 满雪 (depth=100)。\n默认: -4.0",
+
+    "estfc.config.snowSnowfallFullTemp": "降雪期间满雪温度",
+    "estfc.config.snowSnowfallFullTemp.tooltip": "降雪期间 100% 覆雪的温度 (°C)。\n比正常满雪温度更暖 → 正在下雪时覆雪概率整体上移。\n降雪结束后自动回落，多余雪由 tickChunk 自然融化。\n默认: -2.0",
+
+    "estfc.config.snowMeltTemp": "融雪温度",
+    "estfc.config.snowMeltTemp.tooltip": "雪开始融化的温度 (°C)。\n高于此温度 → 融雪模式。\n应与雪出现温度保持一致。\n默认: 0.0",
+
+    "estfc.config.dhUnloadedTempOffset": "DH/Voxy 远景温度偏移",
+    "estfc.config.dhUnloadedTempOffset.tooltip": "DH/Voxy 远景的温度微调偏移 (°C)。\n主修正由 Z→avgSeaLevelTemp 缓存自动完成（从已加载区块采样插值/梯度外推）。\n海拔递减率 0.16225°C/block + 南北半球由 TFC 内部处理。\n此偏移用于微调：正值=远景更暖（更少雪），负值=远景更冷（更多雪）。\n默认: 0.0",
+
+    "estfc.config.unloadedTempSampleRange": "远景温度采样半径",
+    "estfc.config.unloadedTempSampleRange.tooltip": "TfcUnloadedTempEstimator 沿 Z 轴采样已加载区块温度的半径（格）。\n越大=远景温度越精确，性能影响可忽略（已缓存位置直接跳过）。\n默认: 10240",
+
+    "estfc.config.elevationLapseRate": "海拔递减率",
+    "estfc.config.elevationLapseRate.tooltip": "海拔递减率 (°C / 10 blocks)。\nTFC 精确值为 -1.6225°C/10m (0.16225°C/block)。\n由 TFC adjustTemperatureByElevation 内部处理，此配置保留用于未来扩展。\n默认: -1.6225",
+
+    "estfc.config.snowAccumulationSpeedMultiplier": "积雪累积速度",
+    "estfc.config.snowAccumulationSpeedMultiplier.tooltip": "积雪累积速度倍率。\n影响 BiomeWeather 雪深每 tick 增长量。\n默认: 1.0",
+
+    "estfc.config.snowMeltSpeedMultiplier": "融雪速度",
+    "estfc.config.snowMeltSpeedMultiplier.tooltip": "融雪速度倍率。\n影响 BiomeWeather 雪深每 tick 减少量。\n默认: 1.0",
+
+    "estfc.config.snowTextureSimpleMode": "简单雪模式",
+    "estfc.config.snowTextureSimpleMode.tooltip": "开启后对所有 TFC 方块统一使用 estfc:block/snow 贴图。\n关闭则按方块类型区分贴图。\n默认: false",
+
+    "estfc.config.snowTextureReplaceMode": "替换渲染模式",
+    "estfc.config.snowTextureReplaceMode.tooltip": "开启后 ES 用本模型替换原方块模型（而非叠加渲染）。\n关闭会使用 ES 的叠加模式（可能导致双层贴图）。\n默认: true",
+
+    "estfc.config.snowTextureDefaultPath": "默认覆雪贴图路径",
+    "estfc.config.snowTextureDefaultPath.tooltip": "默认覆雪贴图路径（ResourceLocation 格式，不需要命名空间前缀）。\n默认: block/snow",
+
+    "estfc.config.tfcSnowBlockPrefixes": "覆雪方块路径前缀",
+    "estfc.config.tfcSnowBlockPrefixes.tooltip": "TFC 方块路径前缀列表（逗号分隔）。\n这些方块的模型会被 SnowTextureSwapModel 替换以显示覆雪。\n以 / 结尾表示匹配所有以此前缀开头的方块路径。",
+
+    "estfc.config.tfcSimpleSnowBlocks": "简单雪方块列表",
+    "estfc.config.tfcSimpleSnowBlocks.tooltip": "使用简单雪模式的方块列表（逗号分隔）。\n这些方块所有面统一用 snow.png 贴图。\n支持完整 ID（tfc:groundcover/bone）和路径前缀（rock/loose/）。"
 }
