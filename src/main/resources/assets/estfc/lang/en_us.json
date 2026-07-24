@@ -45,9 +45,9 @@
     "estfc.config.snowTextureDefaultPath": "Default Snow Texture Path",
     "estfc.config.snowTextureDefaultPath.tooltip": "Default snow texture path in ResourceLocation format (no namespace prefix).\nDefault: block/snow",
 
-    "estfc.config.tfcSnowBlockPrefixes": "Snow Block Path Prefixes",
-    "estfc.config.tfcSnowBlockPrefixes.tooltip": "Comma-separated list of TFC block path prefixes.\nBlocks matching these prefixes get snow model replacement.\nA trailing / matches all blocks whose path starts with that prefix.",
+    "estfc.config.tfcSnowBlockPrefixes": "Snow Block Pattern Match",
+    "estfc.config.tfcSnowBlockPrefixes.tooltip": "Comma-separated list of TFC block patterns for snow replacement.\nSupports three formats:\n  plant/ → path prefix match\n  tfc:plant/plum_leaves → full ID match\n  regex:plant/.*_leaves → regex match",
 
     "estfc.config.tfcSimpleSnowBlocks": "Simple Snow Block List",
-    "estfc.config.tfcSimpleSnowBlocks.tooltip": "Comma-separated list of blocks using simple snow mode.\nThese blocks use uniform snow.png on all faces.\nSupports full IDs (tfc:groundcover/bone) and path prefixes (rock/loose/)."
+    "estfc.config.tfcSimpleSnowBlocks.tooltip": "Comma-separated list for simple snow mode (all faces → snow.png).\nSame formats as above: path prefix, full ID, regex."
 }

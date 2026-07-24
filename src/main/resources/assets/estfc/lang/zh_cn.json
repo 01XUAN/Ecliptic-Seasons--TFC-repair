@@ -45,9 +45,9 @@
     "estfc.config.snowTextureDefaultPath": "默认覆雪贴图路径",
     "estfc.config.snowTextureDefaultPath.tooltip": "默认覆雪贴图路径（ResourceLocation 格式，不需要命名空间前缀）。\n默认: block/snow",
 
-    "estfc.config.tfcSnowBlockPrefixes": "覆雪方块路径前缀",
-    "estfc.config.tfcSnowBlockPrefixes.tooltip": "TFC 方块路径前缀列表（逗号分隔）。\n这些方块的模型会被 SnowTextureSwapModel 替换以显示覆雪。\n以 / 结尾表示匹配所有以此前缀开头的方块路径。",
+    "estfc.config.tfcSnowBlockPrefixes": "覆雪方块匹配",
+    "estfc.config.tfcSnowBlockPrefixes.tooltip": "TFC 方块匹配列表（逗号分隔）。\n支持三种格式：\n  plant/ → 路径前缀匹配\n  tfc:plant/plum_leaves → 完整 ID 匹配\n  regex:plant/.*_leaves → 正则匹配",
 
     "estfc.config.tfcSimpleSnowBlocks": "简单雪方块列表",
-    "estfc.config.tfcSimpleSnowBlocks.tooltip": "使用简单雪模式的方块列表（逗号分隔）。\n这些方块所有面统一用 snow.png 贴图。\n支持完整 ID（tfc:groundcover/bone）和路径前缀（rock/loose/）。"
+    "estfc.config.tfcSimpleSnowBlocks.tooltip": "使用简单雪模式的方块列表（逗号分隔）。\n这些方块所有面统一用 snow.png 贴图。\n格式同上：路径前缀、完整 ID、正则。"
 }
