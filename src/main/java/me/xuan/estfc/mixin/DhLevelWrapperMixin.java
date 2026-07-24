@@ -6,7 +6,6 @@ import com.seibel.distanthorizons.core.wrapperInterfaces.world.IBiomeWrapper;
 import com.seibel.distanthorizons.core.dataObjects.fullData.sources.FullDataSourceV2;
 import com.teamtea.eclipticseasons.client.util.ClientCon;
 import me.xuan.estfc.WeatherBridge;
-import me.xuan.estfc.client.TfcUnloadedTempEstimator;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
@@ -76,11 +75,8 @@ public abstract class DhLevelWrapperMixin {
             BlockPos mcPos = new BlockPos(
                     blockWorldPos.getX(), blockWorldPos.getY(), blockWorldPos.getZ());
 
-            // 修正后的 TFC 温度（未加载区块替换 EMPTY 的 10°C 基线为实际值）
-            float temp = TfcUnloadedTempEstimator.getCorrectedTemperature(level, model, mcPos);
-            // 降雪期间使用 boosted 曲线 → 与加载区块 tickChunk 保持一致
-            boolean precipitating = WeatherBridge.isPrecipitating(level);
-            int depth = WeatherBridge.tempToSnowDepth(temp, precipitating);
+            int biomeDepth = WeatherBridge.getBiomeDepthAt(level, mcPos);
+            int depth = WeatherBridge.calcSnowDepthClient(level, model, mcPos, biomeDepth);
 
             if (depth <= 0) return;
             if (blockWrapper.isLiquid()) return;

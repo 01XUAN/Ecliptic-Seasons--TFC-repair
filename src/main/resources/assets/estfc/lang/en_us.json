@@ -18,9 +18,6 @@
     "estfc.config.snowFullCoverageTemp": "100% Snow Coverage Temperature",
     "estfc.config.snowFullCoverageTemp.tooltip": "Temperature at which snow reaches 100% coverage (depth=100).\nBelow this temperature → full snow.\nDefault: -4.0",
 
-    "estfc.config.snowSnowfallFullTemp": "Full Snow Temp During Snowfall",
-    "estfc.config.snowSnowfallFullTemp.tooltip": "Temperature for 100% snow coverage during active snowfall (°C).\nWarmer than normal full temp → boosted snow probability while precipitating.\nAfter snowfall stops, curve falls back and excess snow melts naturally via tickChunk.\nDefault: -2.0",
-
     "estfc.config.snowMeltTemp": "Snow Melt Temperature",
     "estfc.config.snowMeltTemp.tooltip": "Temperature above which snow starts to melt (°C).\nShould match the snow appearance temperature.\nDefault: 0.0",
 
@@ -30,14 +27,14 @@
     "estfc.config.unloadedTempSampleRange": "LOD Temperature Sample Range",
     "estfc.config.unloadedTempSampleRange.tooltip": "Sampling radius of TfcUnloadedTempEstimator along Z axis (blocks).\nLarger = more accurate distant temperature, negligible performance impact (cached positions are skipped).\nDefault: 10240",
 
-    "estfc.config.elevationLapseRate": "Elevation Lapse Rate",
-    "estfc.config.elevationLapseRate.tooltip": "Elevation lapse rate (°C per 10 blocks).\nTFC precise value is -1.6225°C/10m (0.16225°C/block).\nHandled internally by TFC adjustTemperatureByElevation. Kept for future use.\nDefault: -1.6225",
+    "estfc.config.snowFullTransitionMinutes": "Snow Accumulation Time",
+    "estfc.config.snowFullTransitionMinutes.tooltip": "Time in minutes for snow to accumulate from 0% to 100%.\nOnly accumulates during active snowfall; snow holds when snowfall stops.\nExample: 10 min = +1 depth every 6 seconds.\nDefault: 10.0",
 
-    "estfc.config.snowAccumulationSpeedMultiplier": "Snow Accumulation Speed",
-    "estfc.config.snowAccumulationSpeedMultiplier.tooltip": "Snow accumulation speed multiplier.\nAffects biome snow depth growth per tick.\nDefault: 1.0",
+    "estfc.config.snowMeltTransitionMinutes": "Snow Melt Time",
+    "estfc.config.snowMeltTransitionMinutes.tooltip": "Time in minutes for snow to melt from 100% to 0%.\nOnly melts when temperature is above the melt threshold.\nDefault: 5.0",
 
-    "estfc.config.snowMeltSpeedMultiplier": "Snow Melt Speed",
-    "estfc.config.snowMeltSpeedMultiplier.tooltip": "Snow melt speed multiplier.\nAffects biome snow depth reduction per tick.\nDefault: 1.0",
+    "estfc.config.biomeSyncIntervalTicks": "Biome Snow Depth Sync Interval",
+    "estfc.config.biomeSyncIntervalTicks.tooltip": "Interval in ticks for server to sync biome snow depth to clients.\nDefault: 100 (5 seconds)",
 
     "estfc.config.snowTextureSimpleMode": "Simple Snow Mode",
     "estfc.config.snowTextureSimpleMode.tooltip": "When enabled, uses estfc:block/snow texture for all TFC blocks.\nWhen disabled, differentiates textures by block type.\nDefault: false",

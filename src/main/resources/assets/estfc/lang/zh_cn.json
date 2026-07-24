@@ -18,9 +18,6 @@
     "estfc.config.snowFullCoverageTemp": "100% 覆雪温度",
     "estfc.config.snowFullCoverageTemp.tooltip": "100% 覆雪的温度 (°C)。\n低于此温度 → 满雪 (depth=100)。\n默认: -4.0",
 
-    "estfc.config.snowSnowfallFullTemp": "降雪期间满雪温度",
-    "estfc.config.snowSnowfallFullTemp.tooltip": "降雪期间 100% 覆雪的温度 (°C)。\n比正常满雪温度更暖 → 正在下雪时覆雪概率整体上移。\n降雪结束后自动回落，多余雪由 tickChunk 自然融化。\n默认: -2.0",
-
     "estfc.config.snowMeltTemp": "融雪温度",
     "estfc.config.snowMeltTemp.tooltip": "雪开始融化的温度 (°C)。\n高于此温度 → 融雪模式。\n应与雪出现温度保持一致。\n默认: 0.0",
 
@@ -30,14 +27,14 @@
     "estfc.config.unloadedTempSampleRange": "远景温度采样半径",
     "estfc.config.unloadedTempSampleRange.tooltip": "TfcUnloadedTempEstimator 沿 Z 轴采样已加载区块温度的半径（格）。\n越大=远景温度越精确，性能影响可忽略（已缓存位置直接跳过）。\n默认: 10240",
 
-    "estfc.config.elevationLapseRate": "海拔递减率",
-    "estfc.config.elevationLapseRate.tooltip": "海拔递减率 (°C / 10 blocks)。\nTFC 精确值为 -1.6225°C/10m (0.16225°C/block)。\n由 TFC adjustTemperatureByElevation 内部处理，此配置保留用于未来扩展。\n默认: -1.6225",
+    "estfc.config.snowFullTransitionMinutes": "积雪累积时间",
+    "estfc.config.snowFullTransitionMinutes.tooltip": "积雪从 0% 到 100% 需要的时间（分钟）。\n只在降雪期间累积，降雪停止后保持。\n例如 10 分钟 = 每 6 秒雪深+1。\n默认: 10.0",
 
-    "estfc.config.snowAccumulationSpeedMultiplier": "积雪累积速度",
-    "estfc.config.snowAccumulationSpeedMultiplier.tooltip": "积雪累积速度倍率。\n影响 BiomeWeather 雪深每 tick 增长量。\n默认: 1.0",
+    "estfc.config.snowMeltTransitionMinutes": "融雪时间",
+    "estfc.config.snowMeltTransitionMinutes.tooltip": "积雪从 100% 融化到 0% 需要的时间（分钟）。\n只在温度高于融雪线时融化。\n默认: 5.0",
 
-    "estfc.config.snowMeltSpeedMultiplier": "融雪速度",
-    "estfc.config.snowMeltSpeedMultiplier.tooltip": "融雪速度倍率。\n影响 BiomeWeather 雪深每 tick 减少量。\n默认: 1.0",
+    "estfc.config.biomeSyncIntervalTicks": "Biome 雪深同步间隔",
+    "estfc.config.biomeSyncIntervalTicks.tooltip": "服务端 Biome 雪深同步到客户端的间隔（tick）。\n默认: 100 (5 秒)",
 
     "estfc.config.snowTextureSimpleMode": "简单雪模式",
     "estfc.config.snowTextureSimpleMode.tooltip": "开启后对所有 TFC 方块统一使用 estfc:block/snow 贴图。\n关闭则按方块类型区分贴图。\n默认: false",

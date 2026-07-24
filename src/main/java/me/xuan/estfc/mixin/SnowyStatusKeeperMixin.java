@@ -6,9 +6,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.xuan.estfc.WeatherBridge;
-import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,19 +59,21 @@ public abstract class SnowyStatusKeeperMixin {
     }
 
     /**
-     * 基于 TFC per-block 温度返回真实雪深 (0-100)。
-     * 降雪期间使用 boosted 曲线（snowSnowfallFullTemp），
-     * 雪停后自动回落，tickChunk 通过 depth ≤ seedMod 自然融化多余雪。
+     * 基于 TFC per-block 温度 + biome 积雪历史返回有效雪深 (0-100)。
      * 返回 -1 表示 TFC 不可用 → 回退到 ES 原生 biome 缓存深度。
+     *
+     * <p>服务端已加载区块：由 tickWeatherCycle 缓慢累积的 biomeDepth 主导，
+     * 不再混合瞬时温度贡献，确保积雪只在降雪期间逐渐增加。</p>
      */
     @Unique
     private static int estfc$getPerBlockDepth(Level level, BlockPos pos) {
         try {
-            ClimateModel model = Climate.get(level);
-            if (!model.supportsRain()) return -1;
+            ClimateModel model = WeatherBridge.getModelIfActive(level);
+            if (model == null) return -1;
             float temp = model.getInstantTemperature(level, pos);
-            boolean precipitating = WeatherBridge.isPrecipitating(level);
-            return WeatherBridge.tempToSnowDepth(temp, precipitating);
+            boolean precip = WeatherBridge.isPrecipitating(model, (ServerLevel) level, pos);
+            int biomeDepth = WeatherBridge.getBiomeDepthAt(level, pos);
+            return WeatherBridge.calcEffectiveDepth(temp, precip, biomeDepth);
         } catch (Exception e) {
             return -1;
         }

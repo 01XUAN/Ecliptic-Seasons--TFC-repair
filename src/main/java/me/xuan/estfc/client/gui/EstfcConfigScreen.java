@@ -20,15 +20,15 @@ import java.util.stream.Collectors;
 /**
  * estfc 自定义配置界面。
  *
- * <p>使用 HeaderAndFooterLayout + GridLayout 2 列布局替代 NeoForge 默认的
- * 纯列表界面。5 个配置分组带有醒目标题，底部 [返回]/[完成] 按钮可直接返回
- * 上一级界面。</p>
+ * <p>2 列布局：左侧标签（灰色），右侧输入控件。
+ * 范围提示合并到 tooltip 中，保持界面简洁。</p>
  */
 public final class EstfcConfigScreen extends Screen {
 
     private final Screen parent;
 
-    private static final int INPUT_WIDTH = 200;
+    private static final int LABEL_WIDTH = 140;
+    private static final int INPUT_WIDTH = 120;
     private static final int ROW_HEIGHT = 20;
 
     public EstfcConfigScreen(ModContainer modContainer, Screen parent) {
@@ -46,30 +46,34 @@ public final class EstfcConfigScreen extends Screen {
                 LayoutSettings::alignHorizontallyCenter);
 
         GridLayout grid = new GridLayout();
-        grid.defaultCellSetting().paddingHorizontal(4).paddingBottom(4).alignHorizontallyCenter();
+        grid.defaultCellSetting().paddingHorizontal(5).paddingBottom(3).alignHorizontallyCenter();
         GridLayout.RowHelper rows = grid.createRowHelper(2);
 
+        // ---- General ----
         addSectionHeader(rows, "estfc.config.section.general");
         addBoolRow(rows, Config.ENABLE_TFC_COMPAT, "estfc.config.enableTFCCompat");
 
+        // ---- Snow Temperature ----
         addSectionHeader(rows, "estfc.config.section.snowTemperature");
-        addDoubleRow(rows, Config.SNOW_APPEARANCE_TEMP, "estfc.config.snowAppearanceTemp");
-        addDoubleRow(rows, Config.SNOW_FULL_COVERAGE_TEMP, "estfc.config.snowFullCoverageTemp");
-        addDoubleRow(rows, Config.SNOW_SNOWFALL_FULL_TEMP, "estfc.config.snowSnowfallFullTemp");
-        addDoubleRow(rows, Config.SNOW_MELT_TEMP, "estfc.config.snowMeltTemp");
-        addDoubleRow(rows, Config.DH_UNLOADED_TEMP_OFFSET, "estfc.config.dhUnloadedTempOffset");
-        addIntRow(rows, Config.UNLOADED_TEMP_SAMPLE_RANGE, "estfc.config.unloadedTempSampleRange");
+        addDoubleRow(rows, Config.SNOW_APPEARANCE_TEMP, "estfc.config.snowAppearanceTemp", "°C");
+        addDoubleRow(rows, Config.SNOW_FULL_COVERAGE_TEMP, "estfc.config.snowFullCoverageTemp", "°C");
+        addDoubleRow(rows, Config.SNOW_MELT_TEMP, "estfc.config.snowMeltTemp", "°C");
+        addDoubleRow(rows, Config.DH_UNLOADED_TEMP_OFFSET, "estfc.config.dhUnloadedTempOffset", "°C");
+        addIntRow(rows, Config.UNLOADED_TEMP_SAMPLE_RANGE, "estfc.config.unloadedTempSampleRange", " blocks");
 
+        // ---- Climate Calculation ----
         addSectionHeader(rows, "estfc.config.section.climateCalculation");
-        addDoubleRow(rows, Config.ELEVATION_LAPSE_RATE, "estfc.config.elevationLapseRate");
-        addDoubleRow(rows, Config.SNOW_ACCUMULATION_SPEED, "estfc.config.snowAccumulationSpeedMultiplier");
-        addDoubleRow(rows, Config.SNOW_MELT_SPEED, "estfc.config.snowMeltSpeedMultiplier");
+        addDoubleRow(rows, Config.SNOW_FULL_TRANSITION_MINUTES, "estfc.config.snowFullTransitionMinutes", " min");
+        addDoubleRow(rows, Config.SNOW_MELT_TRANSITION_MINUTES, "estfc.config.snowMeltTransitionMinutes", " min");
+        addIntRow(rows, Config.BIOME_SYNC_INTERVAL_TICKS, "estfc.config.biomeSyncIntervalTicks", " ticks");
 
+        // ---- Snow Texture ----
         addSectionHeader(rows, "estfc.config.section.snowTexture");
         addBoolRow(rows, Config.SNOW_TEXTURE_SIMPLE_MODE, "estfc.config.snowTextureSimpleMode");
         addBoolRow(rows, Config.SNOW_TEXTURE_REPLACE_MODE, "estfc.config.snowTextureReplaceMode");
         addStringRow(rows, Config.SNOW_TEXTURE_DEFAULT_PATH, "estfc.config.snowTextureDefaultPath");
 
+        // ---- TFC Block Snow Prefixes ----
         addSectionHeader(rows, "estfc.config.section.tfcBlockSnowPrefixes");
         addListRow(rows, Config.SNOW_TFC_BLOCK_PREFIXES, "estfc.config.tfcSnowBlockPrefixes");
         addListRow(rows, Config.SNOW_TFC_SIMPLE_SNOW_BLOCKS, "estfc.config.tfcSimpleSnowBlocks");
@@ -91,59 +95,55 @@ public final class EstfcConfigScreen extends Screen {
         layout.arrangeElements();
     }
 
+    // ==================== row helpers ====================
+
     private void addSectionHeader(GridLayout.RowHelper rows, String key) {
         StringWidget title = new StringWidget(
-                Component.translatable(key).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD),
+                Component.translatable(key).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
                 this.font);
-        title.setHeight(ROW_HEIGHT + 4);
+        title.setHeight(ROW_HEIGHT + 6);
         rows.addChild(title, 2);
     }
 
     private void addBoolRow(GridLayout.RowHelper rows,
                             ModConfigSpec.BooleanValue spec, String key) {
-        Component label = Component.translatable(key);
-        rows.addChild(makeLabel(label));
+        rows.addChild(makeLabel(Component.translatable(key)));
         rows.addChild(makeBoolButton(spec, key));
     }
 
     private void addDoubleRow(GridLayout.RowHelper rows,
-                              ModConfigSpec.DoubleValue spec, String key) {
-        Component label = Component.translatable(key).append(
-                Component.literal("  ").append(rangeHint(spec))
-                        .withStyle(ChatFormatting.GRAY));
-        rows.addChild(makeLabel(label));
-        rows.addChild(makeDoubleBox(spec, key));
+                              ModConfigSpec.DoubleValue spec, String key, String unit) {
+        rows.addChild(makeLabel(Component.translatable(key)));
+        rows.addChild(makeDoubleBox(spec, key, unit));
     }
 
     private void addIntRow(GridLayout.RowHelper rows,
-                           ModConfigSpec.IntValue spec, String key) {
-        Component label = Component.translatable(key).append(
-                Component.literal("  ").append(rangeHint(spec))
-                        .withStyle(ChatFormatting.GRAY));
-        rows.addChild(makeLabel(label));
-        rows.addChild(makeIntBox(spec, key));
+                           ModConfigSpec.IntValue spec, String key, String unit) {
+        rows.addChild(makeLabel(Component.translatable(key)));
+        rows.addChild(makeIntBox(spec, key, unit));
     }
 
-    @SuppressWarnings("unchecked")
     private void addStringRow(GridLayout.RowHelper rows,
                               ModConfigSpec.ConfigValue<?> spec, String key) {
-        Component label = Component.translatable(key);
-        rows.addChild(makeLabel(label));
+        rows.addChild(makeLabel(Component.translatable(key)));
         rows.addChild(makeStringBox((ModConfigSpec.ConfigValue<String>) spec, key));
     }
 
     @SuppressWarnings("unchecked")
     private void addListRow(GridLayout.RowHelper rows,
                             ModConfigSpec.ConfigValue<?> spec, String key) {
-        Component label = Component.translatable(key);
-        rows.addChild(makeLabel(label));
+        rows.addChild(makeLabel(Component.translatable(key)));
         rows.addChild(makeListBox(
                 (ModConfigSpec.ConfigValue<List<String>>) spec, key));
     }
 
+    // ==================== widget factories ====================
+
     private StringWidget makeLabel(Component text) {
-        StringWidget label = new StringWidget(text, this.font);
+        StringWidget label = new StringWidget(
+                text.copy().withStyle(ChatFormatting.GRAY), this.font);
         label.setHeight(ROW_HEIGHT);
+        label.setWidth(LABEL_WIDTH);
         label.alignLeft();
         return label;
     }
@@ -155,25 +155,25 @@ public final class EstfcConfigScreen extends Screen {
                 .create(0, 0, INPUT_WIDTH, ROW_HEIGHT,
                         CommonComponents.EMPTY,
                         (widget, value) -> spec.set(value));
-        attachTooltip(btn, key);
+        attachTooltip(btn, key, null);
         return btn;
     }
 
-    private EditBox makeDoubleBox(ModConfigSpec.DoubleValue spec, String key) {
+    private EditBox makeDoubleBox(ModConfigSpec.DoubleValue spec, String key, String unit) {
         EditBox box = new EditBox(this.font, INPUT_WIDTH, ROW_HEIGHT,
                 Component.translatable(key));
         box.setValue(formatDouble(spec.get()));
         box.setResponder(makeDoubleResponder(spec, box));
-        attachTooltip(box, key);
+        attachTooltip(box, key, unit);
         return box;
     }
 
-    private EditBox makeIntBox(ModConfigSpec.IntValue spec, String key) {
+    private EditBox makeIntBox(ModConfigSpec.IntValue spec, String key, String unit) {
         EditBox box = new EditBox(this.font, INPUT_WIDTH, ROW_HEIGHT,
                 Component.translatable(key));
         box.setValue(String.valueOf(spec.get()));
         box.setResponder(makeIntResponder(spec, box));
-        attachTooltip(box, key);
+        attachTooltip(box, key, unit);
         return box;
     }
 
@@ -182,7 +182,7 @@ public final class EstfcConfigScreen extends Screen {
                 Component.translatable(key));
         box.setValue(spec.get());
         box.setResponder(spec::set);
-        attachTooltip(box, key);
+        attachTooltip(box, key, null);
         return box;
     }
 
@@ -197,9 +197,11 @@ public final class EstfcConfigScreen extends Screen {
                     .collect(Collectors.toList());
             spec.set(items);
         });
-        attachTooltip(box, key);
+        attachTooltip(box, key, null);
         return box;
     }
+
+    // ==================== responders ====================
 
     private Consumer<String> makeDoubleResponder(
             ModConfigSpec.DoubleValue spec, EditBox box) {
@@ -237,41 +239,38 @@ public final class EstfcConfigScreen extends Screen {
         };
     }
 
-    private String rangeHint(ModConfigSpec.DoubleValue spec) {
-        var range = spec.getSpec().getRange();
-        if (range == null) return "";
-        return "[" + range.getMin() + ", " + range.getMax() + "]";
-    }
+    // ==================== tooltip ====================
 
-    private String rangeHint(ModConfigSpec.IntValue spec) {
-        var range = spec.getSpec().getRange();
-        if (range == null) return "";
-        return "[" + range.getMin() + ", " + range.getMax() + "]";
-    }
-
-    private static String formatDouble(double value) {
-        if (value == (long) value) {
-            return String.valueOf((long) value);
-        }
-        return String.valueOf(value);
-    }
-
-    private void attachTooltip(AbstractWidget widget, String key) {
+    /**
+     * 构建 tooltip：标题（粗体）+ 范围（若有）+ 详细说明（若有）。
+     */
+    private void attachTooltip(AbstractWidget widget, String key, String unit) {
         String tooltipKey = key + ".tooltip";
-        MutableComponent tip;
+        MutableComponent tip = Component.translatable(key).withStyle(ChatFormatting.BOLD);
 
-        Component translated = Component.translatable(tooltipKey);
-        if (!tooltipKey.equals(translated.getString())) {
-            tip = Component.translatable(key)
-                    .withStyle(ChatFormatting.BOLD)
-                    .append(Component.literal("\n\n").withStyle(ChatFormatting.RESET))
-                    .append(translated);
-        } else {
-            tip = Component.translatable(key).withStyle(ChatFormatting.BOLD);
+        MutableComponent detail = Component.translatable(tooltipKey);
+        boolean hasDetail = !tooltipKey.equals(detail.getString());
+
+        if (unit != null || hasDetail) {
+            tip.append(Component.literal("\n\n").withStyle(ChatFormatting.RESET));
+        }
+        if (unit != null) {
+            tip.append(Component.literal("Unit: " + unit).withStyle(ChatFormatting.GRAY));
+        }
+        if (hasDetail) {
+            if (unit != null) tip.append(Component.literal("\n"));
+            tip.append(detail.withStyle(ChatFormatting.GRAY));
         }
 
         widget.setTooltip(Tooltip.create(tip));
     }
+
+    private static String formatDouble(double value) {
+        if (value == (long) value) return String.valueOf((long) value);
+        return String.valueOf(value);
+    }
+
+    // ==================== close ====================
 
     @Override
     public void onClose() {

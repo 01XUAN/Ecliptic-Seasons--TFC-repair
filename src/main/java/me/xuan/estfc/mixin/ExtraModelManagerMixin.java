@@ -52,7 +52,7 @@ public abstract class ExtraModelManagerMixin {
             int biomeDepth = getBiomeDepth(level, checkPos);
             if (biomeDepth <= 0) return;
 
-            if (biomeDepth > Math.abs((int)(state.getSeed(checkPos) % 100))) {
+            if (WeatherBridge.shouldSnow(biomeDepth, state.getSeed(checkPos))) {
                 cir.setReturnValue(true);
             }
         } catch (Exception ignored) {}
