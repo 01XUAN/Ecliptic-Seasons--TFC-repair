@@ -16,8 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 在客户端 tick 更新季节后，根据 TFC 南北半球翻转南半球的季节/节气。
- * 影响：萤火虫/蝴蝶/大雁粒子 + 蟋蟀等环境音效的季节判断。
+ * 客户端：南半球季节翻转。
  */
 @Mixin(value = ClientCon.class, remap = false)
 public abstract class ClientConMixin {
@@ -32,10 +31,8 @@ public abstract class ClientConMixin {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        // ===== 南半球季节翻转 =====
         int z = player.blockPosition().getZ();
         boolean isNorthern = SolarCalculator.getInNorthernHemisphere(z, model.hemisphereScale());
-
         if (isNorthern) return;
 
         ClientCon.nowSeason = estfc$flipSeason(ClientCon.nowSeason);

@@ -83,23 +83,21 @@ public class WeatherBridge {
                     biomeWeather.biomeHolder.getKey().location(), currentDepth, precip, playerTemp);
             }
 
-            // ===== 雪深渐变（无状态机——直接按条件判断） =====
+            // ===== 雪深渐变（与 tickChunkIntervalTicks 同步，每次 +1/-1） =====
+            int interval = Config.tickChunkIntervalTicks();
             if (precip && playerTemp <= meltTemp && currentDepth < 100) {
-                // 降水+低温 → 缓慢积雪
-                int step = accumulationStepTicks();
-                if (gameTime - lastStepTick[index] >= step) {
-                    lastStepTick[index] = gameTime;
-                    biomeWeather.setSnowDepth(currentDepth + 1);
+                int gain = (int)((gameTime - lastStepTick[index]) / interval);
+                if (gain > 0) {
+                    lastStepTick[index] += gain * (long)interval;
+                    biomeWeather.setSnowDepth(Math.min(100, currentDepth + gain));
                 }
             } else if (playerTemp > meltTemp && currentDepth > 0) {
-                // 零上 → 缓慢融雪
-                int step = meltStepTicks();
-                if (gameTime - lastStepTick[index] >= step) {
-                    lastStepTick[index] = gameTime;
-                    biomeWeather.setSnowDepth(currentDepth - 1);
+                int loss = (int)((gameTime - lastStepTick[index]) / interval);
+                if (loss > 0) {
+                    lastStepTick[index] += loss * (long)interval;
+                    biomeWeather.setSnowDepth(Math.max(0, currentDepth - loss));
                 }
             }
-            // 否则：低温无降水 → 雪深保持（不增不减）
 
             // ===== 同步到客户端 =====
             int syncInterval = Config.biomeSyncIntervalTicks();
@@ -130,35 +128,12 @@ public class WeatherBridge {
     }
 
     /**
-     * 计算有效雪深 (0-100)。
-     *
-     * <p>公式：{@code biomeDepth + tempDepth * (100 - biomeDepth) / 100}
-     * 其中 {@code tempDepth = tempToSnowDepth(actualTemp)}。</p>
-     *
-     * <p>效果：温度差异在积雪初期最明显（冷处先有雪），
-     * 随着 biomeDepth 增长逐渐收敛到满雪。
-     * <pre>
-     *   biomeDepth=10:  -4°C → 10+100×0.9=100,  0°C → 10+0=10
-     *   biomeDepth=50:  -4°C → 50+100×0.5=100,  0°C → 50+0=50
-     *   biomeDepth=90:  -4°C → 90+100×0.1=100,  0°C → 90+0=90
-     * </pre>
-     *
-     * @param actualTemp    TFC per-position 瞬时温度 (°C)
-     * @param precipitating 是否正在降水
-     * @param biomeDepth    该 biome 的累积雪深 (0-100)
-     * @return 有效雪深 0-100
+     * 有效雪深 = max(biomeDepth, tempToSnowDepth(actualTemp))。
+     * 标准 [snowAppearanceTemp, snowFullCoverageTemp] 过渡带。
      */
     public static int calcEffectiveDepth(float actualTemp, boolean precipitating,
                                           int biomeDepth) {
-        // 融化中：不加温度贡献，纯 biomeDepth 缓慢递减
-        if (actualTemp > Config.snowMeltTemp()) {
-            return biomeDepth;
-        }
-        if (biomeDepth >= 100) return 100;
-        int tempDepth = tempToSnowDepth(actualTemp);
-        // tempDepth 贡献随 biomeDepth 增长而衰减：越接近满雪，温度差异越小
-        int tempContribution = tempDepth * (100 - biomeDepth) / 100;
-        return Math.min(100, biomeDepth + tempContribution);
+        return Math.min(100, Math.max(biomeDepth, tempToSnowDepth(actualTemp)));
     }
 
     // ==================== 降水检测 ====================
@@ -193,18 +168,6 @@ public class WeatherBridge {
 
     // ==================== 辅助方法 ====================
 
-    /** 积雪每 +1 深度的 tick 间隔 */
-    private static int accumulationStepTicks() {
-        float minutes = Config.snowFullTransitionMinutes();
-        return Math.max(1, Math.round(minutes * 60f * 20f / 100f));
-    }
-
-    /** 融雪每 -1 深度的 tick 间隔 */
-    private static int meltStepTicks() {
-        float minutes = Config.snowMeltTransitionMinutes();
-        return Math.max(1, Math.round(minutes * 60f * 20f / 100f));
-    }
-
     @Nullable
     public static ClimateModel getModelIfActive(Level level) {
         ClimateModel model = Climate.get(level);
@@ -231,23 +194,24 @@ public class WeatherBridge {
     }
 
     /**
-     * 客户端：含 biome 积雪历史的有效雪深（供 DH/Voxy 远景使用）。
-     * 使用与已加载区块相同的加权公式，确保远近一致。
+     * 客户端远景（DH/Voxy）：零上强制无雪（Voxy 无 tickChunk 融雪逻辑），
+     * 零下与已加载区块同一公式。
      */
     public static int calcSnowDepthClient(Level level, ClimateModel model, BlockPos pos,
                                            int biomeDepth) {
         float temp = TfcUnloadedTempEstimator.getCorrectedTemperature(level, model, pos);
+        if (temp > Config.snowMeltTemp()) return 0;
         return calcEffectiveDepth(temp, isPrecipitating(level), biomeDepth);
     }
 
     /**
-     * 从 level 的 biome 列表中查找指定位置的 biome 雪深。
+     * 查找指定位置的 biome 雪深。单条目缓存 + 列表变更失效。
      * @return biome 累积雪深 0-100，查不到返回 0
      */
     public static int getBiomeDepthAt(Level level, BlockPos pos) {
         try {
-            var key = level.getBiome(pos).getKey();
             var biomes = WeatherManager.getBiomeList(level);
+            var key = level.getBiome(pos).getKey();
             if (biomes != null) {
                 for (var bw : biomes) {
                     if (bw.biomeHolder != null && bw.biomeHolder.is(key)) {

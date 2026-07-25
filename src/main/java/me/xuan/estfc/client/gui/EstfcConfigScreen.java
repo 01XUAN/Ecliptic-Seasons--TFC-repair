@@ -63,8 +63,7 @@ public final class EstfcConfigScreen extends Screen {
 
         // ---- Climate Calculation ----
         addSectionHeader(rows, "estfc.config.section.climateCalculation");
-        addDoubleRow(rows, Config.SNOW_FULL_TRANSITION_MINUTES, "estfc.config.snowFullTransitionMinutes", " min");
-        addDoubleRow(rows, Config.SNOW_MELT_TRANSITION_MINUTES, "estfc.config.snowMeltTransitionMinutes", " min");
+        addIntRow(rows, Config.TICK_CHUNK_INTERVAL_TICKS, "estfc.config.tickChunkIntervalTicks", " ticks");
         addIntRow(rows, Config.BIOME_SYNC_INTERVAL_TICKS, "estfc.config.biomeSyncIntervalTicks", " ticks");
 
         // ---- Snow Texture ----

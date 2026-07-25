@@ -15,8 +15,8 @@
     "estfc.config.snowAppearanceTemp": "雪出现温度",
     "estfc.config.snowAppearanceTemp.tooltip": "雪开始出现的温度 (°C)。\n高于此温度 → 无雪 (depth=0)。\n默认: 0.0",
 
-    "estfc.config.snowFullCoverageTemp": "100% 覆雪温度",
-    "estfc.config.snowFullCoverageTemp.tooltip": "100% 覆雪的温度 (°C)。\n低于此温度 → 满雪 (depth=100)。\n默认: -4.0",
+    "estfc.config.snowFullCoverageTemp": "完全覆雪温度",
+    "estfc.config.snowFullCoverageTemp.tooltip": "完全覆雪的温度 (°C)。\n低于此温度 → 满雪 (depth=100)。\n默认: -4.0",
 
     "estfc.config.snowMeltTemp": "融雪温度",
     "estfc.config.snowMeltTemp.tooltip": "雪开始融化的温度 (°C)。\n高于此温度 → 融雪模式。\n应与雪出现温度保持一致。\n默认: 0.0",
@@ -27,11 +27,8 @@
     "estfc.config.unloadedTempSampleRange": "远景温度采样半径",
     "estfc.config.unloadedTempSampleRange.tooltip": "TfcUnloadedTempEstimator 沿 Z 轴采样已加载区块温度的半径（格）。\n越大=远景温度越精确，性能影响可忽略（已缓存位置直接跳过）。\n默认: 10240",
 
-    "estfc.config.snowFullTransitionMinutes": "积雪累积时间",
-    "estfc.config.snowFullTransitionMinutes.tooltip": "积雪从 0% 到 100% 需要的时间（分钟）。\n只在降雪期间累积，降雪停止后保持。\n例如 10 分钟 = 每 6 秒雪深+1。\n默认: 10.0",
-
-    "estfc.config.snowMeltTransitionMinutes": "融雪时间",
-    "estfc.config.snowMeltTransitionMinutes.tooltip": "积雪从 100% 融化到 0% 需要的时间（分钟）。\n只在温度高于融雪线时融化。\n默认: 5.0",
+    "estfc.config.tickChunkIntervalTicks": "积雪/融雪 处理间隔",
+    "estfc.config.tickChunkIntervalTicks.tooltip": "tickChunk + biomeDepth 处理间隔（tick）。\n同时影响积雪/融雪速度和性能。\n每 N tick：tickChunk处理 + biomeDepth±1。\n默认 20 tick",
 
     "estfc.config.biomeSyncIntervalTicks": "Biome 雪深同步间隔",
     "estfc.config.biomeSyncIntervalTicks.tooltip": "服务端 Biome 雪深同步到客户端的间隔（tick）。\n默认: 100 (5 秒)",

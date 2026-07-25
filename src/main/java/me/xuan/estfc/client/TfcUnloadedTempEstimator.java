@@ -9,24 +9,15 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * 未加载区块的 TFC 温度修正——精确梯度 + 半球感知。
- *
- * <p>TFC {@code getInstantTemperature} 在 ChunkData.EMPTY 时将
- * avgSeaLevelTemp 固定为 10°C，导致未加载区块温度偏高→漏雪。</p>
+ * 未加载区块的 TFC 温度修正——精确梯度 + 南北半球。
+ * TFC {@code getInstantTemperature} 在 ChunkData.EMPTY 时将
+ * avgSeaLevelTemp 固定为 10°C，导致未加载区块温度偏高→漏雪。
  *
  * <p>从已加载区块采样真实 avgSeaLevelTemp 并缓存（按绝对坐标），
  * 对目标位置取最近采样点的值做线性插值或梯度外推。
- * 缓存<b>只增不删</b>，同一位置的估算不随玩家移动变化。</p>
+ * 缓存只增不删，同一位置的估算不随玩家移动变化。</p>
  *
- * <p>公式：{@code temp_REAL = temp_EMPTY - 10 + cached_avg(Z) + offset}</p>
- *
- * <h3>改进要点</h3>
- * <ul>
- *   <li>采样半径可配置（默认 10240 格），覆盖极远距离的远景需求</li>
- *   <li>误差有界：无界时取最近采样值（不用梯度外推，tfc 噪声场梯度不可靠）</li>
- *   <li>南北半球影响由 TFC 内置的月度温度计算自动处理</li>
- *   <li>使用 TFC 精确海拔递减率 0.16225°C/block（adjustTemperatureByElevation）</li>
- * </ul>
+ * 公式：{@code temp_REAL = temp_EMPTY - 10 + cached_avg(Z) + offset}
  */
 public final class TfcUnloadedTempEstimator {
 
