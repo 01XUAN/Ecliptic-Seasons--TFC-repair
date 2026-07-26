@@ -24,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -35,18 +36,12 @@ import java.util.regex.Pattern;
  * <li>树叶列表方块 → 通过 SnowDefinition 注册，ES 原生 flag 1101 处理</li>
  * <li>其他 TFC 方块 → SnowTextureSwapModel 替换贴图</li>
  * </ul>
- *
- * <p>配置条目支持三种格式：
- * <ul>
- *   <li>{@code plant/} — 路径前缀（以 / 结尾），匹配所有以此开头的方块路径</li>
- *   <li>{@code tfc:plant/plum_leaves} — 完整方块 ID 精确匹配</li>
- *   <li>{@code regex:plant/.*_leaves} — 正则表达式（匹配方块完整路径）</li>
- * </ul>
  */
 @Mixin(value = ExtraModelManager.class, remap = false)
 public abstract class SnowModelMixin {
 
     private static final String REGEX_PREFIX = "regex:";
+    private static final Map<String, Pattern> PATTERN_CACHE = new HashMap<>();
 
     // ── getSnowyModel hook ──
 
@@ -74,7 +69,7 @@ public abstract class SnowModelMixin {
         }
 
         // 树叶列表中的方块 → 跳过，让 ES 原生 flag 1101 双层雪处理
-        if (isLeafBlock(state)) return;
+        if (matchesBlockState(state, Config.tfcLeavesSnowBlocks())) return;
 
         if (!isTfcBlock(state)) return;
 
@@ -94,88 +89,62 @@ public abstract class SnowModelMixin {
         Set<String> patterns = Config.tfcLeavesSnowBlocks();
         if (patterns.isEmpty()) return;
 
-        ResourceLocation leavesTop =
+        ResourceLocation top =
             ResourceLocation.fromNamespaceAndPath("eclipticseasons", "snowy_leaves_top");
-        ResourceLocation leavesAttach =
+        ResourceLocation attach =
             ResourceLocation.fromNamespaceAndPath("eclipticseasons", "snowy_leaves_attach");
 
-        int count = 0;
         for (Block block : BuiltInRegistries.BLOCK) {
             ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
             if (!"tfc".equals(id.getNamespace())) continue;
 
-            String path = id.getPath();
-            String fullId = id.toString();
-
-            for (String entry : patterns) {
-                if (matchesEntry(path, fullId, entry)) {
-                    SnowDefinition.Info info = SnowDefinition.Info.builder()
-                        .flag(1101)
-                        .offset(0)
-                        .mid(leavesTop)
-                        .mid2(leavesAttach)
-                        .build();
-
-                    Holder<Block> holder = BuiltInRegistries.BLOCK.wrapAsHolder(block);
-                    HolderSet<Block> holderSet = HolderSet.direct(holder);
-
-                    SnowDefinition def = SnowDefinition.builder()
-                        .blocks(holderSet)
-                        .info(info)
-                        .build();
-
-                    def.fillMap(ClientRef.snowClientDef);
-                    count++;
-                    break;
-                }
+            if (matchesBlockId(id.getPath(), id.toString(), patterns)) {
+                registerLeafSnow(block, top, attach);
             }
         }
     }
 
-    // ── block matching helpers ──
+    @Unique
+    private static void registerLeafSnow(Block block, ResourceLocation top, ResourceLocation attach) {
+        SnowDefinition.Info info = SnowDefinition.Info.builder()
+            .flag(1101).offset(0).mid(top).mid2(attach).build();
+        Holder<Block> holder = BuiltInRegistries.BLOCK.wrapAsHolder(block);
+        HolderSet<Block> holderSet = HolderSet.direct(holder);
+        SnowDefinition.builder().blocks(holderSet).info(info).build()
+            .fillMap(ClientRef.snowClientDef);
+    }
+
+    // ── block classification ──
 
     @Unique
     private static boolean isSimpleSnowBlock(BlockState state) {
         if (Config.snowTextureSimpleMode()) return true;
         if (state.is(EstfcTags.SIMPLE_SNOW)) return true;
-
-        ResourceLocation id = state.getBlockHolder().getKey().location();
-        if (id == null) return false;
-        String fullId = id.getNamespace() + ":" + id.getPath();
-        String path = id.getPath();
-
-        for (String entry : Config.tfcSimpleSnowBlocks()) {
-            if (matchesEntry(path, fullId, entry)) return true;
-        }
-        return false;
+        return matchesBlockState(state, Config.tfcSimpleSnowBlocks());
     }
 
     @Unique
     private static boolean isTfcBlock(BlockState state) {
         if (state.is(EstfcTags.SNOWABLE)) return true;
+        if (state.getBlockHolder().getKey().location() == null) return false;
+        if (!"tfc".equals(state.getBlockHolder().getKey().location().getNamespace())) return false;
+        if (state.getBlock() instanceof ConnectedGrassBlock) return false;
+        return matchesBlockState(state, Config.tfcBlockPrefixes());
+    }
 
+    /**
+     * 提取 block ID 并用 {@link #matchesEntry} 逐一匹配 patterns。
+     */
+    @Unique
+    private static boolean matchesBlockState(BlockState state, Set<String> entries) {
         ResourceLocation id = state.getBlockHolder().getKey().location();
         if (id == null) return false;
-        if (!"tfc".equals(id.getNamespace())) return false;
-        if (state.getBlock() instanceof ConnectedGrassBlock) return false;
-
-        String path = id.getPath();
-        String fullId = "tfc:" + path;
-
-        for (String entry : Config.tfcBlockPrefixes()) {
-            if (matchesEntry(path, fullId, entry)) return true;
-        }
-        return false;
+        return matchesBlockId(id.getPath(), id.getNamespace() + ":" + id.getPath(), entries);
     }
 
     @Unique
-    private static boolean isLeafBlock(BlockState state) {
-        ResourceLocation id = state.getBlockHolder().getKey().location();
-        if (id == null) return false;
-        String path = id.getPath();
-        String fullId = id.getNamespace() + ":" + path;
-
-        for (String entry : Config.tfcLeavesSnowBlocks()) {
+    private static boolean matchesBlockId(String path, String fullId, Set<String> entries) {
+        for (String entry : entries) {
             if (matchesEntry(path, fullId, entry)) return true;
         }
         return false;
@@ -193,9 +162,10 @@ public abstract class SnowModelMixin {
     @Unique
     private static boolean matchesEntry(String path, String fullId, String entry) {
         if (entry.startsWith(REGEX_PREFIX)) {
-            String regex = entry.substring(REGEX_PREFIX.length());
             try {
-                return Pattern.matches(regex, path);
+                Pattern p = PATTERN_CACHE.computeIfAbsent(entry,
+                        k -> Pattern.compile(k.substring(REGEX_PREFIX.length())));
+                return p.matcher(path).matches();
             } catch (Exception ignored) {
                 return false;
             }

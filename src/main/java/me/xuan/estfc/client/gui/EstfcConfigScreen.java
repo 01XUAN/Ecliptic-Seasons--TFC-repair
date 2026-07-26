@@ -40,8 +40,8 @@ public final class EstfcConfigScreen extends Screen {
     private int activeTab = 0;
     private HeaderAndFooterLayout layout;
 
-    // 列表编辑器展开状态
-    private final Set<String> expandedLists = new HashSet<>();
+    // 列表编辑器展开状态（同时只允许一个展开）
+    private String expandedListKey = null;
 
     // ── 构造 ──
 
@@ -65,8 +65,6 @@ public final class EstfcConfigScreen extends Screen {
                 LayoutSettings::alignHorizontallyCenter);
 
         LinearLayout tabRow = header.addChild(LinearLayout.horizontal()).spacing(2);
-        int totalW = TAB_KEYS.length * TAB_W + (TAB_KEYS.length - 1) * 2;
-        int startX = (this.width - totalW) / 2 - (this.width / 2); // relative to header center
         for (int i = 0; i < TAB_KEYS.length; i++) {
             final int idx = i;
             Component label = (i == activeTab)
@@ -183,47 +181,37 @@ public final class EstfcConfigScreen extends Screen {
         rows.addChild(btn);
     }
 
-    // ── double ──
+    // ── number (double / int, unified) ──
+
     private void addDoubleRow(GridLayout.RowHelper rows,
                               ModConfigSpec.DoubleValue spec, String key, String unit) {
         rows.addChild(makeLabel(key));
-        rows.addChild(makeDoubleBox(spec, key, unit));
+        rows.addChild(makeNumberBox(spec, key, unit,
+                Double::parseDouble, EstfcConfigScreen::formatDouble));
     }
 
-    private EditBox makeDoubleBox(ModConfigSpec.DoubleValue spec, String key, String unit) {
-        EditBox box = new EditBox(this.font, INPUT_W, ROW_H, Component.translatable(key));
-        box.setValue(formatDouble(spec.get()));
-        box.setResponder(text -> {
-            try {
-                double v = Double.parseDouble(text);
-                var r = spec.getSpec().getRange();
-                if (r != null && !r.test(v)) { box.setTextColor(0xFFFF0000); return; }
-                spec.set(v);
-                box.setTextColor(EditBox.DEFAULT_TEXT_COLOR);
-            } catch (NumberFormatException e) { box.setTextColor(0xFFFF0000); }
-        });
-        attachTooltip(box, key, unit);
-        return box;
-    }
-
-    // ── int ──
     private void addIntRow(GridLayout.RowHelper rows,
                            ModConfigSpec.IntValue spec, String key, String unit) {
         rows.addChild(makeLabel(key));
-        rows.addChild(makeIntBox(spec, key, unit));
+        rows.addChild(makeNumberBox(spec, key, unit,
+                Integer::parseInt, String::valueOf));
     }
 
-    private EditBox makeIntBox(ModConfigSpec.IntValue spec, String key, String unit) {
+    @SuppressWarnings("unchecked")
+    private <V extends Number> EditBox makeNumberBox(
+            ModConfigSpec.ConfigValue<V> spec, String key, String unit,
+            java.util.function.Function<String, V> parser,
+            java.util.function.Function<V, String> formatter) {
         EditBox box = new EditBox(this.font, INPUT_W, ROW_H, Component.translatable(key));
-        box.setValue(String.valueOf(spec.get()));
+        box.setValue(formatter.apply(spec.get()));
         box.setResponder(text -> {
             try {
-                int v = Integer.parseInt(text);
+                V v = parser.apply(text);
                 var r = spec.getSpec().getRange();
                 if (r != null && !r.test(v)) { box.setTextColor(0xFFFF0000); return; }
                 spec.set(v);
                 box.setTextColor(EditBox.DEFAULT_TEXT_COLOR);
-            } catch (NumberFormatException e) { box.setTextColor(0xFFFF0000); }
+            } catch (Exception e) { box.setTextColor(0xFFFF0000); }
         });
         attachTooltip(box, key, unit);
         return box;
@@ -245,7 +233,7 @@ public final class EstfcConfigScreen extends Screen {
     private void buildListEditor(GridLayout.RowHelper rows,
                                  ModConfigSpec.ConfigValue<List<String>> spec, String key) {
         List<String> items = new ArrayList<>(spec.get());
-        boolean expanded = expandedLists.contains(key);
+        boolean expanded = key.equals(expandedListKey);
 
         // Header: ▼/▶ Name (N items)  — spans 2 columns
         MutableComponent headerText = expanded
@@ -253,7 +241,7 @@ public final class EstfcConfigScreen extends Screen {
                 : Component.literal("▶ ").append(Component.translatable(key))
                     .append(" (" + items.size() + ")");
         var headerBtn = Button.builder(headerText.withStyle(ChatFormatting.GOLD), b -> {
-            if (expanded) expandedLists.remove(key); else expandedLists.add(key);
+            expandedListKey = expanded ? null : key;
             clearWidgets();
             init();
         }).build();
@@ -343,26 +331,19 @@ public final class EstfcConfigScreen extends Screen {
         Objects.requireNonNull(this.minecraft).setScreen(this.parent);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void resetToDefaults() {
-        Config.ENABLE_TFC_COMPAT.set(Config.ENABLE_TFC_COMPAT.getDefault());
-        Config.SNOW_APPEARANCE_TEMP.set(Config.SNOW_APPEARANCE_TEMP.getDefault());
-        Config.SNOW_FULL_COVERAGE_TEMP.set(Config.SNOW_FULL_COVERAGE_TEMP.getDefault());
-        Config.SNOW_MELT_TEMP.set(Config.SNOW_MELT_TEMP.getDefault());
-        Config.DH_UNLOADED_TEMP_OFFSET.set(Config.DH_UNLOADED_TEMP_OFFSET.getDefault());
-        Config.UNLOADED_TEMP_SAMPLE_RANGE.set(Config.UNLOADED_TEMP_SAMPLE_RANGE.getDefault());
-        Config.TICK_CHUNK_INTERVAL_TICKS.set(Config.TICK_CHUNK_INTERVAL_TICKS.getDefault());
-        Config.BIOME_SYNC_INTERVAL_TICKS.set(Config.BIOME_SYNC_INTERVAL_TICKS.getDefault());
-        Config.SNOW_TEXTURE_SIMPLE_MODE.set(Config.SNOW_TEXTURE_SIMPLE_MODE.getDefault());
-        Config.SNOW_TEXTURE_REPLACE_MODE.set(Config.SNOW_TEXTURE_REPLACE_MODE.getDefault());
-        Config.SNOW_TEXTURE_DEFAULT_PATH.set(Config.SNOW_TEXTURE_DEFAULT_PATH.getDefault());
-        Config.TFC_CONNECTED_TEXTURE.set(Config.TFC_CONNECTED_TEXTURE.getDefault());
-        var prefs = (ModConfigSpec.ConfigValue<List<String>>) (Object) Config.SNOW_TFC_BLOCK_PREFIXES;
-        prefs.set(prefs.getDefault());
-        var simples = (ModConfigSpec.ConfigValue<List<String>>) (Object) Config.SNOW_TFC_SIMPLE_SNOW_BLOCKS;
-        simples.set(simples.getDefault());
-        var leaves = (ModConfigSpec.ConfigValue<List<String>>) (Object) Config.SNOW_TFC_LEAVES_BLOCKS;
-        leaves.set(leaves.getDefault());
+        ModConfigSpec.ConfigValue[] values = {
+            Config.ENABLE_TFC_COMPAT, Config.SNOW_APPEARANCE_TEMP,
+            Config.SNOW_FULL_COVERAGE_TEMP, Config.SNOW_MELT_TEMP,
+            Config.DH_UNLOADED_TEMP_OFFSET, Config.UNLOADED_TEMP_SAMPLE_RANGE,
+            Config.TICK_CHUNK_INTERVAL_TICKS, Config.BIOME_SYNC_INTERVAL_TICKS,
+            Config.SNOW_TEXTURE_SIMPLE_MODE, Config.SNOW_TEXTURE_REPLACE_MODE,
+            Config.SNOW_TEXTURE_DEFAULT_PATH, Config.TFC_CONNECTED_TEXTURE,
+            Config.SNOW_TFC_BLOCK_PREFIXES, Config.SNOW_TFC_SIMPLE_SNOW_BLOCKS,
+            Config.SNOW_TFC_LEAVES_BLOCKS
+        };
+        for (var v : values) v.set(v.getDefault());
         clearWidgets();
         init();
     }
