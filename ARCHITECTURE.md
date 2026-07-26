@@ -20,7 +20,7 @@ me.xuan.estfc/
 │   ├── SnowyStatusKeeperMixin      — [ES] tickChunk中getSnowDepthAtBiome→getPerBlockDepth
 │   ├── SnowyMapCheckerMixin        — [ES] forceChunkUpdateHeight TAIL→TFC温度雪判断
 │   ├── ServerLevelMixin            — [MC] tickChunk TAIL注入(按tickChunkIntervalTicks频率)
-│   ├── SnowModelMixin              — [ES] getSnowyModel TAIL→SnowTextureSwapModel
+│   ├── SnowModelMixin              — [ES] getSnowyModel TAIL→SnowTextureSwapModel; clearForRebaked→程序化树叶SnowDefinition
 │   ├── ExtraModelManagerMixin      — [ES] maySnowyAt RETURN回退
 │   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→TFC远景判断(Voxy)
 │   ├── DhLevelWrapperMixin         — [DH] getBlockColor RETURN→白色混合
@@ -179,18 +179,54 @@ public static int calcSnowDepthClient(Level level, ClimateModel model, BlockPos 
 
 | 配置 | 默认 | 说明 |
 |------|------|------|
-| `snowTextureSimpleMode` | false | 所有面统一用snow.png |
-| `snowTextureReplaceMode` | true | 替换模式(关=叠加) |
-| `snowTextureDefaultPath` | block/snow | 默认覆雪贴图路径 |
+| `snowTextureSimpleMode` | false | 全局开关—所有TFC方块强制简单雪(snow.png) |
+| `snowTextureReplaceMode` | true | 替换模式(关=ES叠加渲染) |
+| `snowTextureDefaultPath` | block/snow | 可自定义简单雪贴图路径 |
 
 ### 4.4 TFC方块覆雪匹配
 
 | 配置 | 默认 | 格式 |
 |------|------|------|
-| `tfcSnowBlockPrefixes` | plant/, crop/, groundcover/, wild_crop/, wood/fallen_leaves/, wood/twig/, rock/loose/, rock/mossy_loose/, soil/, peat, kaolin, regex:plant/.*_leaves | 路径前缀/完整ID/正则 |
-| `tfcSimpleSnowBlocks` | tfc:groundcover/bone等, rock/loose/, rock/mossy_loose/, soil/, peat, kaolin | 同上(全部quad→snow.png) |
+| `tfcSnowBlockPrefixes` | plant/, crop/, groundcover/, wild_crop/, wood/fallen_leaves/, wood/twig/, rock/loose/, rock/mossy_loose/ | 路径前缀/完整ID/正则 → SnowTextureSwapModel 贴图替换 |
+| `tfcSimpleSnowBlocks` | groundcover(不含seaweed/driftwood/stick), rock/loose/, rock/mossy_loose/ | 同上 → 全部quad统一snow.png |
+| `tfcLeavesSnowBlocks` | regex:plant/.*_leaves | 同上 → ES原生flag 1101双层雪(顶雪+内部雪斑), 程序化注册无需JSON |
 
-正则格式: `regex:pattern` (Pattern缓存于 `Config.REGEX_CACHE` ConcurrentHashMap)
+正则格式: `regex:pattern` (Pattern预编译缓存于 `SnowModelMixin.PATTERN_CACHE`)
+
+### 4.5 SnowModelMixin 分类流程
+
+```
+getSnowyModel(state, ...) TAIL
+  │
+  ├─ ConnectedGrassBlock?
+  │   ├─ tfcConnectedTexture=true  → return (保留连接纹理, 无雪)
+  │   └─ tfcConnectedTexture=false → 强制SNOWY+断连 → SnowTextureSwapModel(simpleSnow=false)
+  │
+  ├─ matchesBlockState(state, tfcLeavesSnowBlocks)?
+  │   └─ return (ES原生 flag 1101 双层雪处理)
+  │       ↑ SnowDefinition 由 clearForRebaked RETURN hook 程序化注册
+  │
+  ├─ isTfcBlock(state)?  → matchesBlockState(state, tfcSnowBlockPrefixes)
+  │   ├─ isSimpleSnowBlock(state)?  → 全局开关 || 标签 || matchesBlockState(tfcSimpleSnowBlocks)
+  │   │   ├─ true  → SnowTextureSwapModel(simpleSnow=true)  全部quad→snow.png
+  │   │   └─ false → SnowTextureSwapModel(simpleSnow=false) tfc→estfc贴图替换
+  │   └─ (ConnectedGrassBlock已在上面处理, 此处排除)
+  │
+  └─ 都不匹配 → return (无雪)
+```
+
+### 4.6 配置界面
+
+`EstfcConfigScreen` — 纯原生MC组件, 无前置依赖:
+- `HeaderAndFooterLayout`: 标题+5标签栏 / ScrollableLayout滚动内容 / Cancel+Reset+Done
+- `buildListEditor`: 可折叠的逐行列表编辑器 (EditBox+删除+添加按钮)
+- `resetToDefaults`: `ModConfigSpec.ConfigValue[]` 数组循环 → 新增配置自动重置
+
+### 4.7 其他
+
+| 配置 | 默认 | 说明 |
+|------|------|------|
+| `tfcConnectedTexture` | false | true→ConnectedGrassBlock保留连接纹理但不覆雪; false→强制断开连接以正确显示雪 |
 
 ---
 
