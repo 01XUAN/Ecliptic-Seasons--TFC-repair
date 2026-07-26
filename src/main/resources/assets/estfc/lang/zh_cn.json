@@ -2,6 +2,11 @@
     "estfc.config.title": "Ecliptic Seasons TFC Compat 配置",
     "estfc.config.back": "返回",
     "estfc.config.done": "完成",
+    "estfc.config.reset": "重置",
+    "estfc.config.listAdd": "+ 添加",
+
+    "estfc.config.tfcLeavesSnowBlocks": "树叶覆雪方块",
+    "estfc.config.tfcLeavesSnowBlocks.tooltip": "使用树叶覆雪效果（双层雪：顶部积雪 + 内部雪斑）的方块。\n支持路径前缀、完整 ID、正则三种格式。\n修改后按 F3+T 重载资源生效。\n默认: regex:plant/.*_leaves（TFC 果树树叶）",
 
     "estfc.config.section.general": "通用",
     "estfc.config.section.snowTemperature": "覆雪温度",
@@ -11,6 +16,9 @@
 
     "estfc.config.enableTFCCompat": "启用 TFC 兼容模式",
     "estfc.config.enableTFCCompat.tooltip": "启用后，节气和天气从 TFC 日历和气候系统派生。\n关闭则回退到 Ecliptic Seasons 原生系统。",
+
+    "estfc.config.tfcConnectedTexture": "TFC 连接纹理",
+    "estfc.config.tfcConnectedTexture.tooltip": "启用 TFC 连接纹理（草地/泥土等方块的平滑过渡）。\n⚠ 启用会导致 ConnectedGrassBlock 无法覆雪。\n默认: false（禁用，保证覆雪正常）",
 
     "estfc.config.snowAppearanceTemp": "雪出现温度",
     "estfc.config.snowAppearanceTemp.tooltip": "雪开始出现的温度 (°C)。\n高于此温度 → 无雪 (depth=0)。\n默认: 0.0",

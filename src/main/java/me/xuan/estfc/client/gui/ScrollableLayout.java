@@ -17,59 +17,46 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 可滚动的布局容器。
- * 移植自 Ecliptic Seasons，用于配置界面内容超出屏幕高度时自动显示滚动条。
+ * 可滚动布局 — 包裹一个 {@link Layout} 子内容。
+ * <p>内容超出最大高度时自动显示滚动条，支持鼠标滚轮和拖拽滚动条。</p>
+ * <p>实现 {@link Layout}，通过 {@link #visitChildren} 暴露内部容器。</p>
  */
 public class ScrollableLayout implements Layout {
     private static final int SCROLL_RATE = 12;
-    private static final int SCROLLBAR_WIDTH = 6;
-    private static final int SCROLLBAR_SPACING = 4;
-    private static final int SCROLLBAR_MIN_HEIGHT = 32;
+    private static final int BAR_W = 6;
+    private static final int BAR_GAP = 4;
+    private static final int BAR_MIN_H = 16;
 
     private final Layout content;
-    private final Container container;
-
-    private int minWidth;
-    private int minHeight;
+    private final ScrollContainer container;
     private int maxHeight;
 
     public ScrollableLayout(Minecraft minecraft, Layout content, int maxHeight) {
         this.content = content;
         this.maxHeight = Math.max(1, maxHeight);
-        this.container = new Container(minecraft, 0, 0, 1, 1);
+        this.container = new ScrollContainer(minecraft);
     }
 
-    public void setMinWidth(int minWidth) {
-        this.minWidth = Math.max(0, minWidth);
-        this.arrangeElements();
+    public void setMaxHeight(int h) {
+        this.maxHeight = Math.max(1, h);
+        arrangeElements();
     }
 
-    public void setMinHeight(int minHeight) {
-        this.minHeight = Math.max(0, minHeight);
-        this.arrangeElements();
-    }
-
-    public void setMaxHeight(int maxHeight) {
-        this.maxHeight = Math.max(1, maxHeight);
-        this.arrangeElements();
-    }
+    // ── Layout ──
 
     @Override
     public void arrangeElements() {
         this.content.arrangeElements();
+        int cw = Math.max(1, this.content.getWidth());
+        int ch = Math.max(1, this.content.getHeight());
 
-        int contentWidth = Math.max(1, this.content.getWidth());
-        int contentHeight = Math.max(1, this.content.getHeight());
+        boolean bar = ch > this.maxHeight;
+        int barReserved = bar ? BAR_W + BAR_GAP : 0;
+        int w = cw + barReserved;
+        int h = Math.min(ch, this.maxHeight);
 
-        boolean needScrollbar = contentHeight > this.maxHeight;
-        int scrollbarReserve = needScrollbar ? SCROLLBAR_WIDTH + SCROLLBAR_SPACING : 0;
-
-        int width = Math.max(contentWidth + scrollbarReserve, this.minWidth);
-        int height = this.maxHeight;
-
-        this.container.setWidthValue(width);
-        this.container.setHeightValue(Math.max(1, height));
-        this.container.refreshChildren();
+        this.container.resize(w, Math.max(1, h));
+        this.container.syncChildren();
         this.container.clampScroll();
 
         this.content.setX(this.container.getX());
@@ -94,239 +81,153 @@ public class ScrollableLayout implements Layout {
     }
 
     @Override
-    public int getX() {
-        return this.container.getX();
-    }
-
+    public int getX() { return this.container.getX(); }
     @Override
-    public int getY() {
-        return this.container.getY();
-    }
-
+    public int getY() { return this.container.getY(); }
     @Override
-    public int getWidth() {
-        return this.container.getWidth();
-    }
-
+    public int getWidth() { return this.container.getWidth(); }
     @Override
-    public int getHeight() {
-        return this.container.getHeight();
-    }
+    public int getHeight() { return this.container.getHeight(); }
 
-    private class Container extends AbstractContainerWidget {
+    // ── Inner ──
+
+    private class ScrollContainer extends AbstractContainerWidget {
         private final Minecraft minecraft;
         private final List<AbstractWidget> widgets = new ArrayList<>();
+        int scrollAmount;
+        boolean dragging;
+        int grabOffset;
 
-        private int scrollAmount;
-        private boolean draggingScrollbar;
-        private int scrollbarGrabOffset;
-
-        public Container(Minecraft minecraft, int x, int y, int width, int height) {
-            super(x, y, width, height, CommonComponents.EMPTY);
-            this.minecraft = minecraft;
-            this.refreshChildren();
+        ScrollContainer(Minecraft mc) {
+            super(0, 0, 0, 0, CommonComponents.EMPTY);
+            this.minecraft = mc;
         }
 
-        private void setWidthValue(int width) {
-            this.width = Math.max(1, width);
+        void resize(int w, int h) { this.width = w; this.height = h; }
+
+        void syncChildren() {
+            widgets.clear();
+            ScrollableLayout.this.content.visitWidgets(widgets::add);
         }
 
-        private void setHeightValue(int height) {
-            this.height = Math.max(1, height);
+        int contentH() { return Math.max(1, ScrollableLayout.this.content.getHeight()); }
+        int maxScroll() { return Math.max(0, contentH() - this.height); }
+        boolean scrollable() { return maxScroll() > 0; }
+
+        void clampScroll() { setScroll(scrollAmount); }
+
+        void setScroll(int v) {
+            scrollAmount = Mth.clamp(v, 0, maxScroll());
+            ScrollableLayout.this.content.setY(this.getY() - scrollAmount);
         }
 
-        private void refreshChildren() {
-            this.widgets.clear();
-            ScrollableLayout.this.content.visitWidgets(this.widgets::add);
+        // scrollbar
+        int barX() { return getX() + width - BAR_W; }
+        int barH() {
+            if (!scrollable()) return height;
+            return Mth.clamp(height * height / contentH(), BAR_MIN_H, height);
+        }
+        int barY() {
+            if (!scrollable()) return getY();
+            int travel = Math.max(1, height - barH());
+            return getY() + scrollAmount * travel / Math.max(1, maxScroll());
         }
 
-        private int contentHeight() {
-            return Math.max(1, ScrollableLayout.this.content.getHeight());
+        boolean overBar(double mx, double my) {
+            return scrollable()
+                    && mx >= barX() && mx < barX() + BAR_W
+                    && my >= getY() && my < getY() + height;
         }
 
-        private int maxScroll() {
-            return Math.max(0, this.contentHeight() - this.height);
+        boolean overThumb(double mx, double my) {
+            int by = barY(), bh = barH();
+            return overBar(mx, my) && my >= by && my < by + bh;
         }
 
-        private boolean scrollable() {
-            return this.maxScroll() > 0;
-        }
-
-        private void clampScroll() {
-            this.setScrollAmount(this.scrollAmount);
-        }
-
-        private void setScrollAmount(int amount) {
-            this.scrollAmount = Mth.clamp(amount, 0, this.maxScroll());
-            ScrollableLayout.this.content.setY(this.getY() - this.scrollAmount);
-        }
-
-        private int scrollbarX() {
-            return this.getX() + this.width - SCROLLBAR_WIDTH;
-        }
-
-        private int scrollbarHeight() {
-            if (!this.scrollable()) {
-                return this.height;
-            }
-
-            return Mth.clamp(
-                    this.height * this.height / this.contentHeight(),
-                    SCROLLBAR_MIN_HEIGHT,
-                    Math.max(SCROLLBAR_MIN_HEIGHT, this.height)
-            );
-        }
-
-        private int scrollbarY() {
-            if (!this.scrollable()) {
-                return this.getY();
-            }
-
-            int travel = Math.max(1, this.height - this.scrollbarHeight());
-            return this.getY() + this.scrollAmount * travel / Math.max(1, this.maxScroll());
-        }
-
-        private boolean overScrollbar(double mouseX, double mouseY) {
-            return this.scrollable()
-                    && mouseX >= this.scrollbarX()
-                    && mouseX < this.scrollbarX() + SCROLLBAR_WIDTH
-                    && mouseY >= this.getY()
-                    && mouseY < this.getY() + this.height;
-        }
-
-        private boolean overScrollbarThumb(double mouseX, double mouseY) {
-            int y = this.scrollbarY();
-            int h = this.scrollbarHeight();
-
-            return this.overScrollbar(mouseX, mouseY)
-                    && mouseY >= y
-                    && mouseY < y + h;
-        }
-
-        private void scrollToMouse(double mouseY) {
-            int barHeight = this.scrollbarHeight();
-            int travel = Math.max(1, this.height - barHeight);
-            int localY = (int) mouseY - this.getY() - this.scrollbarGrabOffset;
-            int maxScroll = Math.max(1, this.maxScroll());
-
-            this.setScrollAmount(localY * maxScroll / travel);
-        }
+        // ── render ──
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.enableScissor(
-                    this.getX(),
-                    this.getY(),
-                    this.getX() + this.width,
-                    this.getY() + this.height
-            );
-
-            for (AbstractWidget widget : this.widgets) {
-                if (this.isWidgetVisible(widget)) {
-                    widget.render(graphics, mouseX, mouseY, partialTick);
+        protected void renderWidget(GuiGraphics g, int mx, int my, float pt) {
+            g.enableScissor(getX(), getY(), getX() + width, getY() + height);
+            for (AbstractWidget w : widgets) {
+                if (w.getY() + w.getHeight() > getY() && w.getY() < getY() + height) {
+                    w.render(g, mx, my, pt);
                 }
             }
+            g.disableScissor();
 
-            graphics.disableScissor();
-
-            this.renderScrollbar(graphics);
-        }
-
-        private boolean isWidgetVisible(AbstractWidget widget) {
-            return widget.getY() + widget.getHeight() > this.getY()
-                    && widget.getY() < this.getY() + this.height;
-        }
-
-        private void renderScrollbar(GuiGraphics graphics) {
-            if (!this.scrollable()) {
-                return;
+            if (scrollable()) {
+                int x0 = barX(), x1 = x0 + BAR_W;
+                int y0 = getY(), y1 = y0 + height;
+                int by = barY(), bh = barH();
+                g.fill(x0, y0, x1, y1, 0x44000000);
+                g.fill(x0, by, x1, by + bh, 0xAAFFFFFF);
             }
-
-            int x0 = this.scrollbarX();
-            int x1 = x0 + SCROLLBAR_WIDTH;
-            int y0 = this.getY();
-            int y1 = this.getY() + this.height;
-
-            int barY = this.scrollbarY();
-            int barH = this.scrollbarHeight();
-
-            graphics.fill(x0, y0, x1, y1, 0x44000000);
-            graphics.fill(x0, barY, x1, barY + barH, 0xAAFFFFFF);
         }
 
         @Override
-        public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-            if (!this.visible || !this.isMouseOver(mouseX, mouseY)) {
-                return false;
-            }
+        protected void updateWidgetNarration(NarrationElementOutput o) {}
 
-            this.setScrollAmount(this.scrollAmount - (int) (scrollY * SCROLL_RATE));
+        // ── input ──
+
+        @Override
+        public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+            if (!visible || !isMouseOver(mx, my)) return false;
+            setScroll(scrollAmount - (int)(sy * SCROLL_RATE));
             return true;
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (!this.isMouseOver(mouseX, mouseY)) {
-                return false;
-            }
-
-            if (button == 0 && this.overScrollbar(mouseX, mouseY)) {
-                if (this.overScrollbarThumb(mouseX, mouseY)) {
-                    this.scrollbarGrabOffset = (int) mouseY - this.scrollbarY();
+        public boolean mouseClicked(double mx, double my, int btn) {
+            if (!isMouseOver(mx, my)) return false;
+            if (btn == 0 && overBar(mx, my)) {
+                if (overThumb(mx, my)) {
+                    grabOffset = (int)my - barY();
                 } else {
-                    this.scrollbarGrabOffset = this.scrollbarHeight() / 2;
-                    this.scrollToMouse(mouseY);
+                    grabOffset = barH() / 2;
+                    scrollToMouse(my);
                 }
-
-                this.draggingScrollbar = true;
+                dragging = true;
                 return true;
             }
-
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(mx, my, btn);
         }
 
         @Override
-        public boolean mouseReleased(double mouseX, double mouseY, int button) {
-            this.draggingScrollbar = false;
-            return super.mouseReleased(mouseX, mouseY, button);
+        public boolean mouseReleased(double mx, double my, int btn) {
+            dragging = false;
+            return super.mouseReleased(mx, my, btn);
         }
 
         @Override
-        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-            if (this.draggingScrollbar && button == 0 && this.scrollable()) {
-                this.scrollToMouse(mouseY);
+        public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
+            if (dragging && btn == 0 && scrollable()) {
+                scrollToMouse(my);
                 return true;
             }
+            return super.mouseDragged(mx, my, btn, dx, dy);
+        }
 
-            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        private void scrollToMouse(double my) {
+            int travel = Math.max(1, height - barH());
+            int local = (int)my - getY() - grabOffset;
+            setScroll(local * Math.max(1, maxScroll()) / travel);
         }
 
         @Override
         public void setFocused(@Nullable GuiEventListener focused) {
             super.setFocused(focused);
-
-            if (focused != null && this.minecraft.getLastInputType().isKeyboard()) {
-                var area = this.getRectangle();
+            if (focused != null && minecraft.getLastInputType().isKeyboard()) {
+                var area = getRectangle();
                 var rect = focused.getRectangle();
-
-                int topDelta = rect.top() - area.top();
-                int bottomDelta = rect.bottom() - area.bottom();
-
-                if (topDelta < 0) {
-                    this.setScrollAmount(this.scrollAmount + topDelta - SCROLL_RATE);
-                } else if (bottomDelta > 0) {
-                    this.setScrollAmount(this.scrollAmount + bottomDelta + SCROLL_RATE);
-                }
+                int topD = rect.top() - area.top();
+                int botD = rect.bottom() - area.bottom();
+                if (topD < 0) setScroll(scrollAmount + topD - SCROLL_RATE);
+                else if (botD > 0) setScroll(scrollAmount + botD + SCROLL_RATE);
             }
         }
 
         @Override
-        public List<? extends GuiEventListener> children() {
-            return this.widgets;
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput output) {
-        }
+        public List<? extends GuiEventListener> children() { return widgets; }
     }
 }

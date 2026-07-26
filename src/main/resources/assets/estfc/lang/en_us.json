@@ -2,6 +2,11 @@
     "estfc.config.title": "Ecliptic Seasons TFC Compat Configuration",
     "estfc.config.back": "Back",
     "estfc.config.done": "Done",
+    "estfc.config.reset": "Reset",
+    "estfc.config.listAdd": "+ Add",
+
+    "estfc.config.tfcLeavesSnowBlocks": "Leaf Snow Blocks",
+    "estfc.config.tfcLeavesSnowBlocks.tooltip": "Blocks that use leaf snow effect (dual-layer: top snow + internal spots).\nSupports path prefix, full ID, and regex formats.\nChanges take effect after F3+T resource reload.\nDefault: regex:plant/.*_leaves (TFC fruit tree leaves)",
 
     "estfc.config.section.general": "General",
     "estfc.config.section.snowTemperature": "Snow Temperature",
@@ -11,6 +16,9 @@
 
     "estfc.config.enableTFCCompat": "Enable TFC Compat Mode",
     "estfc.config.enableTFCCompat.tooltip": "When enabled, seasons and weather are derived from the TFC calendar and climate system.\nWhen disabled, it falls back to the Ecliptic Seasons native system.",
+
+    "estfc.config.tfcConnectedTexture": "TFC Connected Textures",
+    "estfc.config.tfcConnectedTexture.tooltip": "Enable TFC connected textures (smooth transitions on grass/dirt etc.).\n⚠ When enabled, ConnectedGrassBlock will not have snow.\nDefault: false (disabled, ensures snow works properly)",
 
     "estfc.config.snowAppearanceTemp": "Snow Appearance Temperature",
     "estfc.config.snowAppearanceTemp.tooltip": "Temperature at which snow starts to appear (°C).\nAbove this temperature → no snow (depth=0).\nDefault: 0.0",
