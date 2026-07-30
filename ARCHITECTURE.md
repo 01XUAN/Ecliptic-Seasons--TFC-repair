@@ -17,9 +17,9 @@ me.xuan.estfc/
 ├── mixin/
 │   ├── WeatherHelpersMixin         — [TFC] 取消onTickChunk, advanceWeatherCycle TAIL→tickWeatherCycle
 │   ├── WeatherManagerMixin         — [ES] getSnowStatus劫持, agentAdvanceWeatherCycle取消
-│   ├── SnowyStatusKeeperMixin      — [ES] tickChunk中getSnowDepthAtBiome→getPerBlockDepth
+│   ├── SnowyStatusKeeperMixin      — [ES] tickChunk HEAD节流 + getSnowDepthAtBiome→getPerBlockDepth
 │   ├── SnowyMapCheckerMixin        — [ES] forceChunkUpdateHeight TAIL→TFC温度雪判断
-│   ├── ServerLevelMixin            — [MC] tickChunk TAIL注入(按tickChunkIntervalTicks频率)
+
 │   ├── SnowModelMixin              — [ES] getSnowyModel TAIL→SnowTextureSwapModel; clearForRebaked→程序化树叶SnowDefinition
 │   ├── ExtraModelManagerMixin      — [ES] maySnowyAt RETURN回退
 │   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→TFC远景判断(Voxy)
@@ -242,14 +242,13 @@ TFC advanceWeatherCycle (每tick, 服务端主线程)
   │   ├─ 1个biome: biomeDepth += elapsed/interval (绝对时间累积)
   │   └─ 每100tick: sendBiomePacket → 客户端 NetworkUtilMixin → SnowDepthCache.DEPTHS
   │
-  ├─ ServerLevelMixin TAIL (每tickChunkIntervalTicks=20)
-  │   └─ SnowyStatusKeeper.tickChunk(level, chunk, randomPos, ...)
-  │       ├─ WeatherManager.getSnowStatus → WeatherManagerMixin.estfc$getSnowStatusImpl
-  │       │   └─ temp>0→SNOW_MELT, precip→SNOW, else→NONE
-  │       └─ WeatherManager.getSnowDepthAtBiome → SnowyStatusKeeperMixin.replaceDepthForSnow/Melt
-  │           └─ estfc$getPerBlockDepth → calcEffectiveDepth(temp, precip, biomeDepth)
-  │               └─ max(biomeDepth, tempToSnowDepth(temp))
-  │               → shouldSnow(depth, seed) → keeper.set(pos, FLAG_SNOW/FLAG_NONE)
+  ├─ ES MixinServerLevel (每tick) → SnowyStatusKeeper.tickChunk
+  │   └─ SnowyStatusKeeperMixin HEAD: 按tickChunkIntervalTicks节流, 非间隔期cancel
+  │   └─ WeatherManager.getSnowStatus → WeatherManagerMixin.estfc$getSnowStatusImpl
+  │       └─ temp>0→SNOW_MELT, precip→SNOW, else→NONE
+  │   └─ WeatherManager.getSnowDepthAtBiome → SnowyStatusKeeperMixin.replaceDepthForSnow/Melt
+  │       └─ estfc$getPerBlockDepth → calcEffectiveDepth(temp, precip, biomeDepth)
+  │           → shouldSnow(depth, seed) → keeper.set(pos, FLAG_SNOW/FLAG_NONE)
   │
   └─ Chunk加载: SnowyMapCheckerMixin (forceChunkUpdateHeight TAIL)
       ├─ 每列: colTemp = TFC温度, colSnowDepth = calcEffectiveDepth(colTemp, precip, biomeDepth)
@@ -295,7 +294,7 @@ ES `SnowyStatusKeeper.tickChunk()` 占 ~1.49% 服务端线程 (profile数据), �
 | 路径 | 线程 |
 |------|------|
 | tickWeatherCycle | 主服务端线程 |
-| tickChunk (ServerLevelMixin) | 主服务端线程 |
+| tickChunk (SnowyStatusKeeperMixin throttle) | 主服务端线程 |
 | forceChunkUpdateHeight (SnowyMapCheckerMixin) | 主服务端线程 |
 | getSnowStatus (WeatherManagerMixin) | 主服务端线程 |
 | NetworkUtilMixin | Netty网络线程 (写SnowDepthCache) |

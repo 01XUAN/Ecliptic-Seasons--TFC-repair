@@ -1,26 +1,16 @@
-**ESTFC** 是一个将 **[Ecliptic Seasons（节气）](https://github.com/TeamTeaMC/Ecliptic-Seasons)** 的视觉积雪系统与 **[TerraFirmaCraft（TFC）](https://github.com/TerraFirmaCraft/TerraFirmaCraft)** 兼容的模组。  
+**ESTFC** 是一个将 **[Ecliptic Seasons（节气）](https://github.com/TeamTeaMC/Ecliptic-Seasons)** 的视觉积雪系统代替了 **[TerraFirmaCraft（TFC）](https://github.com/TerraFirmaCraft/TerraFirmaCraft)** 的方块雪系统的模组，为了解决远景没有雪景的问题。  
 **核心目标**：用节气的**纯渲染视觉雪**替代 TFC 的**物理雪**，完整保留 **TFC 的降雪逻辑**，并确保与 **[Distant Horizons（DH）](https://gitlab.com/distant-horizons-team/distant-horizons)** 兼容，使雪景更新**不再局限于已加载区块**。
 
 ---
 
-### 1. 基于 TFC 气候的积雪
+### 1. 雪与贴图
 
-- **温度**  
-  雪的出现、累积和融化完全由 **TFC 的实时温度和天气** 决定，替代了 ES 原有的群系雪深逻辑。
+- 雪的出现、累积和融化完全由 **TFC 的温度和天气** 决定，而温度同时受海拔影响。
+  *由于 TFC 每个地方的温度差异无法使用 ES 原有的群系雪深逻辑，不可避免的出现新加载区块与已加载区块积雪量不同而产生的断层。*
 
-- **降水**  
-  仅当 **TFC 正在降水且温度低于阈值** 时雪才会积累。
+- 阻止了 TFC 放置物理雪方块。
 
-- **海拔**  
-  依照 **TFC 的海拔递减率（-1.6°C/10 格）** 动态变化，使雪线随海拔温度自然起伏。
-
----
-
-### 2. 节气 视觉雪替换 TFC 物理雪
-
-- **完全阻止** TFC 在区块 tick 中放置物理雪方块。
-
-- 所有符合条件的 TFC 方块（草地、植物、树叶、木枝等）会被替换为**视觉覆盖雪模型**，**仅改变外观**。
+- 给 TFC 方块添加**视觉雪覆盖**。
 
 - 支持**两种雪纹理模式**：  
   - **简单模式**（`simpleSnow`） – 所有面统一使用 `estfc:block/snow` 贴图。  
@@ -30,8 +20,12 @@
 
 ---
 
-### 3. 与 Distant Horizons 模组兼容
+### 2. 模组兼容
 
 - 在 **DH 生成的 LOD 网格** 中，根据修正后的 TFC 温度为方块着色，使**远景雪色与近景一致**。
 
-- 关于 **Voxy** 模组，通过 *Ecliptic Seasons: VoxyCompact* 兼容，但是只针对部分 Voxy 版本，其中对于[这个版本](https://github.com/NHblock714/voxy)不需要 Ecliptic Seasons: VoxyCompact（Voxy 里面已经内置），并且兼容较好。
+- 关于 **Voxy** 模组，已通过 *Ecliptic Seasons: VoxyCompact* 兼容，但是只针对部分 Voxy 版本，其中对于[这个版本](https://github.com/NHblock714/voxy)不需要 Ecliptic Seasons: VoxyCompact（Voxy 里面已经内置），并且有额外的功能。
+
+---
+
+*此模组使用了AI编写*

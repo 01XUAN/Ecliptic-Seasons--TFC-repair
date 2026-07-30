@@ -1,44 +1,39 @@
 package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
+import com.teamtea.eclipticseasons.common.core.map.ChunkInfoMap;
 import com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
+import me.xuan.estfc.Config;
 import me.xuan.estfc.WeatherBridge;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 修复 SnowyStatusKeeper.tickChunk 中对 getSnowDepthAtBiome 的调用。
- *
- * <p>ES 用 biome 级缓存深度做 per-block 概率判断。TFC 温度是 per-position 的函数，
- * biome 级缓存完全不适用。改为用 TFC per-block 温度计算真实深度，
- * 让 tickChunk 的概率阈值（|seed%100|）基于真实位置温度自然分布。
+ * SnowyStatusKeeper.tickChunk 的注入：节流 + 深度替换。
  */
 @Mixin(value = SnowyStatusKeeper.class, remap = false)
 public abstract class SnowyStatusKeeperMixin {
 
-    /**
-     * 替换 SNOW 分支中的 getSnowDepthAtBiome (ordinal 0)。
-     * 使用 TFC per-block 温度计算真实雪深 → 更冷的位置更容易积雪。
-     */
-    @WrapOperation(
-        method = "tickChunk",
-        at = @At(value = "INVOKE",
-            target = "Lcom/teamtea/eclipticseasons/common/core/biome/WeatherManager;getSnowDepthAtBiome(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/biome/Biome;)I",
-            ordinal = 0)
-    )
-    private int estfc$replaceDepthForSnow(Level level, Biome biome, Operation<Integer> original,
-                                           @Local BlockPos checkPos) {
-        int depth = estfc$getPerBlockDepth(level, checkPos);
-        return depth >= 0 ? depth : original.call(level, biome);
+    /** 按 tickChunkIntervalTicks 节流，取消 ES 原生每 tick 调用 */
+    @Inject(method = "tickChunk", at = @At("HEAD"), cancellable = true)
+    private void estfc$throttle(ServerLevel level, LevelChunk chunk, ChunkPos chunkPos, BlockPos checkPos, ChunkInfoMap chunkInfoMap, WeatherStatusKeeper weatherStatusKeeper, CallbackInfo ci) {
+        if (level.getGameTime() % Config.tickChunkIntervalTicks() != 0) {
+            ci.cancel();
+        }
     }
 
     /**

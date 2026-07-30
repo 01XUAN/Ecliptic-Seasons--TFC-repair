@@ -4,6 +4,7 @@ import me.xuan.estfc.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.layouts.*;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,9 @@ import java.util.*;
 /**
  * estfc 配置界面。
  *
- * <p>布局：顶部标签栏 + 中间可滚动条目 + 底部 Cancel / Reset / Done。</p>
+ * <p>布局：顶部标签栏 + 中间可滚动条目 + 底部动态按钮。</p>
+ * <p>按钮行为：无修改→Cancel/Reset/Done；有修改→放弃修改/Reset/保存修改。</p>
+ * <p>ESC/放弃修改 在有修改时弹出确认。</p>
  */
 public final class EstfcConfigScreen extends Screen {
 
@@ -27,6 +30,19 @@ public final class EstfcConfigScreen extends Screen {
     private static final int INPUT_W = 160;
     private static final int ROW_H = 20;
     private static final int TAB_W = 100;
+
+    // ── 所有配置值（用于快照对比和重置） ──
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static final ModConfigSpec.ConfigValue[] ALL_VALUES = {
+        Config.ENABLE_TFC_COMPAT, Config.SNOW_APPEARANCE_TEMP,
+        Config.SNOW_FULL_COVERAGE_TEMP, Config.SNOW_MELT_TEMP,
+        Config.DH_UNLOADED_TEMP_OFFSET, Config.UNLOADED_TEMP_SAMPLE_RANGE,
+        Config.TICK_CHUNK_INTERVAL_TICKS, Config.BIOME_SYNC_INTERVAL_TICKS,
+        Config.SNOW_TEXTURE_SIMPLE_MODE, Config.SNOW_TEXTURE_REPLACE_MODE,
+        Config.SNOW_TEXTURE_DEFAULT_PATH, Config.TFC_CONNECTED_TEXTURE,
+        Config.SNOW_TFC_BLOCK_PREFIXES, Config.SNOW_TFC_SIMPLE_SNOW_BLOCKS,
+        Config.SNOW_TFC_LEAVES_BLOCKS
+    };
 
     // ── 标签定义 ──
     private static final String[] TAB_KEYS = {
@@ -43,11 +59,28 @@ public final class EstfcConfigScreen extends Screen {
     // 列表编辑器展开状态（同时只允许一个展开）
     private String expandedListKey = null;
 
+    // 打开界面时的值快照 — 用于检测修改
+    private final Object[] initialValues = new Object[ALL_VALUES.length];
+
     // ── 构造 ──
 
     public EstfcConfigScreen(ModContainer modContainer, Screen parent) {
         super(Component.translatable("estfc.config.title"));
         this.parent = parent;
+        captureInitialValues();
+    }
+
+    private void captureInitialValues() {
+        for (int i = 0; i < ALL_VALUES.length; i++) {
+            initialValues[i] = ALL_VALUES[i].get();
+        }
+    }
+
+    private boolean hasModifications() {
+        for (int i = 0; i < ALL_VALUES.length; i++) {
+            if (!Objects.equals(ALL_VALUES[i].get(), initialValues[i])) return true;
+        }
+        return false;
     }
 
     // ══════════════════════════════════════════════════
@@ -83,26 +116,96 @@ public final class EstfcConfigScreen extends Screen {
         ScrollableLayout scroll = new ScrollableLayout(this.minecraft, grid, layout.getContentHeight());
         layout.addToContents(scroll);
 
-        // ── 底部：三按钮 ──
-        LinearLayout footer = layout.addToFooter(LinearLayout.horizontal()).spacing(8);
-        int btnW = (this.width - 40) / 3;
-        footer.addChild(Button.builder(
-                Component.translatable("estfc.config.back"),
-                b -> onClose(false)).width(btnW).build());
-        footer.addChild(Button.builder(
-                Component.translatable("estfc.config.reset"),
-                b -> resetToDefaults()).width(btnW).build());
-        footer.addChild(Button.builder(
-                Component.translatable("estfc.config.done"),
-                b -> onClose(true)).width(btnW).build());
+        // ── 底部：动态按钮 ──
+        buildFooter();
 
         layout.visitWidgets(this::addRenderableWidget);
         layout.arrangeElements();
     }
 
+    private void buildFooter() {
+        LinearLayout footer = layout.addToFooter(LinearLayout.horizontal()).spacing(8);
+        int btnW = (this.width - 40) / 3;
+        boolean modified = hasModifications();
+
+        // 左：取消 / 放弃修改
+        var leftText = modified
+                ? Component.translatable("estfc.config.discard")
+                : Component.translatable("estfc.config.back");
+        footer.addChild(Button.builder(leftText, b -> onClose(false)).width(btnW).build());
+
+        // 中：重置（始终显示）
+        footer.addChild(Button.builder(
+                Component.translatable("estfc.config.reset"),
+                b -> confirmReset()).width(btnW).build());
+
+        // 右：完成 / 保存修改
+        var rightText = modified
+                ? Component.translatable("estfc.config.save")
+                : Component.translatable("estfc.config.done");
+        footer.addChild(Button.builder(rightText, b -> onClose(true)).width(btnW).build());
+    }
+
     private void switchTab(int idx) {
         if (idx == activeTab) return;
         activeTab = idx;
+        clearWidgets();
+        init();
+    }
+
+    // ══════════════════════════════════════════════════
+    //  Close / ESC — 有修改时确认，无修改直接关闭
+    // ══════════════════════════════════════════════════
+
+    @Override
+    public void onClose() {
+        onClose(false);
+    }
+
+    private void onClose(boolean save) {
+        if (save) {
+            Config.SPEC.save();
+            Objects.requireNonNull(this.minecraft).setScreen(this.parent);
+            return;
+        }
+        // 放弃修改 — 有修改时确认
+        if (hasModifications()) {
+            minecraft.setScreen(new ConfirmScreen(
+                    confirmed -> {
+                        if (confirmed) {
+                            Objects.requireNonNull(minecraft).setScreen(parent);
+                        } else {
+                            minecraft.setScreen(EstfcConfigScreen.this);
+                        }
+                    },
+                    Component.translatable("estfc.config.discardConfirm"),
+                    Component.translatable("estfc.config.discardConfirm.message")
+            ));
+        } else {
+            Objects.requireNonNull(this.minecraft).setScreen(this.parent);
+        }
+    }
+
+    // ══════════════════════════════════════════════════
+    //  Reset — 确认后重置
+    // ══════════════════════════════════════════════════
+
+    private void confirmReset() {
+        minecraft.setScreen(new ConfirmScreen(
+                confirmed -> {
+                    if (confirmed) {
+                        resetToDefaults();
+                    }
+                    minecraft.setScreen(EstfcConfigScreen.this);
+                },
+                Component.translatable("estfc.config.resetConfirm"),
+                Component.translatable("estfc.config.resetConfirm.message")
+        ));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void resetToDefaults() {
+        for (var v : ALL_VALUES) v.set(v.getDefault());
         clearWidgets();
         init();
     }
@@ -161,7 +264,6 @@ public final class EstfcConfigScreen extends Screen {
     //  条目工厂
     // ══════════════════════════════════════════════════
 
-    // ── label ──
     private StringWidget makeLabel(String key) {
         StringWidget label = new StringWidget(
                 Component.translatable(key).withStyle(ChatFormatting.GRAY), this.font);
@@ -171,7 +273,6 @@ public final class EstfcConfigScreen extends Screen {
         return label;
     }
 
-    // ── bool ──
     private void addBoolRow(GridLayout.RowHelper rows,
                             ModConfigSpec.BooleanValue spec, String key) {
         rows.addChild(makeLabel(key));
@@ -180,8 +281,6 @@ public final class EstfcConfigScreen extends Screen {
         attachTooltip(btn, key);
         rows.addChild(btn);
     }
-
-    // ── number (double / int, unified) ──
 
     private void addDoubleRow(GridLayout.RowHelper rows,
                               ModConfigSpec.DoubleValue spec, String key, String unit) {
@@ -217,7 +316,6 @@ public final class EstfcConfigScreen extends Screen {
         return box;
     }
 
-    // ── string ──
     private void addStringRow(GridLayout.RowHelper rows,
                               ModConfigSpec.ConfigValue<String> spec, String key) {
         rows.addChild(makeLabel(key));
@@ -235,7 +333,6 @@ public final class EstfcConfigScreen extends Screen {
         List<String> items = new ArrayList<>(spec.get());
         boolean expanded = key.equals(expandedListKey);
 
-        // Header: ▼/▶ Name (N items)  — spans 2 columns
         MutableComponent headerText = expanded
                 ? Component.literal("▼ ").append(Component.translatable(key))
                 : Component.literal("▶ ").append(Component.translatable(key))
@@ -250,9 +347,8 @@ public final class EstfcConfigScreen extends Screen {
 
         if (!expanded) return;
 
-        int listBoxW = LABEL_W + INPUT_W + 5 - 28; // minus delete button + spacing
+        int listBoxW = LABEL_W + INPUT_W + 5 - 28;
 
-        // Item rows
         for (int i = 0; i < items.size(); i++) {
             final int idx = i;
             EditBox box = new EditBox(this.font, listBoxW, ROW_H, Component.empty());
@@ -272,7 +368,6 @@ public final class EstfcConfigScreen extends Screen {
             rows.addChild(row, 2);
         }
 
-        // Add button — spans 2 columns
         rows.addChild(Button.builder(
                         Component.translatable("estfc.config.listAdd"),
                         b -> addListItem(spec))
@@ -315,37 +410,6 @@ public final class EstfcConfigScreen extends Screen {
             tip.append(detail.withStyle(ChatFormatting.GRAY));
         }
         widget.setTooltip(Tooltip.create(tip));
-    }
-
-    // ══════════════════════════════════════════════════
-    //  Save / Reset / Close
-    // ══════════════════════════════════════════════════
-
-    @Override
-    public void onClose() {
-        onClose(true);
-    }
-
-    private void onClose(boolean save) {
-        if (save) Config.SPEC.save();
-        Objects.requireNonNull(this.minecraft).setScreen(this.parent);
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private void resetToDefaults() {
-        ModConfigSpec.ConfigValue[] values = {
-            Config.ENABLE_TFC_COMPAT, Config.SNOW_APPEARANCE_TEMP,
-            Config.SNOW_FULL_COVERAGE_TEMP, Config.SNOW_MELT_TEMP,
-            Config.DH_UNLOADED_TEMP_OFFSET, Config.UNLOADED_TEMP_SAMPLE_RANGE,
-            Config.TICK_CHUNK_INTERVAL_TICKS, Config.BIOME_SYNC_INTERVAL_TICKS,
-            Config.SNOW_TEXTURE_SIMPLE_MODE, Config.SNOW_TEXTURE_REPLACE_MODE,
-            Config.SNOW_TEXTURE_DEFAULT_PATH, Config.TFC_CONNECTED_TEXTURE,
-            Config.SNOW_TFC_BLOCK_PREFIXES, Config.SNOW_TFC_SIMPLE_SNOW_BLOCKS,
-            Config.SNOW_TFC_LEAVES_BLOCKS
-        };
-        for (var v : values) v.set(v.getDefault());
-        clearWidgets();
-        init();
     }
 
     // ══════════════════════════════════════════════════

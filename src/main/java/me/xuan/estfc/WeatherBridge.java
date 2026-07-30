@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WeatherBridge {
 
@@ -68,7 +69,7 @@ public class WeatherBridge {
             if (gameTime % syncInterval == 0 && !level.players().isEmpty()) {
                 WeatherManager.sendBiomePacket(level, biomes, level.players());
             }
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
     }
 
     // ==================== 温度→雪深 ====================
@@ -134,14 +135,26 @@ public class WeatherBridge {
         return calcEffectiveDepth(temp, isPrecipitating(level), biomeDepth);
     }
 
+    private static volatile ArrayList<?> cachedBiomeList;
+    private static final ConcurrentHashMap<net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome>, Integer> depthCache = new ConcurrentHashMap<>();
+
     public static int getBiomeDepthAt(Level level, BlockPos pos) {
         try {
             var biomes = WeatherManager.getBiomeList(level);
+            if (biomes != cachedBiomeList) {
+                cachedBiomeList = biomes;
+                depthCache.clear();
+            }
             var key = level.getBiome(pos).getKey();
+            Integer d = depthCache.get(key);
+            if (d != null) return d;
+            // 缓存未命中 → 线性扫描并缓存
             if (biomes != null) {
                 for (var bw : biomes) {
-                    if (bw.biomeHolder != null && bw.biomeHolder.is(key)) {
-                        return bw.getSnowDepth() & 0xFF;
+                    if (key != null && bw.biomeHolder != null && bw.biomeHolder.is(key)) {
+                        int depth = bw.getSnowDepth() & 0xFF;
+                        depthCache.put(key, depth);
+                        return depth;
                     }
                 }
             }

@@ -1,10 +1,12 @@
 package me.xuan.estfc;
 
 import com.mojang.logging.LogUtils;
+import me.xuan.estfc.client.gui.EstfcConfigScreen;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.slf4j.Logger;
 
 /**
@@ -20,10 +22,10 @@ import org.slf4j.Logger;
 @Mod(EclipticSeasonsTFCrepair.MODID)
 public class EclipticSeasonsTFCrepair {
     public static final String MODID = "estfc";
-    public static final Logger LOGGER = LogUtils.getLogger();
 
     public EclipticSeasonsTFCrepair(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-        LOGGER.info("节气模组 ↔ 群峦模组 兼容层已加载 (Ecliptic Seasons TFC Compat loaded)");
+        modEventBus.addListener(Config::updateConfig);
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, EstfcConfigScreen::new);
     }
 }

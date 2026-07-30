@@ -38,3 +38,9 @@ run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+
+### 额外添加的文件夹 ###
+libs/
+.codegraph/
+.claude/
+memory/

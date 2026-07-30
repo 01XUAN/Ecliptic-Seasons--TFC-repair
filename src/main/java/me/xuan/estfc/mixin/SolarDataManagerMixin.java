@@ -22,7 +22,7 @@ import java.lang.ref.WeakReference;
 public abstract class SolarDataManagerMixin {
 
     @Shadow
-    private WeakReference<Level> levelWeakReference;
+    protected WeakReference<Level> levelWeakReference;
 
     /**
      * 在 getSolarTermIndex() 头部注入，使用 TFC 日历计算节气。
