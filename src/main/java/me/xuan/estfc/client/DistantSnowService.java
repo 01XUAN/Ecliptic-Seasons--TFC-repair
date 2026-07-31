@@ -25,7 +25,7 @@ public final class DistantSnowService {
                                            int biomeDepth) {
         float temp = TfcUnloadedTempEstimator.getCorrectedTemperature(level, model, pos);
         if (temp > Config.snowMeltTemp()) return 0;
-        return SnowDepthRules.calcEffectiveDepth(temp, ClimateQuery.isPrecipitating(level), biomeDepth);
+        return SnowDepthRules.calcEffectiveDepth(temp, biomeDepth);
     }
 
     /** @return 该位置的覆雪着色 ARGB；无雪时原样返回 baseArgb。永不抛异常。 */

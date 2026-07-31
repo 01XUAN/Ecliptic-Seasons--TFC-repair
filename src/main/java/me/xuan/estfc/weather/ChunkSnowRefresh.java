@@ -25,13 +25,9 @@ public final class ChunkSnowRefresh {
     public static final float TFC_LAPSE = 0.16225f;
 
     /** 一个区块刷新过程中不变的共享量。 */
-    public record ChunkContext(float baseTemp, int centerSurface,
-                               boolean precipitating, int biomeSnowDepth) {}
+    public record ChunkContext(float baseTemp, int centerSurface, int biomeSnowDepth) {}
 
     public static ChunkContext prepare(ServerLevel level, ChunkAccess chunk, ClimateModel model) {
-        // 检测是否正在降水
-        boolean precipitating = ClimateQuery.isPrecipitating(level);
-
         // 查找该 chunk 对应 biome 的累积雪深
         int biomeSnowDepth = ClimateQuery.getBiomeDepthAt(level,
             new BlockPos(chunk.getPos().getMiddleBlockX(), 64, chunk.getPos().getMiddleBlockZ()));
@@ -42,7 +38,7 @@ public final class ChunkSnowRefresh {
         int centerSurface = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, midX, midZ);
         float baseTemp = model.getInstantTemperature(level, new BlockPos(midX, centerSurface, midZ));
 
-        return new ChunkContext(baseTemp, centerSurface, precipitating, biomeSnowDepth);
+        return new ChunkContext(baseTemp, centerSurface, biomeSnowDepth);
     }
 
     /** O(1) 列温度 = chunk 中心地表温度 - 海拔差 × 递减率 */

@@ -17,7 +17,7 @@ public final class SnowDepthRules {
         return (int)((appear - temp) / (appear - full) * 100);
     }
 
-    public static int calcEffectiveDepth(float actualTemp, boolean precipitating, int biomeDepth) {
+    public static int calcEffectiveDepth(float actualTemp, int biomeDepth) {
         return Math.min(100, Math.max(biomeDepth, tempToSnowDepth(actualTemp)));
     }
 

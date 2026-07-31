@@ -61,8 +61,7 @@ public abstract class SnowyMapCheckerMixin {
                     int maxY = Math.max(solidHeight, surfaceHeight);
 
                     float colTemp = ChunkSnowRefresh.columnTemperature(ctx, surfaceHeight);
-                    int colSnowDepth = SnowDepthRules.calcEffectiveDepth(
-                        colTemp, ctx.precipitating(), ctx.biomeSnowDepth());
+                    int colSnowDepth = SnowDepthRules.calcEffectiveDepth(colTemp, ctx.biomeSnowDepth());
 
                     for (int y = minY; y <= maxY; y++) {
                         checkPos.set(x, y, z);

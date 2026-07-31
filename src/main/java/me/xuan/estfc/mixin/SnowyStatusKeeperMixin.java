@@ -67,9 +67,8 @@ public abstract class SnowyStatusKeeperMixin {
             ClimateModel model = ClimateQuery.getModelIfActive(level);
             if (model == null) return -1;
             float temp = model.getInstantTemperature(level, pos);
-            boolean precip = ClimateQuery.isPrecipitating(model, (ServerLevel) level, pos);
             int biomeDepth = ClimateQuery.getBiomeDepthAt(level, pos);
-            return SnowDepthRules.calcEffectiveDepth(temp, precip, biomeDepth);
+            return SnowDepthRules.calcEffectiveDepth(temp, biomeDepth);
         } catch (Exception e) {
             return -1;
         }
