@@ -1,20 +1,16 @@
 package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.client.core.ExtraModelManager;
-import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
 import me.xuan.estfc.weather.ClimateQuery;
 import me.xuan.estfc.weather.SnowDepthRules;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import com.teamtea.eclipticseasons.api.misc.client.IMapSlice;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -27,12 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(value = ExtraModelManager.class, remap = false)
 public abstract class ExtraModelManagerMixin {
-
-    /** 单条目缓存，相邻方块大概率同 biome */
-    @Unique
-    private static ResourceKey<Biome> cachedKey;
-    @Unique
-    private static int cachedDepth;
 
     @Inject(method = "maySnowyAt", at = @At("RETURN"), cancellable = true)
     private static void estfc$maySnowyAtTfcFallback(
@@ -50,29 +40,12 @@ public abstract class ExtraModelManagerMixin {
             // 只在降水时回退
             if (!ClimateQuery.isPrecipitating(level)) return;
 
-            int biomeDepth = getBiomeDepth(level, checkPos);
+            int biomeDepth = ClimateQuery.getBiomeDepthAt(level, checkPos);
             if (biomeDepth <= 0) return;
 
             if (SnowDepthRules.shouldSnow(biomeDepth, state.getSeed(checkPos))) {
                 cir.setReturnValue(true);
             }
         } catch (Exception ignored) {}
-    }
-
-    @Unique
-    private static int getBiomeDepth(Level level, BlockPos pos) {
-        ResourceKey<Biome> key = level.getBiome(pos).getKey();
-        if (key.equals(cachedKey)) return cachedDepth;
-
-        var biomes = WeatherManager.getBiomeList(level);
-        if (biomes == null) return 0;
-        for (var bw : biomes) {
-            if (bw.biomeHolder != null && bw.biomeHolder.is(key)) {
-                cachedKey = key;
-                cachedDepth = bw.getSnowDepth() & 0xFF;
-                return cachedDepth;
-            }
-        }
-        return 0;
     }
 }
