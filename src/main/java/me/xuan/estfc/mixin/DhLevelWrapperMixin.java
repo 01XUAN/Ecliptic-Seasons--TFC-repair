@@ -6,7 +6,6 @@ import com.seibel.distanthorizons.core.wrapperInterfaces.world.IBiomeWrapper;
 import com.seibel.distanthorizons.core.dataObjects.fullData.sources.FullDataSourceV2;
 import com.teamtea.eclipticseasons.client.util.ClientCon;
 import me.xuan.estfc.client.DistantSnowService;
-import me.xuan.estfc.weather.ClimateQuery;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
@@ -43,10 +42,6 @@ public abstract class DhLevelWrapperMixin {
     @Unique
     private static final Logger estfc$LOG = LoggerFactory.getLogger("estfc");
 
-    /** 白色 ARGB int: 0xFFFFFFFF */
-    @Unique
-    private static final int WHITE_ARGB = -1;
-
     /** 首次调用标记 —— 确认 mixin 已生效 */
     @Unique
     private static volatile boolean estfc$applied = false;
@@ -73,37 +68,14 @@ public abstract class DhLevelWrapperMixin {
             ClimateModel model = Climate.get(level);
             if (!model.supportsRain()) return;
 
+            // 最便宜的守卫提到分配对象之前
+            if (blockWrapper.isLiquid()) return;
+
             BlockPos mcPos = new BlockPos(
                     blockWorldPos.getX(), blockWorldPos.getY(), blockWorldPos.getZ());
 
-            int biomeDepth = ClimateQuery.getBiomeDepthAt(level, mcPos);
-            int depth = DistantSnowService.calcSnowDepthClient(level, model, mcPos, biomeDepth);
-
-            if (depth <= 0) return;
-            if (blockWrapper.isLiquid()) return;
-
-            // depth 0→原始色, depth 100→纯白, 线性混合
-            float factor = Math.min(depth / 100f, 1f);
-            int snow = estfc$blendToWhite(cir.getReturnValue(), factor);
-            cir.setReturnValue(snow);
+            int color = DistantSnowService.snowColorFor(level, model, mcPos, cir.getReturnValue());
+            if (color != cir.getReturnValue()) cir.setReturnValue(color);
         } catch (Exception ignored) {}
-    }
-
-    /** 将 ARGB 颜色按 factor [0,1] 向白色混合 */
-    @Unique
-    private static int estfc$blendToWhite(int argb, float factor) {
-        if (factor <= 0f) return argb;
-        if (factor >= 1f) return WHITE_ARGB;
-
-        int a = (argb >> 24) & 0xFF;
-        int r = (argb >> 16) & 0xFF;
-        int g = (argb >> 8) & 0xFF;
-        int b = argb & 0xFF;
-
-        r = r + (int)((255 - r) * factor);
-        g = g + (int)((255 - g) * factor);
-        b = b + (int)((255 - b) * factor);
-
-        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 }

@@ -1,16 +1,14 @@
 package me.xuan.estfc.mixin;
 
-import com.teamtea.eclipticseasons.api.constant.solar.Season;
-import com.teamtea.eclipticseasons.api.constant.solar.SolarTerm;
 import com.teamtea.eclipticseasons.client.util.ClientCon;
 import com.teamtea.eclipticseasons.common.core.map.MapChecker;
+import me.xuan.estfc.weather.HemisphereSeasons;
 import net.dries007.tfc.client.overworld.SolarCalculator;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -35,25 +33,7 @@ public abstract class ClientConMixin {
         boolean isNorthern = SolarCalculator.getInNorthernHemisphere(z, model.hemisphereScale());
         if (isNorthern) return;
 
-        ClientCon.nowSeason = estfc$flipSeason(ClientCon.nowSeason);
-        ClientCon.nowSolarTerm = estfc$flipSolarTerm(ClientCon.nowSolarTerm);
-    }
-
-    @Unique
-    private static Season estfc$flipSeason(Season season) {
-        return switch (season) {
-            case SPRING -> Season.AUTUMN;
-            case SUMMER -> Season.WINTER;
-            case AUTUMN -> Season.SPRING;
-            case WINTER -> Season.SUMMER;
-            case NONE  -> Season.NONE;
-        };
-    }
-
-    @Unique
-    private static SolarTerm estfc$flipSolarTerm(SolarTerm term) {
-        if (term == SolarTerm.NONE) return SolarTerm.NONE;
-        int idx = (term.ordinal() + 12) % 24;
-        return SolarTerm.values()[idx];
+        ClientCon.nowSeason = HemisphereSeasons.flipSeason(ClientCon.nowSeason);
+        ClientCon.nowSolarTerm = HemisphereSeasons.flipSolarTerm(ClientCon.nowSolarTerm);
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -21,11 +22,8 @@ public abstract class ConnectedGrassBlockMixin {
     @Inject(method = "updateStateFromDirection", at = @At("RETURN"), cancellable = true)
     private void estfc$clearConnection(BlockGetter worldIn, BlockPos pos, BlockState stateIn,
                                        Direction direction, CallbackInfoReturnable<BlockState> cir) {
-        cir.setReturnValue(cir.getReturnValue()
-                .setValue(ConnectedGrassBlock.NORTH, false)
-                .setValue(ConnectedGrassBlock.EAST, false)
-                .setValue(ConnectedGrassBlock.SOUTH, false)
-                .setValue(ConnectedGrassBlock.WEST, false));
+        // updateStateFromDirection 返回 stateIn.setValue(...)，结构上必带方向属性，无需守卫
+        cir.setReturnValue(estfc$clearHorizontalConnections(cir.getReturnValue()));
     }
 
     @Inject(method = "updateShape", at = @At("RETURN"), cancellable = true)
@@ -34,12 +32,17 @@ public abstract class ConnectedGrassBlockMixin {
                                                     BlockPos currentPos, BlockPos facingPos,
                                                     CallbackInfoReturnable<BlockState> cir) {
         BlockState original = cir.getReturnValue();
+        // updateShape 按约定可能返回别的方块的 state（如第三方子类返回 AIR），守卫必需
         if (original.hasProperty(ConnectedGrassBlock.NORTH)) {
-            cir.setReturnValue(original
-                    .setValue(ConnectedGrassBlock.NORTH, false)
-                    .setValue(ConnectedGrassBlock.EAST, false)
-                    .setValue(ConnectedGrassBlock.SOUTH, false)
-                    .setValue(ConnectedGrassBlock.WEST, false));
+            cir.setReturnValue(estfc$clearHorizontalConnections(original));
         }
+    }
+
+    @Unique
+    private static BlockState estfc$clearHorizontalConnections(BlockState state) {
+        return state.setValue(ConnectedGrassBlock.NORTH, false)
+                    .setValue(ConnectedGrassBlock.EAST,  false)
+                    .setValue(ConnectedGrassBlock.SOUTH, false)
+                    .setValue(ConnectedGrassBlock.WEST,  false);
     }
 }

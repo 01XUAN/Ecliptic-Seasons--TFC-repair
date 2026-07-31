@@ -1,0 +1,80 @@
+package me.xuan.estfc.weather;
+
+import com.teamtea.eclipticseasons.common.core.map.MapChecker;
+import com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper;
+import me.xuan.estfc.Config;
+import net.dries007.tfc.util.climate.ClimateModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
+
+/**
+ * 区块加载/更新时的覆雪刷新逻辑（由 SnowyMapCheckerMixin 驱动）。
+ *
+ * <p>用 TFC per-position 温度覆写雪的开关决策——比 ES 的 biome 级缓存更精确
+ * （同 biome 不同海拔温度不同）。列温度取区块中心地表温度按海拔递减率外推，
+ * 保证采样点在已加载 chunk 内，避免 ChunkData.EMPTY 假 10°C。</p>
+ */
+public final class ChunkSnowRefresh {
+
+    private ChunkSnowRefresh() {}
+
+    /** TFC 海拔递减率 °C/格（更高 = 更冷） */
+    public static final float TFC_LAPSE = 0.16225f;
+
+    /** 一个区块刷新过程中不变的共享量。 */
+    public record ChunkContext(float baseTemp, int centerSurface,
+                               boolean precipitating, int biomeSnowDepth) {}
+
+    public static ChunkContext prepare(ServerLevel level, ChunkAccess chunk, ClimateModel model) {
+        // 检测是否正在降水
+        boolean precipitating = ClimateQuery.isPrecipitating(level);
+
+        // 查找该 chunk 对应 biome 的累积雪深
+        int biomeSnowDepth = ClimateQuery.getBiomeDepthAt(level,
+            new BlockPos(chunk.getPos().getMiddleBlockX(), 64, chunk.getPos().getMiddleBlockZ()));
+
+        // 取 chunk 中心地表温度作为基准（保证在已加载chunk内，避免ChunkData.EMPTY假10°C）
+        int midX = chunk.getPos().getMiddleBlockX();
+        int midZ = chunk.getPos().getMiddleBlockZ();
+        int centerSurface = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, midX, midZ);
+        float baseTemp = model.getInstantTemperature(level, new BlockPos(midX, centerSurface, midZ));
+
+        return new ChunkContext(baseTemp, centerSurface, precipitating, biomeSnowDepth);
+    }
+
+    /** O(1) 列温度 = chunk 中心地表温度 - 海拔差 × 递减率 */
+    public static float columnTemperature(ChunkContext ctx, int surfaceHeight) {
+        return ctx.baseTemp() - (surfaceHeight - ctx.centerSurface()) * TFC_LAPSE;
+    }
+
+    /** 既非地图标记方块也不阻挡移动 → 跳过。 */
+    public static boolean isSkippable(BlockState state) {
+        int flag = MapChecker.getDefaultBlockTypeFlag(state);
+        return flag == MapChecker.FLAG_NONE && !state.blocksMotion();
+    }
+
+    /** 区块加载：按有效雪深决定加雪/除雪。 */
+    public static void applyOnLoad(SnowyStatusKeeper keeper, BlockPos checkPos, BlockState state,
+                                   float colTemp, int colSnowDepth, boolean hasSnow) {
+        // 零上 → 不应有雪（即使全局 biomeDepth > 0）：三元刻意剥掉群系地板值
+        int snowDepth = colTemp > Config.snowMeltTemp() ? 0 : colSnowDepth;
+        if (SnowDepthRules.shouldSnow(snowDepth, state.getSeed(checkPos))) {
+            if (!hasSnow) {
+                keeper.set(checkPos, SnowyStatusKeeper.FLAG_SNOW);
+            }
+        } else if (hasSnow) {
+            keeper.set(checkPos, SnowyStatusKeeper.FLAG_NONE);
+        }
+    }
+
+    /** 方块变更/其他：只融雪。 */
+    public static void applyMeltOnly(SnowyStatusKeeper keeper, BlockPos checkPos,
+                                     float colTemp, boolean hasSnow) {
+        if (colTemp > Config.snowMeltTemp() && hasSnow) {
+            keeper.set(checkPos, SnowyStatusKeeper.FLAG_NONE);
+        }
+    }
+}

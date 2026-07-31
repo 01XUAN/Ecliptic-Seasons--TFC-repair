@@ -1,7 +1,7 @@
 package me.xuan.estfc.mixin;
 
-import com.teamtea.eclipticseasons.api.constant.solar.SolarTerm;
 import com.teamtea.eclipticseasons.common.core.solar.SolarDataManager;
+import me.xuan.estfc.weather.SolarTermMapper;
 import net.dries007.tfc.util.calendar.Calendars;
 import net.dries007.tfc.util.calendar.ICalendar;
 import net.dries007.tfc.util.calendar.Month;
@@ -26,8 +26,7 @@ public abstract class SolarDataManagerMixin {
 
     /**
      * 在 getSolarTermIndex() 头部注入，使用 TFC 日历计算节气。
-     * 映射：每月 = 2 个节气，月内前半段为第一个节气，后半段为第二个节气。
-     * 公式：solarTermIndex = ((month.ordinal() + 11) * 2 + (fraction >= 0.5 ? 1 : 0)) % 24
+     * 映射公式见 {@link SolarTermMapper#solarTermIndex}。
      */
     @Inject(method = "getSolarTermIndex", at = @At("HEAD"), cancellable = true)
     private void estfc$getSolarTermIndex(CallbackInfoReturnable<Integer> cir) {
@@ -42,11 +41,7 @@ public abstract class SolarDataManagerMixin {
             Month month = ICalendar.getMonthOfYear(calendarTicks, daysInMonth);
             float fraction = ICalendar.getFractionOfMonth(calendarTicks, daysInMonth);
 
-            // 每月 2 个节气，前半月为第一个，后半月为第二个
-            int subIndex = fraction >= 0.5f ? 1 : 0;
-            int solarTermIndex = ((month.ordinal() + 11) * 2 + subIndex) % 24;
-
-            cir.setReturnValue(solarTermIndex);
+            cir.setReturnValue(SolarTermMapper.solarTermIndex(month, fraction));
         } catch (Exception e) {
             // TFC 日历不可用时，回退到 ES 原有逻辑（不取消注入）
         }
