@@ -12,7 +12,7 @@
 - [x] R3 重构：把业务逻辑移出 Mixin（ChunkSnowRefresh / SolarTermMapper / HemisphereSeasons / DistantSnowService.snowColorFor / ConnectedGrassBlockMixin 抽公共方法）
 - [x] R4 重构：删除死代码（SnowDepthCache、NetworkUtilMixin+json 条目、BakedQuadSnow、calcEffectiveDepth 的 precipitating 参数及 3 处随之失效的降水计算）
 - [x] F1 修复：群系雪深缓存永不失效（改用 ES 原生 WeatherManager.getBiomeWeather O(1) 查询，删 depthCache/cachedBiomeList 及 ExtraModelManagerMixin.getBiomeDepth）
-- [ ] F2 修复：TreeMap 跨线程（zAvgTempCache → ConcurrentSkipListMap + AtomicReference CAS 采样 + sampleCount；MapCheckerMixin 整体 try/catch）
+- [x] F2 修复：TreeMap 跨线程（zAvgTempCache → ConcurrentSkipListMap + AtomicReference CAS 采样 + sampleCount；MapCheckerMixin 整体 try/catch）
 - [ ] F3 修复：降水缓存竞态（不可变 PrecipSnapshot record + volatile 单字段）
 - [ ] F4 修复：正则缓存并发化（PATTERN_CACHE → ConcurrentHashMap，非法正则缓存为 NEVER_MATCHES）
 - [ ] F5 修复：lastStepTick[256] 越界（按维度分键 + 按实际群系表长度扩容）

@@ -29,13 +29,18 @@ public abstract class MapCheckerMixin {
         Level level, Biome biome, BlockState state, RandomSource random, long seed, BlockPos mcPos,
         CallbackInfoReturnable<Boolean> cir) {
 
-        if (level instanceof ServerLevel) return;
+        try {
+            if (level instanceof ServerLevel) return;
 
-        ClimateModel model = Climate.get(level);
-        if (!model.supportsRain()) return;
+            ClimateModel model = Climate.get(level);
+            if (!model.supportsRain()) return;
 
-        int biomeDepth = ClimateQuery.getBiomeDepthAt(level, mcPos);
-        int depth = DistantSnowService.calcSnowDepthClient(level, model, mcPos, biomeDepth);
-        cir.setReturnValue(SnowDepthRules.shouldSnow(depth, seed));
+            int biomeDepth = ClimateQuery.getBiomeDepthAt(level, mcPos);
+            int depth = DistantSnowService.calcSnowDepthClient(level, model, mcPos, biomeDepth);
+            cir.setReturnValue(SnowDepthRules.shouldSnow(depth, seed));
+        } catch (Exception ignored) {
+            // 不设返回值直接返回，让 ES 原生路径接管；
+            // 本方法跑在 DH transformer 线程上，异常逃逸会破坏对方流水线
+        }
     }
 }

@@ -3,10 +3,14 @@ package me.xuan.estfc.client;
 import me.xuan.estfc.Config;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 未加载区块的 TFC 温度修正——精确梯度 + 南北半球。
@@ -28,13 +32,19 @@ public final class TfcUnloadedTempEstimator {
     /** 停止频繁采样前所需的最少缓存条目数 */
     private static final int MIN_SAMPLES_BEFORE_EARLY_EXIT = 2;
 
-    /** Z → avgSeaLevelTemp 缓存（绝对坐标，永不过期，只增不删） */
-    private static final TreeMap<Integer, Float> zAvgTempCache = new TreeMap<>();
+    /**
+     * Z → avgSeaLevelTemp 缓存（绝对坐标，永不过期，只增不删）。
+     * 被 DH LOD Builder 线程池 + MapChecker 路径并发读写，必须是并发结构。
+     */
+    private static final ConcurrentSkipListMap<Integer, Float> zAvgTempCache = new ConcurrentSkipListMap<>();
 
-    /** 上一次采样时的玩家 (X, Z) + tick */
-    private static int lastSampleX = Integer.MAX_VALUE;
-    private static int lastSampleZ = Integer.MAX_VALUE;
-    private static long lastSampleTick = 0;
+    /** 上一次采样时的玩家 (X, Z) + tick，CAS 原子更新并选出唯一采样线程 */
+    private record SampleMark(int x, int z, long tick) {}
+    private static final AtomicReference<SampleMark> lastSample =
+        new AtomicReference<>(new SampleMark(Integer.MAX_VALUE, Integer.MAX_VALUE, 0L));
+
+    /** 缓存条目数——ConcurrentSkipListMap.size() 是 O(n)，节流热路径上不可用 */
+    private static final AtomicInteger sampleCount = new AtomicInteger();
 
     private TfcUnloadedTempEstimator() {}
 
@@ -91,24 +101,28 @@ public final class TfcUnloadedTempEstimator {
      * 缓存按绝对 Z 坐标存储，只增不删——同一 Z 的估算永远一致。
      */
     private static void trySampleAlongZ(Level level, ClimateModel model) {
-        if (level.players().isEmpty()) return;
+        List<? extends Player> players;
+        Player player;
+        try {                                    // ClientLevel 的玩家列表由主线程 mutate
+            players = level.players();
+            if (players.isEmpty()) return;
+            player = players.get(0);
+            if (player == null) return;
+        } catch (RuntimeException e) { return; } // 并发结构性变更 → 跳过本轮
 
-        var player = level.players().getFirst();
         BlockPos playerPos = player.blockPosition();
         int px = playerPos.getX();
         int pz = playerPos.getZ();
+        long tick = level.getGameTime();
 
         // 玩家移动足够远或足够久 → 采样
-        long tick = level.getGameTime();
-        int moved = Math.abs(px - lastSampleX) + Math.abs(pz - lastSampleZ);
-        if (moved < 64 && (tick - lastSampleTick) < SAMPLE_INTERVAL_TICKS
-                && zAvgTempCache.size() >= MIN_SAMPLES_BEFORE_EARLY_EXIT) {
+        SampleMark prev = lastSample.get();
+        int moved = Math.abs(px - prev.x()) + Math.abs(pz - prev.z());
+        if (moved < 64 && (tick - prev.tick()) < SAMPLE_INTERVAL_TICKS
+                && sampleCount.get() >= MIN_SAMPLES_BEFORE_EARLY_EXIT) {
             return;
         }
-
-        lastSampleX = px;
-        lastSampleZ = pz;
-        lastSampleTick = tick;
+        if (!lastSample.compareAndSet(prev, new SampleMark(px, pz, tick))) return;  // 别的线程抢到了
 
         int sampleRadius = Config.unloadedTempSampleRange();
         for (int dz = -sampleRadius; dz <= sampleRadius; dz += SAMPLE_SPACING) {
@@ -118,7 +132,9 @@ public final class TfcUnloadedTempEstimator {
             BlockPos samplePos = new BlockPos(px, 63, z);
             if (level.isLoaded(samplePos)) {
                 try {
-                    zAvgTempCache.put(z, model.getAverageTemperature(level, samplePos));
+                    if (zAvgTempCache.putIfAbsent(z, model.getAverageTemperature(level, samplePos)) == null) {
+                        sampleCount.incrementAndGet();
+                    }
                 } catch (Exception ignored) {}
             }
         }
