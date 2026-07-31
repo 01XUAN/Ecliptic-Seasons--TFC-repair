@@ -1,7 +1,9 @@
 package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.map.MapChecker;
-import me.xuan.estfc.WeatherBridge;
+import me.xuan.estfc.client.DistantSnowService;
+import me.xuan.estfc.weather.ClimateQuery;
+import me.xuan.estfc.weather.SnowDepthRules;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
@@ -32,8 +34,8 @@ public abstract class MapCheckerMixin {
         ClimateModel model = Climate.get(level);
         if (!model.supportsRain()) return;
 
-        int biomeDepth = WeatherBridge.getBiomeDepthAt(level, mcPos);
-        int depth = WeatherBridge.calcSnowDepthClient(level, model, mcPos, biomeDepth);
-        cir.setReturnValue(WeatherBridge.shouldSnow(depth, seed));
+        int biomeDepth = ClimateQuery.getBiomeDepthAt(level, mcPos);
+        int depth = DistantSnowService.calcSnowDepthClient(level, model, mcPos, biomeDepth);
+        cir.setReturnValue(SnowDepthRules.shouldSnow(depth, seed));
     }
 }

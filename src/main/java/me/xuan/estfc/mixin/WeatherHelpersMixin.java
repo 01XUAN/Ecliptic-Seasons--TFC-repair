@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin;
 
+import me.xuan.estfc.weather.WeatherCycleService;
 import net.dries007.tfc.util.tracker.WeatherHelpers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -33,6 +34,6 @@ public abstract class WeatherHelpersMixin {
     private static void estfc$afterAdvanceWeatherCycle(ServerLevel level,
                                                         CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) return;
-        me.xuan.estfc.WeatherBridge.tickWeatherCycle(level);
+        WeatherCycleService.tickWeatherCycle(level);
     }
 }

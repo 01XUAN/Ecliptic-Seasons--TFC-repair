@@ -5,7 +5,8 @@ import com.seibel.distanthorizons.core.wrapperInterfaces.block.IBlockStateWrappe
 import com.seibel.distanthorizons.core.wrapperInterfaces.world.IBiomeWrapper;
 import com.seibel.distanthorizons.core.dataObjects.fullData.sources.FullDataSourceV2;
 import com.teamtea.eclipticseasons.client.util.ClientCon;
-import me.xuan.estfc.WeatherBridge;
+import me.xuan.estfc.client.DistantSnowService;
+import me.xuan.estfc.weather.ClimateQuery;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
@@ -75,8 +76,8 @@ public abstract class DhLevelWrapperMixin {
             BlockPos mcPos = new BlockPos(
                     blockWorldPos.getX(), blockWorldPos.getY(), blockWorldPos.getZ());
 
-            int biomeDepth = WeatherBridge.getBiomeDepthAt(level, mcPos);
-            int depth = WeatherBridge.calcSnowDepthClient(level, model, mcPos, biomeDepth);
+            int biomeDepth = ClimateQuery.getBiomeDepthAt(level, mcPos);
+            int depth = DistantSnowService.calcSnowDepthClient(level, model, mcPos, biomeDepth);
 
             if (depth <= 0) return;
             if (blockWrapper.isLiquid()) return;

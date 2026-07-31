@@ -2,7 +2,7 @@ package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
 import me.xuan.estfc.Config;
-import me.xuan.estfc.WeatherBridge;
+import me.xuan.estfc.weather.ClimateQuery;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.dries007.tfc.util.tracker.WeatherHelpers;
 import net.minecraft.core.BlockPos;
@@ -29,7 +29,7 @@ public abstract class WeatherManagerMixin {
     /**
      * 直接取消 {@code agentAdvanceWeatherCycle}。
      * ES 不再对 ServerLevelData (rainTime/clearTime) 做任何修改。
-     * 群系雪深由 {@link me.xuan.estfc.WeatherBridge#tickWeatherCycle(ServerLevel)} 驱动。
+     * 群系雪深由 {@link me.xuan.estfc.weather.WeatherCycleService#tickWeatherCycle(ServerLevel)} 驱动。
      */
     @Inject(method = "agentAdvanceWeatherCycle", at = @At("HEAD"), cancellable = true)
     private static void estfc$cancelAgentWeatherCycle(ServerLevel level, RandomSource random,
@@ -97,10 +97,10 @@ public abstract class WeatherManagerMixin {
             Level level = WeatherManager.fetchLevelIfNull(null, biome);
             if (level == null) return;
 
-            ClimateModel model = WeatherBridge.getModelIfActive(level);
+            ClimateModel model = ClimateQuery.getModelIfActive(level);
             if (model == null) return;
 
-            boolean precipitating = WeatherBridge.isPrecipitating((ServerLevel) level, pos);
+            boolean precipitating = ClimateQuery.isPrecipitating((ServerLevel) level, pos);
             if (!precipitating) {
                 cir.setReturnValue(Biome.Precipitation.NONE);
                 return;
@@ -126,16 +126,16 @@ public abstract class WeatherManagerMixin {
         CallbackInfoReturnable<WeatherManager.SnowRenderStatus> cir) {
 
         try {
-            ClimateModel model = WeatherBridge.getModelIfActive(level);
+            ClimateModel model = ClimateQuery.getModelIfActive(level);
             if (model == null) return;
 
             float temp = model.getInstantTemperature(level, pos);
-            boolean precipitating = WeatherBridge.isPrecipitating(level, pos);
+            boolean precipitating = ClimateQuery.isPrecipitating(level, pos);
             float meltTemp = Config.snowMeltTemp();
 
             if (temp > meltTemp) {
                 // 高于融雪温度 → 仅当 biome 已有积雪时才融雪
-                int biomeDepth = WeatherBridge.getBiomeDepthAt(level, pos);
+                int biomeDepth = ClimateQuery.getBiomeDepthAt(level, pos);
                 if (biomeDepth > 0) {
                     cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW_MELT);
                 } else {

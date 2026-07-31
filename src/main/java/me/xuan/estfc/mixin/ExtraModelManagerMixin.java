@@ -2,7 +2,8 @@ package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.client.core.ExtraModelManager;
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
-import me.xuan.estfc.WeatherBridge;
+import me.xuan.estfc.weather.ClimateQuery;
+import me.xuan.estfc.weather.SnowDepthRules;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
@@ -47,12 +48,12 @@ public abstract class ExtraModelManagerMixin {
             if (!model.supportsRain()) return;
 
             // 只在降水时回退
-            if (!WeatherBridge.isPrecipitating(level)) return;
+            if (!ClimateQuery.isPrecipitating(level)) return;
 
             int biomeDepth = getBiomeDepth(level, checkPos);
             if (biomeDepth <= 0) return;
 
-            if (WeatherBridge.shouldSnow(biomeDepth, state.getSeed(checkPos))) {
+            if (SnowDepthRules.shouldSnow(biomeDepth, state.getSeed(checkPos))) {
                 cir.setReturnValue(true);
             }
         } catch (Exception ignored) {}

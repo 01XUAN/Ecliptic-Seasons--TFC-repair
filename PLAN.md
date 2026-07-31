@@ -8,7 +8,7 @@
 
 - [x] F0 修复：恢复 estfc.mixins.json（自 6be084f 取回，mixins 8 条、client 5 条）
 - [x] R1 重构：抽出 util/BlockPatternMatcher（从 SnowModelMixin 逐字搬移，暂保持 HashMap）
-- [ ] R2 重构：拆分并删除 WeatherBridge（→ ClimateQuery / SnowDepthRules / WeatherCycleService / DistantSnowService.calcSnowDepthClient，重定向 14 个调用点后删除原类）
+- [x] R2 重构：拆分并删除 WeatherBridge（→ ClimateQuery / SnowDepthRules / WeatherCycleService / DistantSnowService.calcSnowDepthClient，重定向 14 个调用点后删除原类）
 - [ ] R3 重构：把业务逻辑移出 Mixin（ChunkSnowRefresh / SolarTermMapper / HemisphereSeasons / DistantSnowService.snowColorFor / ConnectedGrassBlockMixin 抽公共方法）
 - [ ] R4 重构：删除死代码（SnowDepthCache、NetworkUtilMixin+json 条目、BakedQuadSnow、calcEffectiveDepth 的 precipitating 参数及 3 处随之失效的降水计算）
 - [ ] F1 修复：群系雪深缓存永不失效（改用 ES 原生 WeatherManager.getBiomeWeather O(1) 查询，删 depthCache/cachedBiomeList 及 ExtraModelManagerMixin.getBiomeDepth）

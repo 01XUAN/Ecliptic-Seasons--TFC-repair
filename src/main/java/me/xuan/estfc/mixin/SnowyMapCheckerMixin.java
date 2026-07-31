@@ -8,7 +8,8 @@ import com.teamtea.eclipticseasons.common.core.snow.SnowyMapChecker;
 import com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper;
 import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
 import me.xuan.estfc.Config;
-import me.xuan.estfc.WeatherBridge;
+import me.xuan.estfc.weather.ClimateQuery;
+import me.xuan.estfc.weather.SnowDepthRules;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
@@ -46,10 +47,10 @@ public abstract class SnowyMapCheckerMixin {
             WeatherStatusKeeper weatherKeeper = SnowyMapChecker.getWeatherStatusKeeper(chunk);
 
             // 检测是否正在降水
-            boolean precipitating = WeatherBridge.isPrecipitating(level);
+            boolean precipitating = ClimateQuery.isPrecipitating(level);
 
             // 查找该 chunk 对应 biome 的累积雪深
-            int biomeSnowDepth = WeatherBridge.getBiomeDepthAt(level,
+            int biomeSnowDepth = ClimateQuery.getBiomeDepthAt(level,
                 new BlockPos(chunk.getPos().getMiddleBlockX(), 64, chunk.getPos().getMiddleBlockZ()));
 
             // 取 chunk 中心地表温度作为基准（保证在已加载chunk内，避免ChunkData.EMPTY假10°C）
@@ -76,7 +77,7 @@ public abstract class SnowyMapCheckerMixin {
 
                     // O(1)列温度 = chunk中心地表温度 - 海拔差×递减率
                     float colTemp = baseTemp - (surfaceHeight - centerSurface) * TFC_LAPSE;
-                    int colSnowDepth = WeatherBridge.calcEffectiveDepth(colTemp, precipitating, biomeSnowDepth);
+                    int colSnowDepth = SnowDepthRules.calcEffectiveDepth(colTemp, precipitating, biomeSnowDepth);
 
                     for (int y = minY; y <= maxY; y++) {
                         checkPos.set(x, y, z);
@@ -90,7 +91,7 @@ public abstract class SnowyMapCheckerMixin {
                         if (loadingChunk) {
                             // 零上 → 不应有雪（即使全局 biomeDepth > 0）
                             int snowDepth = colTemp > Config.snowMeltTemp() ? 0 : colSnowDepth;
-                            if (WeatherBridge.shouldSnow(snowDepth, state.getSeed(checkPos))) {
+                            if (SnowDepthRules.shouldSnow(snowDepth, state.getSeed(checkPos))) {
                                 if (!hasSnow) {
                                     keeper.set(checkPos, SnowyStatusKeeper.FLAG_SNOW);
                                 }

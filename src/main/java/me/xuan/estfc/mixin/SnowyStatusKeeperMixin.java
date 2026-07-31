@@ -8,7 +8,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
 import me.xuan.estfc.Config;
-import me.xuan.estfc.WeatherBridge;
+import me.xuan.estfc.weather.ClimateQuery;
+import me.xuan.estfc.weather.SnowDepthRules;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -63,12 +64,12 @@ public abstract class SnowyStatusKeeperMixin {
     @Unique
     private static int estfc$getPerBlockDepth(Level level, BlockPos pos) {
         try {
-            ClimateModel model = WeatherBridge.getModelIfActive(level);
+            ClimateModel model = ClimateQuery.getModelIfActive(level);
             if (model == null) return -1;
             float temp = model.getInstantTemperature(level, pos);
-            boolean precip = WeatherBridge.isPrecipitating(model, (ServerLevel) level, pos);
-            int biomeDepth = WeatherBridge.getBiomeDepthAt(level, pos);
-            return WeatherBridge.calcEffectiveDepth(temp, precip, biomeDepth);
+            boolean precip = ClimateQuery.isPrecipitating(model, (ServerLevel) level, pos);
+            int biomeDepth = ClimateQuery.getBiomeDepthAt(level, pos);
+            return SnowDepthRules.calcEffectiveDepth(temp, precip, biomeDepth);
         } catch (Exception e) {
             return -1;
         }
