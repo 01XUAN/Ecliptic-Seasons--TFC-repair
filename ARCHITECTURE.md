@@ -9,32 +9,39 @@
 ```
 me.xuan.estfc/
 ├── EclipticSeasonsTFCrepair.java   — @Mod 入口
-├── Config.java                     — NeoForge ModConfigSpec + Pattern缓存
-├── WeatherBridge.java              — 核心桥接: tickWeatherCycle, calcEffectiveDepth, 降水检测
-├── SnowDepthCache.java             — 客户端 biomeDepth 缓存 byte[1024]
+├── Config.java                     — NeoForge ModConfigSpec（7 个编号分区）
 ├── EstfcTags.java                  — estfc:simple_snow / estfc:snowable 标签常量
 │
-├── mixin/
-│   ├── WeatherHelpersMixin         — [TFC] 取消onTickChunk, advanceWeatherCycle TAIL→tickWeatherCycle
+├── weather/
+│   ├── ClimateQuery.java           — 对 TFC/ES 状态的受保护读取 (getModelIfActive, isPrecipitating×3, getBiomeDepthAt)
+│   ├── SnowDepthRules.java         — 纯函数 (tempToSnowDepth, calcEffectiveDepth, shouldSnow)
+│   ├── WeatherCycleService.java    — tick 主循环 (tickWeatherCycle, 按维度分键的 lastStepTick)
+│   ├── ChunkSnowRefresh.java       — 区块加载/更新覆雪刷新 (prepare, columnTemperature, applyOnLoad, applyMeltOnly)
+│   ├── SolarTermMapper.java        — TFC 月份 → ES 节气索引公式
+│   └── HemisphereSeasons.java      — 南半球季节/节气翻转
+│
+├── util/
+│   └── BlockPatternMatcher.java    — 配置条目匹配 (前缀/完整ID/正则, ConcurrentHashMap 正则缓存)
+│
+├── mixin/                          — 与注入目标 1:1, 业务逻辑在 weather/ 与 client/
+│   ├── WeatherHelpersMixin         — [TFC] 取消onTickChunk, advanceWeatherCycle TAIL→WeatherCycleService
 │   ├── WeatherManagerMixin         — [ES] getSnowStatus劫持, agentAdvanceWeatherCycle取消
 │   ├── SnowyStatusKeeperMixin      — [ES] tickChunk HEAD节流 + getSnowDepthAtBiome→getPerBlockDepth
-│   ├── SnowyMapCheckerMixin        — [ES] forceChunkUpdateHeight TAIL→TFC温度雪判断
-
+│   ├── SnowyMapCheckerMixin        — [ES] forceChunkUpdateHeight TAIL→ChunkSnowRefresh
 │   ├── SnowModelMixin              — [ES] getSnowyModel TAIL→SnowTextureSwapModel; clearForRebaked→程序化树叶SnowDefinition
 │   ├── ExtraModelManagerMixin      — [ES] maySnowyAt RETURN回退
-│   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→TFC远景判断(Voxy)
-│   ├── DhLevelWrapperMixin         — [DH] getBlockColor RETURN→白色混合
-│   ├── NetworkUtilMixin            — [ES] processBiomeWeatherMessage HEAD→SnowDepthCache
-│   ├── ClientConMixin              — [ES] tick TAIL→南半球季节翻转
+│   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→TFC远景判断(经 ES DHTool 被 DH 触及)
+│   ├── DhLevelWrapperMixin         — [DH] getBlockColor RETURN→DistantSnowService.snowColorFor（唯一允许出现 com.seibel.* 的文件, @Pseudo + require=0）
+│   ├── ClientConMixin              — [ES] tick TAIL→HemisphereSeasons
 │   ├── ConnectedGrassBlockMixin    — [TFC] 禁用连接纹理方向
 │   ├── EclipticUtilMixin           — [ES] canSnowyBlockInteract→强制true
-│   └── SolarDataManagerMixin       — [ES] getSolarTermIndex→从TFC日历派生
+│   └── SolarDataManagerMixin       — [ES] getSolarTermIndex→SolarTermMapper
 │
 ├── client/
+│   ├── DistantSnowService.java     — DH/Voxy 远景覆雪 (calcSnowDepthClient, snowColorFor, blendToWhite)
 │   ├── SnowTextureSwapModel.java   — 覆雪BakedModel (tfc:→estfc:贴图替换, IESReplaceModel)
-│   ├── BakedQuadSnow.java         — quad UV重映射
 │   ├── BakedQuadTextureOnly.java  — 保留UV的贴图替换
-│   ├── TfcUnloadedTempEstimator.java — 未加载区块温度修正(Z轴采样avgSeaLevelTemp)
+│   ├── TfcUnloadedTempEstimator.java — 未加载区块温度修正(Z轴采样avgSeaLevelTemp, 并发安全)
 │   └── gui/
 │       ├── EstfcConfigScreen.java — 配置界面(HeaderAndFooterLayout+GridLayout)
 │       └── ScrollableLayout.java  — 可滚动布局
@@ -43,6 +50,10 @@ me.xuan.estfc/
     ├── DataGenerators.java         — GatherDataEvent注册
     └── TfcSnowDefinitionProvider.java — ES SnowDefinition生成(TFC方块)
 ```
+
+> 历史差异：曾有 WeatherBridge（大杂烩桥接类，已按职责拆分删除）、SnowDepthCache 与
+> NetworkUtilMixin（只写不读的死数据，ES 原生 processBiomeWeatherMessage 已解包同一份数据）、
+> BakedQuadSnow（零引用），均已删除。
 
 ---
 
@@ -63,10 +74,13 @@ tempToSnowDepth(temp) = (appear - temp) / (appear - full) * 100
 ### 2.2 calcEffectiveDepth — 所有路径统一
 
 ```java
-public static int calcEffectiveDepth(float actualTemp, boolean precipitating, int biomeDepth) {
+// weather/SnowDepthRules.java
+public static int calcEffectiveDepth(float actualTemp, int biomeDepth) {
     return Math.min(100, Math.max(biomeDepth, tempToSnowDepth(actualTemp)));
 }
 ```
+
+（历史版本有第二个 `precipitating` 参数，从未被使用，已删除。）
 
 温度提供**地板**（更冷=更高地板），biomeDepth 超过地板后接管。
 
@@ -89,9 +103,9 @@ public static boolean shouldSnow(int depth, long seed) {
 
 ---
 
-## 3. WeatherBridge 核心方法详解
+## 3. 核心方法详解（weather/ 与 client/）
 
-### 3.1 tickWeatherCycle — biomeDepth 累积/融雪
+### 3.1 WeatherCycleService.tickWeatherCycle — biomeDepth 累积/融雪
 
 **注入点**: `WeatherHelpersMixin` → TFC `advanceWeatherCycle` TAIL
 **频率**: 每 game tick 1 次, 处理 1 个 biome (轮转)
@@ -113,6 +127,11 @@ public static boolean shouldSnow(int depth, long seed) {
 - biome 数量不影响速度 (轮转 170 biomes 也每 20tick +1)
 - 20 tick → 100步×20=2000tick≈1.7分钟满雪
 
+**lastStepTick 存储**: `Map<ResourceKey<Level>, long[]>`，按维度分键，数组按实际
+群系表长度扩容。历史版本是全局 `long[256]`——群系注册表可远超 256（vanilla ~64
++ TFC 127 ≈ 190，再装生物群系模组即越界），越界异常被空 catch 吞掉导致积雪静默
+停止；且各维度共用一个数组互相破坏时间戳。均已修复。
+
 ### 3.2 getSnowStatus — per-block雪状态决策
 
 **注入点**: `WeatherManagerMixin` → ES `getSnowStatus` (4参数版) HEAD cancel
@@ -125,11 +144,11 @@ else                    → NONE        // 冷无降水 → 保持
 
 ES的 `SnowyStatusKeeper.tickChunk` 根据返回状态决定: SNOW→尝试设FLAG_SNOW, MELT→尝试清FLAG_NONE, NONE→不变。
 
-### 3.3 降水检测 (三个重载)
+### 3.3 降水检测 (ClimateQuery, 三个重载)
 
 | 重载 | 用途 | 线程 |
 |------|------|------|
-| `isPrecipitating(Level)` | 客户端日历级(缓存同日历tick) | 渲染/DH worker |
+| `isPrecipitating(Level)` | 客户端日历级(缓存同日历tick, 不可变快照+volatile) | 渲染/DH worker |
 | `isPrecipitating(ServerLevel, BlockPos)` | 服务端per-position | 主服务端线程 |
 | `isPrecipitating(ClimateModel, ServerLevel, BlockPos)` | 重用已有model | 主服务端线程 |
 
@@ -137,21 +156,25 @@ ES的 `SnowyStatusKeeper.tickChunk` 根据返回状态决定: SNOW→尝试设FL
 - `rainIntensity = model.getRain(calendarTicks)` (TFC日历降水强度)
 - `rainfall = model.getInstantRainfall(level, pos)` (per-position降水)
 
-### 3.4 远景 (DH/Voxy)
+### 3.4 远景 (DH/Voxy) — client/DistantSnowService
 
 **调用链**: `MapCheckerMixin.shouldSnowAtBiome` / `DhLevelWrapperMixin.getBlockColor`
-→ `getBiomeDepthAt(level, pos)` (查客户端缓存)
-→ `calcSnowDepthClient(level, model, pos, biomeDepth)`
+→ `ClimateQuery.getBiomeDepthAt(level, pos)` (ES 原生 O(1) 查询)
+→ `DistantSnowService.calcSnowDepthClient(level, model, pos, biomeDepth)`
 
 ```java
 public static int calcSnowDepthClient(Level level, ClimateModel model, BlockPos pos, int biomeDepth) {
     float temp = TfcUnloadedTempEstimator.getCorrectedTemperature(level, model, pos);
-    if (temp > Config.snowMeltTemp()) return 0;  // 零上→无雪(Voxy无tickChunk融雪)
-    return calcEffectiveDepth(temp, isPrecipitating(level), biomeDepth);
+    if (temp > Config.snowMeltTemp()) return 0;  // 零上→无雪(远景无tickChunk融雪)
+    return SnowDepthRules.calcEffectiveDepth(temp, biomeDepth);
 }
 ```
 
-`TfcUnloadedTempEstimator`: 未加载区块 TFC 温度修正 (ChunkData.EMPTY 时 avgSeaLevelTemp 固定10°C → 从已加载区块Z轴采样替换)。
+DH 着色由 `snowColorFor(level, model, pos, baseArgb)` 吸收整条链
+（getBiomeDepthAt → calcSnowDepthClient → depth≤0 原样返回 → blendToWhite），
+`DhLevelWrapperMixin` 只保留 DH 类型相关守卫。
+
+`TfcUnloadedTempEstimator`: 未加载区块 TFC 温度修正 (ChunkData.EMPTY 时 avgSeaLevelTemp 固定10°C → 从已加载区块Z轴采样替换)。缓存为 ConcurrentSkipListMap，采样线程由 CAS 选出唯一一个——它被 DH LOD Builder 线程池并发进入。
 
 ---
 
@@ -173,7 +196,7 @@ public static int calcSnowDepthClient(Level level, ClimateModel model, BlockPos 
 |------|------|------|------|
 | `tickChunkIntervalTicks` | 20 | [1, 200] | tickChunk处理+biomeDepth步进间隔(唯一速度控制器) |
 | `biomeSyncIntervalTicks` | 100 | [20, 1200] | 服务端biomeDepth同步客户端间隔 |
-| `enableTFCCompat` | true | - | 总开关 |
+| `enableTFCCompat` | true | - | 总开关（**当前不生效**：getter 零调用；且注册为 COMMON 类型，NeoForge 不向客户端同步，做不成真正的全局开关。暂保持原样） |
 
 ### 4.3 覆雪贴图
 
@@ -191,7 +214,7 @@ public static int calcSnowDepthClient(Level level, ClimateModel model, BlockPos 
 | `tfcSimpleSnowBlocks` | groundcover(不含seaweed/driftwood/stick), rock/loose/, rock/mossy_loose/ | 同上 → 全部quad统一snow.png |
 | `tfcLeavesSnowBlocks` | regex:plant/.*_leaves | 同上 → ES原生flag 1101双层雪(顶雪+内部雪斑), 程序化注册无需JSON |
 
-正则格式: `regex:pattern` (Pattern预编译缓存于 `SnowModelMixin.PATTERN_CACHE`)
+正则格式: `regex:pattern` (Pattern 预编译缓存于 `util/BlockPatternMatcher.PATTERN_CACHE`, ConcurrentHashMap; 非法正则缓存为永不匹配哨兵, 不会反复重编译)
 
 ### 4.5 SnowModelMixin 分类流程
 
@@ -202,12 +225,12 @@ getSnowyModel(state, ...) TAIL
   │   ├─ tfcConnectedTexture=true  → return (保留连接纹理, 无雪)
   │   └─ tfcConnectedTexture=false → 强制SNOWY+断连 → SnowTextureSwapModel(simpleSnow=false)
   │
-  ├─ matchesBlockState(state, tfcLeavesSnowBlocks)?
+  ├─ matchesBlockState → BlockPatternMatcher.matches(state, tfcLeavesSnowBlocks)?
   │   └─ return (ES原生 flag 1101 双层雪处理)
   │       ↑ SnowDefinition 由 clearForRebaked RETURN hook 程序化注册
   │
-  ├─ isTfcBlock(state)?  → matchesBlockState(state, tfcSnowBlockPrefixes)
-  │   ├─ isSimpleSnowBlock(state)?  → 全局开关 || 标签 || matchesBlockState(tfcSimpleSnowBlocks)
+  ├─ isTfcBlock(state)?  → BlockPatternMatcher.matches(state, tfcSnowBlockPrefixes)
+  │   ├─ isSimpleSnowBlock(state)?  → 全局开关 || 标签 || BlockPatternMatcher.matches(tfcSimpleSnowBlocks)
   │   │   ├─ true  → SnowTextureSwapModel(simpleSnow=true)  全部quad→snow.png
   │   │   └─ false → SnowTextureSwapModel(simpleSnow=false) tfc→estfc贴图替换
   │   └─ (ConnectedGrassBlock已在上面处理, 此处排除)
@@ -237,55 +260,68 @@ getSnowyModel(state, ...) TAIL
 ```
 TFC advanceWeatherCycle (每tick, 服务端主线程)
   │
-  ├─ WeatherHelpersMixin TAIL → WeatherBridge.tickWeatherCycle()
+  ├─ WeatherHelpersMixin TAIL → WeatherCycleService.tickWeatherCycle()
   │   ├─ 采样玩家位置温度+降水
   │   ├─ 1个biome: biomeDepth += elapsed/interval (绝对时间累积)
-  │   └─ 每100tick: sendBiomePacket → 客户端 NetworkUtilMixin → SnowDepthCache.DEPTHS
+  │   └─ 每100tick: sendBiomePacket → 客户端由 ES 原生 processBiomeWeatherMessage
+  │      解包进 BiomeWeather (getBiomeDepthAt 实际读取的对象)
   │
   ├─ ES MixinServerLevel (每tick) → SnowyStatusKeeper.tickChunk
   │   └─ SnowyStatusKeeperMixin HEAD: 按tickChunkIntervalTicks节流, 非间隔期cancel
   │   └─ WeatherManager.getSnowStatus → WeatherManagerMixin.estfc$getSnowStatusImpl
   │       └─ temp>0→SNOW_MELT, precip→SNOW, else→NONE
-  │   └─ WeatherManager.getSnowDepthAtBiome → SnowyStatusKeeperMixin.replaceDepthForSnow/Melt
-  │       └─ estfc$getPerBlockDepth → calcEffectiveDepth(temp, precip, biomeDepth)
+  │   └─ WeatherManager.getSnowDepthAtBiome → SnowyStatusKeeperMixin.replaceDepthForMelt
+  │       └─ estfc$getPerBlockDepth → SnowDepthRules.calcEffectiveDepth(temp, biomeDepth)
   │           → shouldSnow(depth, seed) → keeper.set(pos, FLAG_SNOW/FLAG_NONE)
   │
-  └─ Chunk加载: SnowyMapCheckerMixin (forceChunkUpdateHeight TAIL)
-      ├─ 每列: colTemp = TFC温度, colSnowDepth = calcEffectiveDepth(colTemp, precip, biomeDepth)
-      ├─ loadingChunk: 零上→depth=0, 零下→shouldSnow(colSnowDepth, seed)
+  └─ Chunk加载: SnowyMapCheckerMixin (forceChunkUpdateHeight TAIL) → ChunkSnowRefresh
+      ├─ prepare: 中心地表温度 + biomeDepth; 每列: columnTemperature (海拔外推),
+      │   colSnowDepth = calcEffectiveDepth(colTemp, biomeDepth)
+      ├─ loadingChunk: applyOnLoad (零上→depth=0, 零下→shouldSnow); 否则 applyMeltOnly
       └─ keeper.updateAndSend
 ```
 
 ### 5.2 远景全流程 (客户端)
 
 ```
-DH: DhLevelWrapperMixin.getBlockColor RETURN
-  ├─ getBiomeDepthAt(level, mcPos) → 客户端WeatherManager biome缓存
-  ├─ calcSnowDepthClient(level, model, mcPos, biomeDepth)
-  │   ├─ TfcUnloadedTempEstimator.getCorrectedTemperature → 修正未加载区块温度
-  │   ├─ temp>meltTemp → 0
-  │   └─ calcEffectiveDepth(temp, precip, biomeDepth)
-  └─ depth/100 → factor [0,1] → 原始色混合白色
+DH LOD 着色: DhLevelWrapperMixin.getBlockColor RETURN
+  └─ DistantSnowService.snowColorFor(level, model, mcPos, baseArgb)
+      ├─ ClimateQuery.getBiomeDepthAt → ES 原生 O(1) 查询
+      ├─ calcSnowDepthClient
+      │   ├─ TfcUnloadedTempEstimator.getCorrectedTemperature → 修正未加载区块温度
+      │   ├─ temp>meltTemp → 0
+      │   └─ SnowDepthRules.calcEffectiveDepth(temp, biomeDepth)
+      └─ depth/100 → factor [0,1] → blendToWhite
 
-Voxy: MapCheckerMixin.shouldSnowAtBiome HEAD cancel
+DH 未加载区块雪判断: MapCheckerMixin.shouldSnowAtBiome HEAD cancel
   ├─ 仅客户端处理 (ServerLevel→return)
   ├─ getBiomeDepthAt + calcSnowDepthClient
   └─ shouldSnow(depth, seed) → boolean
 ```
 
+> 命名勘误：`MapChecker.shouldSnowAtBiome` 在本 ES 版本里的唯一调用方是 ES 自己的
+> `compat/distanthorizons/DHTool`，即这条路径由 DH（而非 Voxy）触及；历史注释把它归给
+> Voxy 是不准确的。线程结论不变（同样跑在 DH 的 transformer 线程上）。
+
 ---
 
-## 6. Biome深度查找 (性能敏感)
+## 6. Biome深度查找
 
-`getBiomeDepthAt(level, pos)`: 遍历 `WeatherManager.getBiomeList(level)` (170+ biomes in TFC), `bw.biomeHolder.is(key)` O(N) 线性扫描。
+`ClimateQuery.getBiomeDepthAt(level, pos)`: 直接调 ES 原生
+`WeatherManager.getBiomeWeather(Level, Holder<Biome>)` —— O(1)，内部走
+`eclipticseasons$getBindId()` 带边界检查的 `list.get(id)`，与 ES 自己的
+`getSnowDepthAtBiome`/`getPrecipitationAt` 同源，无本地缓存。
 
 调用方:
 - `SnowyStatusKeeperMixin.getPerBlockDepth` — tickChunk中per-block
-- `SnowyMapCheckerMixin` — chunk加载 per-column
-- `MapCheckerMixin` / `DhLevelWrapperMixin` — DH/Voxy per-block
+- `ChunkSnowRefresh.prepare` — chunk加载 per-chunk
+- `MapCheckerMixin` / `DistantSnowService.snowColorFor` — DH per-block
 - `WeatherManagerMixin.getSnowStatusImpl` — per-block
+- `ExtraModelManagerMixin.maySnowyAt` — 客户端回退
 
-ES `SnowyStatusKeeper.tickChunk()` 占 ~1.49% 服务端线程 (profile数据), 其中我们的 `replaceDepthForSnow` ~0.43%, `getBiomeDepthAt` ~0.41%。
+历史版本对 170+ 群系做 O(N) 线性扫描（实测占服务端线程 ~0.41%）外加一层
+"对象身份变化才失效"的缓存——ES 的表每 level 只建一次、原地 mutate，身份
+永不变 → 缓存整局游戏不更新。已改为上述 O(1) 直查，该 profile 数据作废。
 
 ---
 
@@ -293,16 +329,17 @@ ES `SnowyStatusKeeper.tickChunk()` 占 ~1.49% 服务端线程 (profile数据), �
 
 | 路径 | 线程 |
 |------|------|
-| tickWeatherCycle | 主服务端线程 |
+| WeatherCycleService.tickWeatherCycle | 主服务端线程 |
 | tickChunk (SnowyStatusKeeperMixin throttle) | 主服务端线程 |
-| forceChunkUpdateHeight (SnowyMapCheckerMixin) | 主服务端线程 |
+| forceChunkUpdateHeight (SnowyMapCheckerMixin → ChunkSnowRefresh) | 主服务端线程 |
 | getSnowStatus (WeatherManagerMixin) | 主服务端线程 |
-| NetworkUtilMixin | Netty网络线程 (写SnowDepthCache) |
 | ClientConMixin.tick | 客户端线程 |
 | SnowModelMixin.getSnowyModel | 客户端渲染线程 |
-| MapCheckerMixin (Voxy) | 渲染线程/Voxy worker |
-| DhLevelWrapperMixin (DH) | DH worker线程 (异步!) |
-| Config.matchesEntry regex | 并发: DH workers + 渲染线程 (ConcurrentHashMap) |
+| MapCheckerMixin (经 ES DHTool) | DH transformer 线程 |
+| DhLevelWrapperMixin (DH getBlockColor) | DH LOD Builder 线程池 (大小=CPU核数, 异步!) |
+| TfcUnloadedTempEstimator | 并发: DH LOD Builder 池 + MapChecker 路径 (ConcurrentSkipListMap + CAS 采样) |
+| ClimateQuery.isPrecipitating(Level) 缓存 | 并发: DH workers + 区块编译线程 (volatile 不可变快照) |
+| BlockPatternMatcher regex 缓存 | 并发: DH workers + 渲染线程 (ConcurrentHashMap) |
 
 ---
 

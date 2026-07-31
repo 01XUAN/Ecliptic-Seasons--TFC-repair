@@ -4,6 +4,13 @@
     "estfc.config.done": "完成",
     "estfc.config.reset": "重置",
     "estfc.config.listAdd": "+ 添加",
+    "estfc.config.save": "保存修改",
+    "estfc.config.discard": "放弃修改",
+
+    "estfc.config.resetConfirm": "确认重置？",
+    "estfc.config.resetConfirm.message": "所有配置将恢复默认值。",
+    "estfc.config.discardConfirm": "放弃修改？",
+    "estfc.config.discardConfirm.message": "未保存的修改将丢失。",
 
     "estfc.config.tfcLeavesSnowBlocks": "树叶覆雪方块",
     "estfc.config.tfcLeavesSnowBlocks.tooltip": "使用树叶覆雪效果（双层雪：顶部积雪 + 内部雪斑）的方块。\n支持路径前缀、完整 ID、正则三种格式。\n修改后按 F3+T 重载资源生效。\n默认: regex:plant/.*_leaves（TFC 果树树叶）",

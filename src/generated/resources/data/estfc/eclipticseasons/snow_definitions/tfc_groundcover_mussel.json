@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:groundcover/mussel"],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_groundcover_mussel"
+}

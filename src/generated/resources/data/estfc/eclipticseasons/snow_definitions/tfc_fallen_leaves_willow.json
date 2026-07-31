@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:wood/fallen_leaves/willow"],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_fallen_leaves_willow"
+}

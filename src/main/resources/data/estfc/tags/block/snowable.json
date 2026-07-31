@@ -1,0 +1,24 @@
+{
+  "replace": false,
+  "values": [
+    "tfc:groundcover/seaweed",
+    "tfc:groundcover/driftwood",
+    "tfc:groundcover/stick",
+    "tfc:plant/sword_fern",
+    "tfc:plant/moss",
+    "tfc:plant/reindeer_lichen",
+    "tfc:plant/spanish_moss",
+    "tfc:plant/tree_fern",
+    "tfc:plant/arctic_poppy",
+    "tfc:plant/butterfly_milkweed",
+    "tfc:plant/calendula",
+    "tfc:plant/lady_fern",
+    "tfc:plant/sacred_datura",
+    "tfc:wood/fallen_leaves/oak",
+    "tfc:wood/fallen_leaves/birch",
+    "tfc:wood/fallen_leaves/spruce",
+    "tfc:wood/twig/oak",
+    "tfc:wood/twig/birch",
+    "tfc:wood/twig/spruce"
+  ]
+}

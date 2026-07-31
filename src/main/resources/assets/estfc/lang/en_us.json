@@ -4,6 +4,13 @@
     "estfc.config.done": "Done",
     "estfc.config.reset": "Reset",
     "estfc.config.listAdd": "+ Add",
+    "estfc.config.save": "Save Changes",
+    "estfc.config.discard": "Discard Changes",
+
+    "estfc.config.resetConfirm": "Confirm Reset?",
+    "estfc.config.resetConfirm.message": "All settings will be reset to defaults.",
+    "estfc.config.discardConfirm": "Discard Changes?",
+    "estfc.config.discardConfirm.message": "Unsaved changes will be lost.",
 
     "estfc.config.tfcLeavesSnowBlocks": "Leaf Snow Blocks",
     "estfc.config.tfcLeavesSnowBlocks.tooltip": "Blocks that use leaf snow effect (dual-layer: top snow + internal spots).\nSupports path prefix, full ID, and regex formats.\nChanges take effect after F3+T resource reload.\nDefault: regex:plant/.*_leaves (TFC fruit tree leaves)",

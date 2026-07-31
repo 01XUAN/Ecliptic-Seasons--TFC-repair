@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:plant/wintergreen_berry_bush"],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_bush_wintergreen_berry_bush"
+}

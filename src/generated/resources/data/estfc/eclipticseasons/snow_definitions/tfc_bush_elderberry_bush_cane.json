@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:plant/elderberry_bush_cane"],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_bush_elderberry_bush_cane"
+}

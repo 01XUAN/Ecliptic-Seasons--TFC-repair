@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:wood/fallen_leaves/ash"],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_fallen_leaves_ash"
+}

@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:groundcover/sea_urchin"],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_groundcover_sea_urchin"
+}

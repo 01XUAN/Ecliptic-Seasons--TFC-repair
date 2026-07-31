@@ -1,0 +1,6 @@
+{
+  "blocks": ["tfc:plant/aspen_krummholz"],
+  "flag": 1001,
+  "offset": 1,
+  "mid": "estfc:snowy/tfc_krummholz_aspen"
+}
