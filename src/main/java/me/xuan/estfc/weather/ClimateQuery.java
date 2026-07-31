@@ -30,16 +30,18 @@ public final class ClimateQuery {
 
     // ==================== 降水检测 ====================
 
-    private static long cachedPrecipCalTick = -1;
-    private static boolean cachedPrecipResult;
+    /** 不可变载体 + 单 volatile 字段：两个值不可能被观察到撕裂 */
+    private record PrecipSnapshot(long calendarTick, boolean precipitating) {}
+    private static volatile PrecipSnapshot precipCache = new PrecipSnapshot(Long.MIN_VALUE, false);
 
     public static boolean isPrecipitating(Level level) {
         long calTicks = Calendars.get(level).getCalendarTicks();
-        if (calTicks == cachedPrecipCalTick) return cachedPrecipResult;
-        cachedPrecipCalTick = calTicks;
+        PrecipSnapshot snap = precipCache;                    // 单次 volatile 读
+        if (snap.calendarTick() == calTicks) return snap.precipitating();
         ClimateModel model = Climate.get(level);
-        cachedPrecipResult = model.supportsRain() && model.getRain(calTicks) > 0;
-        return cachedPrecipResult;
+        boolean result = model.supportsRain() && model.getRain(calTicks) > 0;
+        precipCache = new PrecipSnapshot(calTicks, result);   // 单次 volatile 写
+        return result;
     }
 
     public static boolean isPrecipitating(ServerLevel level, BlockPos pos) {
