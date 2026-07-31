@@ -5,9 +5,14 @@ import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
 import me.xuan.estfc.Config;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 群系雪深主循环：由 TFC advanceWeatherCycle 之后驱动，
@@ -17,7 +22,19 @@ public final class WeatherCycleService {
 
     private WeatherCycleService() {}
 
-    private static final long[] lastStepTick = new long[256];
+    /**
+     * 各维度的群系步进时间戳。按维度分键（不同维度各有一张群系表，索引不通用），
+     * 数组按实际群系表长度扩容——群系注册表可远超 256（TFC 单独就注册 127 个）。
+     * ConcurrentHashMap 是保险起见，该路径只在服务端主线程。
+     */
+    private static final Map<ResourceKey<Level>, long[]> LAST_STEP_TICK = new ConcurrentHashMap<>();
+
+    private static long[] stepTicks(ServerLevel level, int size) {
+        return LAST_STEP_TICK.compute(level.dimension(), (k, arr) ->
+            (arr == null || arr.length < size)
+                ? Arrays.copyOf(arr == null ? new long[0] : arr, size)
+                : arr);
+    }
 
     public static void tickWeatherCycle(ServerLevel level) {
         try {
@@ -30,6 +47,7 @@ public final class WeatherCycleService {
             ArrayList<WeatherManager.BiomeWeather> biomes = ip.es$get();
             if (biomes == null || biomes.isEmpty()) return;
 
+            long[] lastStepTick = stepTicks(level, biomes.size());
             int index = ip.es$getTickBiome();
             WeatherManager.BiomeWeather biomeWeather = biomes.get(index);
             if (biomeWeather == null || biomeWeather.biomeHolder == null) return;
