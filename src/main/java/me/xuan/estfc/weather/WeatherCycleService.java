@@ -68,16 +68,17 @@ public final class WeatherCycleService {
             if (precip && playerTemp <= meltTemp && currentDepth < 100) {
                 int gain = (int)((gameTime - lastStepTick[index]) / interval);
                 if (gain > 0) {
-                    lastStepTick[index] += gain * (long)interval;
                     biomeWeather.setSnowDepth(Math.min(100, currentDepth + gain));
                 }
             } else if (playerTemp > meltTemp && currentDepth > 0) {
                 int loss = (int)((gameTime - lastStepTick[index]) / interval);
                 if (loss > 0) {
-                    lastStepTick[index] += loss * (long)interval;
                     biomeWeather.setSnowDepth(Math.max(0, currentDepth - loss));
                 }
             }
+            // 无条件推进时间戳：任何空闲间隔（干季/满雪/0 深度）都让时间戳跟随真实时间，
+            // 避免下次进入累积分支时把整段空闲期一次性补算（瞬间 0→100）
+            lastStepTick[index] = gameTime;
 
             int syncInterval = Config.biomeSyncIntervalTicks();
             if (gameTime % syncInterval == 0 && !level.players().isEmpty()) {

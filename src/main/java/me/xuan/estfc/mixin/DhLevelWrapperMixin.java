@@ -22,17 +22,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * DH 远景（Distant Horizons LOD）覆雪颜色。
  *
- * <p>在 DH 生成 LOD 网格时，为低温位置的方块返回白色，
- * 让 DH 远景正确显示 TFC 覆雪。</p>
+ * <p>在 DH 生成 LOD 网格时，为覆雪的方块返回白色，让 DH 远景正确显示 TFC 覆雪。</p>
  *
- * <p><b>为什么用直接位置温度而非玩家参考温度：</b></p>
+ * <p><b>温度公式（与 voxy 远景一致）：</b></p>
  * <ul>
- *   <li>玩家参考温度随时间变化（TFC 昼夜温差可达 10+°C），
- *       导致不同时刻生成的 LOD 区域雪量不一致 → 128×128 网格花纹</li>
- *   <li>玩家参考温度随玩家位置变化（纬度/大陆度），
- *       导致远方 LOD 区域雪量由玩家位置决定而非实际气候</li>
- *   <li>TFC {@code ClimateModel.getInstantTemperature} 是纯计算函数，
- *       基于世界种子 + 位置，不依赖区块加载状态，线程安全</li>
+ *   <li>TFC {@code getInstantTemperature} <b>不是</b>纯计算函数：它内含每日随机/昼夜项
+ *       （±4°C，随机项只按游戏日做种子、跨天跳变）且依赖 ChunkData（未加载返回假 10°C 基线），
+ *       未加载位置需经 {@code TfcUnloadedTempEstimator} 修正基线。</li>
+ *   <li>用该温度做 0°C 硬门 + {@code max(biomeDepth, tempToSnowDepth(temp))}，与已加载视图、
+ *       voxy 远景共用同一公式——不要整体换成 biomeDepth 纯累积，否则冬天全图满雪。</li>
  * </ul>
  */
 @Pseudo

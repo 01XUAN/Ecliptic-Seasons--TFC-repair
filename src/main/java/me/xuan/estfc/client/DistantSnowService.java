@@ -20,7 +20,17 @@ public final class DistantSnowService {
     /** 不透明纯白 0xFFFFFFFF */
     public static final int OPAQUE_WHITE_ARGB = 0xFFFFFFFF;
 
-    /** DH/Voxy 远景雪深 (0-100)。 */
+    /**
+     * DH/Voxy 远景雪深 (0-100)。
+     *
+     * <p>与已加载视图共用同一温度公式：{@code getInstantTemperature}（未加载区块由
+     * {@link TfcUnloadedTempEstimator} 修正假 10°C 基线）→ 融雪温度以上无雪 →
+     * {@code max(biomeDepth, tempToSnowDepth(temp))}。该公式与 voxy 远景一致。</p>
+     *
+     * <p>注意：{@code getInstantTemperature} 内含每日随机/昼夜项（±4°C，随机项只按游戏日
+     * 做种子），DH 远景若以顶部方块 Y 采样，0°C 融雪线附近会随海拔/跨天产生雪量差异；
+     * 这是温度公式的固有特性，不要整体换成 biomeDepth 纯累积（会全图满雪）。</p>
+     */
     public static int calcSnowDepthClient(Level level, ClimateModel model, BlockPos pos,
                                            int biomeDepth) {
         float temp = TfcUnloadedTempEstimator.getCorrectedTemperature(level, model, pos);

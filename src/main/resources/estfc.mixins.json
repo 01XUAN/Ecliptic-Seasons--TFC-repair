@@ -11,11 +11,11 @@
         "SnowyMapCheckerMixin",
         "MapCheckerMixin",
         "SnowyStatusKeeperMixin",
-        "ConnectedGrassBlockMixin"
+        "ConnectedGrassBlockMixin",
+        "SnowCheckerMixin"
     ],
     "client": [
         "ClientConMixin",
-        "NetworkUtilMixin",
         "SnowModelMixin",
         "ExtraModelManagerMixin",
         "DhLevelWrapperMixin"

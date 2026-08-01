@@ -61,6 +61,9 @@ public abstract class SnowyMapCheckerMixin {
                     int maxY = Math.max(solidHeight, surfaceHeight);
 
                     float colTemp = ChunkSnowRefresh.columnTemperature(ctx, surfaceHeight);
+                    // 有效深度 = max(累积群系深度, 温度地板)。温度地板保证干冷（无降水→biomeDepth=0）
+                    // 的地方也有覆雪；累积深度保证降雪期间逐步加厚。bug4 的"瞬间满雪"由 B1
+                    // (lastStepTick 无条件推进) 修复，去掉温度地板会让寒冷地区整片无雪。
                     int colSnowDepth = SnowDepthRules.calcEffectiveDepth(colTemp, ctx.biomeSnowDepth());
 
                     for (int y = minY; y <= maxY; y++) {

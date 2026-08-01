@@ -52,10 +52,16 @@ public final class ChunkSnowRefresh {
         return flag == MapChecker.FLAG_NONE && !state.blocksMotion();
     }
 
-    /** 区块加载：按有效雪深决定加雪/除雪。 */
+    /**
+     * 区块加载：按有效雪深决定加雪/除雪。
+     *
+     * @param colSnowDepth 有效雪深（调用方用 {@code calcEffectiveDepth(colTemp, biomeSnowDepth)}
+     *                     计算，含温度地板 + 累积深度）。温度地板保证干冷（biomeDepth=0）地区
+     *                     也有覆雪；零上则不应有雪。
+     */
     public static void applyOnLoad(SnowyStatusKeeper keeper, BlockPos checkPos, BlockState state,
                                    float colTemp, int colSnowDepth, boolean hasSnow) {
-        // 零上 → 不应有雪（即使全局 biomeDepth > 0）：三元刻意剥掉群系地板值
+        // 零上 → 不应有雪（即使全局 biomeDepth > 0）
         int snowDepth = colTemp > Config.snowMeltTemp() ? 0 : colSnowDepth;
         if (SnowDepthRules.shouldSnow(snowDepth, state.getSeed(checkPos))) {
             if (!hasSnow) {

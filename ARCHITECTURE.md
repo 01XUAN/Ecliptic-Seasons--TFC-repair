@@ -15,8 +15,9 @@ me.xuan.estfc/
 ├── weather/
 │   ├── ClimateQuery.java           — 对 TFC/ES 状态的受保护读取 (getModelIfActive, isPrecipitating×3, getBiomeDepthAt)
 │   ├── SnowDepthRules.java         — 纯函数 (tempToSnowDepth, calcEffectiveDepth, shouldSnow)
-│   ├── WeatherCycleService.java    — tick 主循环 (tickWeatherCycle, 按维度分键的 lastStepTick)
+│   ├── WeatherCycleService.java    — tick 主循环 (tickWeatherCycle, 按维度分键的 lastStepTick, 无条件推进防积压)
 │   ├── ChunkSnowRefresh.java       — 区块加载/更新覆雪刷新 (prepare, columnTemperature, applyOnLoad, applyMeltOnly)
+│   ├── SnowDefinitionRegistrar.java— 运行时补齐 datapack 未覆盖的 TFC 方块雪定义 (服务端+客户端分类)
 │   ├── SolarTermMapper.java        — TFC 月份 → ES 节气索引公式
 │   └── HemisphereSeasons.java      — 南半球季节/节气翻转
 │
@@ -28,9 +29,10 @@ me.xuan.estfc/
 │   ├── WeatherManagerMixin         — [ES] getSnowStatus劫持, agentAdvanceWeatherCycle取消
 │   ├── SnowyStatusKeeperMixin      — [ES] tickChunk HEAD节流 + getSnowDepthAtBiome→getPerBlockDepth
 │   ├── SnowyMapCheckerMixin        — [ES] forceChunkUpdateHeight TAIL→ChunkSnowRefresh
+│   ├── SnowCheckerMixin            — [ES] resetUpdate RETURN→SnowDefinitionRegistrar（运行时补 TFC 雪定义）
 │   ├── SnowModelMixin              — [ES] getSnowyModel TAIL→SnowTextureSwapModel; clearForRebaked→程序化树叶SnowDefinition
 │   ├── ExtraModelManagerMixin      — [ES] maySnowyAt RETURN回退
-│   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→TFC远景判断(经 ES DHTool 被 DH 触及)
+│   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→DistantSnowService.calcSnowDepthClient(群系深度)
 │   ├── DhLevelWrapperMixin         — [DH] getBlockColor RETURN→DistantSnowService.snowColorFor（唯一允许出现 com.seibel.* 的文件, @Pseudo + require=0）
 │   ├── ClientConMixin              — [ES] tick TAIL→HemisphereSeasons
 │   ├── ConnectedGrassBlockMixin    — [TFC] 禁用连接纹理方向
@@ -38,10 +40,10 @@ me.xuan.estfc/
 │   └── SolarDataManagerMixin       — [ES] getSolarTermIndex→SolarTermMapper
 │
 ├── client/
-│   ├── DistantSnowService.java     — DH/Voxy 远景覆雪 (calcSnowDepthClient, snowColorFor, blendToWhite)
+│   ├── DistantSnowService.java     — DH/Voxy 远景覆雪 (calcSnowDepthClient=群系累积深度, snowColorFor, blendToWhite)
 │   ├── SnowTextureSwapModel.java   — 覆雪BakedModel (tfc:→estfc:贴图替换, IESReplaceModel)
 │   ├── BakedQuadTextureOnly.java  — 保留UV的贴图替换
-│   ├── TfcUnloadedTempEstimator.java — 未加载区块温度修正(Z轴采样avgSeaLevelTemp, 并发安全)
+│   ├── TfcUnloadedTempEstimator.java — 未加载区块温度修正
 │   └── gui/
 │       ├── EstfcConfigScreen.java — 配置界面(HeaderAndFooterLayout+GridLayout)
 │       └── ScrollableLayout.java  — 可滚动布局
@@ -50,12 +52,6 @@ me.xuan.estfc/
     ├── DataGenerators.java         — GatherDataEvent注册
     └── TfcSnowDefinitionProvider.java — ES SnowDefinition生成(TFC方块)
 ```
-
-> 历史差异：曾有 WeatherBridge（大杂烩桥接类，已按职责拆分删除）、SnowDepthCache 与
-> NetworkUtilMixin（只写不读的死数据，ES 原生 processBiomeWeatherMessage 已解包同一份数据）、
-> BakedQuadSnow（零引用），均已删除。
-
----
 
 ## 2. 核心公式
 
@@ -299,10 +295,6 @@ DH 未加载区块雪判断: MapCheckerMixin.shouldSnowAtBiome HEAD cancel
   └─ shouldSnow(depth, seed) → boolean
 ```
 
-> 命名勘误：`MapChecker.shouldSnowAtBiome` 在本 ES 版本里的唯一调用方是 ES 自己的
-> `compat/distanthorizons/DHTool`，即这条路径由 DH（而非 Voxy）触及；历史注释把它归给
-> Voxy 是不准确的。线程结论不变（同样跑在 DH 的 transformer 线程上）。
-
 ---
 
 ## 6. Biome深度查找
@@ -318,10 +310,6 @@ DH 未加载区块雪判断: MapCheckerMixin.shouldSnowAtBiome HEAD cancel
 - `MapCheckerMixin` / `DistantSnowService.snowColorFor` — DH per-block
 - `WeatherManagerMixin.getSnowStatusImpl` — per-block
 - `ExtraModelManagerMixin.maySnowyAt` — 客户端回退
-
-历史版本对 170+ 群系做 O(N) 线性扫描（实测占服务端线程 ~0.41%）外加一层
-"对象身份变化才失效"的缓存——ES 的表每 level 只建一次、原地 mutate，身份
-永不变 → 缓存整局游戏不更新。已改为上述 O(1) 直查，该 profile 数据作废。
 
 ---
 

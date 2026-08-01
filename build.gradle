@@ -144,7 +144,6 @@ tasks.register('generateTfcSnowDefinitions') {
     // 配置时捕获，避免执行时访问 project（configuration cache 兼容）
     def projectDir = project.layout.projectDirectory.asFile
     def outputDir = new File(projectDir, 'src/generated/resources/data/estfc/eclipticseasons/snow_definitions')
-    def manifestFile = new File(projectDir, 'src/generated/resources/plant_manifest.json')
     def modelDefDir = new File(projectDir, 'src/generated/resources/assets/estfc/eclipticseasons/model_definitions/snowy')
 
     doLast {
@@ -262,115 +261,6 @@ tasks.register('generateTfcSnowDefinitions') {
             md.text = "{\n  \"replace\": true,\n  \"variants\": {\n    \"\": {\n      \"model\": \"estfc:block/snowy_empty\"\n    }\n  }\n}"
         }
 
-        def blockIdFix = [
-            'pumpkin_side':       [id: 'tfc:pumpkin',        name: 'pumpkin_fruit'],
-            'melon_side':         [id: 'tfc:melon',          name: 'melon_fruit'],
-            'rotten_pumpkin_side':[id: 'tfc:rotten_pumpkin', name: 'rotten_pumpkin'],
-            'rotten_pumpkin_top': [id: 'tfc:rotten_pumpkin', name: 'rotten_pumpkin'],
-            'rotten_melon_side':  [id: 'tfc:rotten_melon',   name: 'rotten_melon'],
-            'rotten_melon_top':   [id: 'tfc:rotten_melon',   name: 'rotten_melon'],
-        ]
-        def skipKeys = ['stick_top', 'wild_crop_grass', 'rattan'] as Set
-
-        def texToTfcBlocks = [
-            'tulip':      ['tulip_orange','tulip_pink','tulip_red','tulip_white'],
-            'water_lily': ['white_water_lily','purple_water_lily','yellow_water_lily'],
-            'snapdragon': ['snapdragon_pink','snapdragon_red','snapdragon_white','snapdragon_yellow'],
-            'hanging_vines':   ['hanging_vines_plant','hanging_vines'],
-            'spanish_moss':    ['spanish_moss_plant','spanish_moss'],
-            'liana':           ['liana_plant','liana'],
-            'flame_vine':      ['flame_vine_plant','flame_vine'],
-            'tree_fern':       ['tree_fern_plant','tree_fern'],
-            'cycad':           ['cycad_plant','cycad'],
-            'arundo':          ['arundo_plant','arundo'],
-            'dry_phragmite':   ['dry_phragmite_plant','dry_phragmite'],
-            'winged_kelp':     ['winged_kelp_plant','winged_kelp'],
-            'leafy_kelp':      ['leafy_kelp_plant','leafy_kelp'],
-            'giant_kelp':      ['giant_kelp_plant','giant_kelp_flower'],
-            'golden_bamboo':   ['golden_bamboo','golden_bamboo_sapling'],
-            'saguaro':         ['saguaro_plant','saguaro'],
-        ]
-
-        if (!manifestFile.exists()) {
-            println "WARNING: plant_manifest.json not found. Run gen_snowy.py first."
-            return
-        }
-
-        def manifest = new groovy.json.JsonSlurper().parse(manifestFile)
-
-        // 第一步：从 manifest 提取贴图信息 (plant_key -> best_texture)
-        def texLookup = [:]  // plant_key -> best_texture
-        manifest.each { p ->
-            def key = p.plant_key
-            if (!texLookup.containsKey(key) && !skipKeys.contains(key))
-                texLookup[key] = p.best_texture
-        }
-
-        // 第二步：构建 TFC 方块 → [blockId, best_texture] 映射
-        def blockInfoMap = [:]  // tfcName -> [blockId, best]
-
-        tfcCrops.each { name ->
-            if (texLookup.containsKey(name))
-                blockInfoMap[name] = [id: "tfc:crop/${name}", best: texLookup[name]]
-        }
-        blockIdFix.each { manifestKey, fix ->
-            if (texLookup.containsKey(manifestKey) && !blockInfoMap.containsKey(fix.name))
-                blockInfoMap[fix.name] = [id: fix.id, best: texLookup[manifestKey]]
-        }
-        texToTfcBlocks.each { texKey, tfcNames ->
-            if (texLookup.containsKey(texKey)) {
-                tfcNames.each { name ->
-                    if (!blockInfoMap.containsKey(name))
-                        blockInfoMap[name] = [id: "tfc:plant/${name}", best: texLookup[texKey]]
-                }
-            }
-        }
-        texLookup.each { key, best ->
-            def cropVariant = tfcCrops.find { key.startsWith(it) && (key.length() == it.length() || key.charAt(it.length()) == '_') }
-            if (cropVariant) return
-            if (blockIdFix.containsKey(key)) return
-            if (!texToTfcBlocks.containsKey(key) && !blockInfoMap.containsKey(key))
-                blockInfoMap[key] = [id: "tfc:plant/${key}", best: best]
-        }
-
-        // 第三步：生成 JSON — Mixin 提供全部 quad，model_definition 指向空模型
-        int count = 0
-
-        // 墙植/藤蔓植物 (用 flag 1200, 藤蔓类, 不计算高度偏移)
-        def wallPlants = [
-            'hanging_vines', 'hanging_vines_plant',
-            'spanish_moss', 'spanish_moss_plant',
-            'liana', 'liana_plant',
-            'flame_vine', 'flame_vine_plant',
-            'ivy', 'jungle_vines',
-            // CREEPING_STONE 类型 (贴在方块面上的地衣/苔藓)
-            'cobblestone_lichen', 'elegant_sunburst_lichen'
-        ] as Set
-
-        // ── 植物（Mixin flag 1001/1200）──
-        // 果树树叶（*_leaves）不再生成 JSON——由 SnowModelMixin 程序化注册
-        blockInfoMap.each { tfcName, info ->
-
-            def isWallPlant = wallPlants.contains(tfcName)
-            def flag = isWallPlant ? 1200 : 1001
-
-            // 雪定义
-            def sd = new File(outputDir, "tfc_plant_${tfcName}.json")
-            sd.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
-                blocks: info.id,
-                flag: flag,
-                offset: isWallPlant ? 0 : 1,
-                mid: "estfc:snowy/tfc_${tfcName}"
-            ]))
-
-            // 模型定义 — 指向空模型, Mixin 提供全部 quad (避免双层叠加)
-            def md = new File(modelDefDir, "tfc_${tfcName}.json")
-            md.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
-                replace: true,
-                variants: ["" : [model: "estfc:block/snowy_empty"]]
-            ]))
-            count++
-        }
         // ── 生成 atlas 注册模型：引用所有 estfc snowy 贴图，使其进入 block texture atlas ──
         def texDir = new File(projectDir, 'src/main/resources/assets/estfc/textures/block')
         def atlasModelDir = new File(projectDir, 'src/generated/resources/assets/estfc/models/block')
@@ -392,9 +282,28 @@ tasks.register('generateTfcSnowDefinitions') {
         // 构建带贴图引用的 snowy_empty 模型（elements 为空 → 不渲染任何几何，但贴图注册到 atlas）
         def atlasJson = ['textures': texRefs + ['particle': 'minecraft:block/snow']]
         atlasModel.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(atlasJson))
-        println "Generated ${count} plants + ${idx} atlas textures (snowy_empty.json)"
+        println "Generated ${idx} atlas textures (snowy_empty.json)"
     }
 }
+
+// === 覆盖手绘贴图：png_snowy_drawn → textures/block（编译时自动） ===
+// gen_snowy.py 生成的某些贴图不好看，此处把 src/png_snowy_drawn 里同相对路径的手绘贴图
+// 覆盖到 src/main/resources/assets/estfc/textures/block，随 processResources 打包生效。
+// 结构：png_snowy_drawn/plant/allium/allium_0.png → textures/block/plant/allium/allium_0.png
+tasks.register('overlayDrawnTextures', Copy) {
+    group = 'estfc'
+    description = 'Overlay hand-drawn PNGs from png_snowy_drawn onto gen_snowy.py output'
+
+    from file('src/png_snowy_drawn')
+    into file('src/main/resources/assets/estfc/textures/block')
+    include '**/*.png'
+
+    // 目录未创建时跳过（Copy 对不存在的源目录会报错）
+    enabled = file('src/png_snowy_drawn').exists()
+}
+
+// 先覆盖手绘贴图，再生成 atlas 模型（让 snowy_empty.json 引用最终贴图）
+generateTfcSnowDefinitions.dependsOn overlayDrawnTextures
 
 // 处理资源时先生成 JSON
 processResources.dependsOn generateTfcSnowDefinitions
