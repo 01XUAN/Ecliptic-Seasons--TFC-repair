@@ -32,13 +32,9 @@ import java.util.List;
 public class SnowTextureSwapModel implements BakedModel, IESReplaceModel {
     private static final ResourceLocation VANILLA_SNOW = ResourceLocation.withDefaultNamespace("block/snow");
 
-    /** 从配置读取简单雪贴图路径 */
+    /** 简单雪贴图 = 原版雪贴图（minecraft:block/snow），材质包可覆盖 */
     private static ResourceLocation simpleSnowTexture() {
-        String path = Config.snowTextureDefaultPath();
-        if (path.indexOf(':') >= 0) {
-            return ResourceLocation.parse(path);
-        }
-        return ResourceLocation.fromNamespaceAndPath("estfc", path);
+        return VANILLA_SNOW;
     }
 
     private final BakedModel tfcModel;

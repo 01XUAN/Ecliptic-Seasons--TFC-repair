@@ -14,7 +14,7 @@ me.xuan.estfc/
 │
 ├── weather/
 │   ├── ClimateQuery.java           — 对 TFC/ES 状态的受保护读取 (getModelIfActive, isPrecipitating×3, getBiomeDepthAt)
-│   ├── SnowDepthRules.java         — 纯函数 (tempToSnowDepth, calcEffectiveDepth, shouldSnow)
+│   ├── SnowDepthRules.java         — 纯函数 (tempToSnowDepth, calcEffectiveDepth, depthFromTemp, shouldSnow)
 │   ├── WeatherCycleService.java    — tick 主循环 (tickWeatherCycle, 按维度分键的 lastStepTick, 无条件推进防积压)
 │   ├── ChunkSnowRefresh.java       — 区块加载/更新覆雪刷新 (prepare, columnTemperature, applyOnLoad, applyMeltOnly)
 │   ├── SnowDefinitionRegistrar.java— 运行时补齐 datapack 未覆盖的 TFC 方块雪定义 (服务端+客户端分类)
@@ -32,18 +32,20 @@ me.xuan.estfc/
 │   ├── SnowCheckerMixin            — [ES] resetUpdate RETURN→SnowDefinitionRegistrar（运行时补 TFC 雪定义）
 │   ├── SnowModelMixin              — [ES] getSnowyModel TAIL→SnowTextureSwapModel; clearForRebaked→程序化树叶SnowDefinition
 │   ├── ExtraModelManagerMixin      — [ES] maySnowyAt RETURN回退
-│   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→DistantSnowService.calcSnowDepthClient(群系深度)
-│   ├── DhLevelWrapperMixin         — [DH] getBlockColor RETURN→DistantSnowService.snowColorFor（唯一允许出现 com.seibel.* 的文件, @Pseudo + require=0）
+│   ├── MapCheckerMixin             — [ES] shouldSnowAtBiome HEAD→DistantSnowService.calcSnowDepthClient（voxy 远景接线点）
 │   ├── ClientConMixin              — [ES] tick TAIL→HemisphereSeasons
 │   ├── ConnectedGrassBlockMixin    — [TFC] 禁用连接纹理方向
 │   ├── EclipticUtilMixin           — [ES] canSnowyBlockInteract→强制true
 │   └── SolarDataManagerMixin       — [ES] getSolarTermIndex→SolarTermMapper
 │
 ├── client/
-│   ├── DistantSnowService.java     — DH/Voxy 远景覆雪 (calcSnowDepthClient=群系累积深度, snowColorFor, blendToWhite)
+│   ├── DhSnowService.java          — DH 远景覆雪 (DhApiBlockColorOverrideEvent, 区域海拔, 需 ES DH兼容关闭)
+│   ├── DistantSnowService.java     — voxy 远景覆雪 (calcSnowDepthClient=温度 vs 群系累积深度取大)
+│   ├── DistantTemperature.java     — 远景温度（avgSeaLevelTemp+月温±海拔，无日温；月温/海拔复用 TFC @Invoker）
+│   ├── RegionClimateCache.java     — 区域气候点（温度+高度）客户端缓存/请求/双线性/预取/自检
+│   ├── VoxyRefreshService.java     — voxy 远景覆雪定时刷新（反射调 SeasonalSnowRefresher/VoxyTool.tryUpdate）
 │   ├── SnowTextureSwapModel.java   — 覆雪BakedModel (tfc:→estfc:贴图替换, IESReplaceModel)
 │   ├── BakedQuadTextureOnly.java  — 保留UV的贴图替换
-│   ├── TfcUnloadedTempEstimator.java — 未加载区块温度修正
 │   └── gui/
 │       ├── EstfcConfigScreen.java — 配置界面(HeaderAndFooterLayout+GridLayout)
 │       └── ScrollableLayout.java  — 可滚动布局
@@ -51,6 +53,10 @@ me.xuan.estfc/
 └── data/
     ├── DataGenerators.java         — GatherDataEvent注册
     └── TfcSnowDefinitionProvider.java — ES SnowDefinition生成(TFC方块)
+
+net/
+└── RegionClimatePayloads.java      — 区域气候点（温度+表面高度+年均降水）请求/响应 + 服务端确定性生成
+                                     （ChunkGeneratorExtension.chunkDataGenerator + TFC getBaseHeight）
 ```
 
 ## 2. 核心公式
@@ -71,20 +77,30 @@ tempToSnowDepth(temp) = (appear - temp) / (appear - full) * 100
 
 ```java
 // weather/SnowDepthRules.java
-public static int calcEffectiveDepth(float actualTemp, int biomeDepth) {
-    return Math.min(100, Math.max(biomeDepth, tempToSnowDepth(actualTemp)));
+public static int calcEffectiveDepth(float actualTemp, int biomeDepth, float rainfall) {
+    int ramp = tempToSnowDepth(actualTemp);
+    int depth = ramp == 100 ? 100 : (biomeDepth <= 0 ? ramp : Math.min(biomeDepth, ramp));
+    return (int) (depth * rainfallFactor(rainfall));   // 降水系数：<noSnow→0，>fullSnow→1，之间线性
+}
+// 零上恒 0（带融雪门槛的入口，所有路径共用）
+public static int depthFromTemp(float actualTemp, int biomeDepth, float rainfall) {
+    return actualTemp > Config.snowMeltTemp() ? 0 : calcEffectiveDepth(actualTemp, biomeDepth, rainfall);
 }
 ```
 
-（历史版本有第二个 `precipitating` 参数，从未被使用，已删除。）
-
-温度提供**地板**（更冷=更高地板），biomeDepth 超过地板后接管。
+语义：≤-4°C 满雪；过渡带（-4..0）内**有积雪**时覆雪率 = min(累积量, 温度斜坡)
+——下雪后回温覆雪率跟随温度（-1°C→25%，-2°C→50%），累积量只作上限；
+**干冷**（无累积）时温度斜坡兜底（干冷地区也有覆雪）。
+最后乘**降水系数**（年均降水 < snowRainfallNoSnow(80mm) → 无雪；> snowRainfallFullSnow(150mm) → 不影响；
+之间线性过渡，如 115mm → 50%）。降水量：加载视图用 `model.getAverageRainfall`，
+远景用区域网格降雨层（`RegionClimatePayloads` 同步）。
 
 | actualTemp | biomeDepth=0 | biomeDepth=30 | biomeDepth=80 |
 |------------|-------------|---------------|---------------|
-| 2°C | 0 | 30 (仅累积) | 80 |
-| 0°C | 0 | 30 | 80 |
-| -2°C | 50 | 50 | 80 |
+| 2°C | 0 | 0 | 0 |
+| 0°C | 0 | 0 | 0 |
+| -1°C | 25 | 25 | 25 |
+| -2°C | 50 | 30 (累积上限) | 50 |
 | -4°C | 100 | 100 | 100 |
 
 ### 2.3 shouldSnow
@@ -119,9 +135,9 @@ public static boolean shouldSnow(int depth, long seed) {
   5. 每 biomeSyncIntervalTicks(100): 同步所有biome深度到客户端
 ```
 
-**interval 来源**: `Config.tickChunkIntervalTicks()` (默认 20)
-- biome 数量不影响速度 (轮转 170 biomes 也每 20tick +1)
-- 20 tick → 100步×20=2000tick≈1.7分钟满雪
+**interval 来源**: `Config.tickChunkIntervalTicks()` (默认 10)
+- biome 数量不影响速度 (轮转 170 biomes 也每 10tick +1)
+- 10 tick → 100步×10=1000tick≈50秒满雪
 
 **lastStepTick 存储**: `Map<ResourceKey<Level>, long[]>`，按维度分键，数组按实际
 群系表长度扩容。历史版本是全局 `long[256]`——群系注册表可远超 256（vanilla ~64
@@ -154,23 +170,53 @@ ES的 `SnowyStatusKeeper.tickChunk` 根据返回状态决定: SNOW→尝试设FL
 
 ### 3.4 远景 (DH/Voxy) — client/DistantSnowService
 
-**调用链**: `MapCheckerMixin.shouldSnowAtBiome` / `DhLevelWrapperMixin.getBlockColor`
-→ `ClimateQuery.getBiomeDepthAt(level, pos)` (ES 原生 O(1) 查询)
-→ `DistantSnowService.calcSnowDepthClient(level, model, pos, biomeDepth)`
+**两条路径**（决策公式相同，hook 点不同）：
 
-```java
-public static int calcSnowDepthClient(Level level, ClimateModel model, BlockPos pos, int biomeDepth) {
-    float temp = TfcUnloadedTempEstimator.getCorrectedTemperature(level, model, pos);
-    if (temp > Config.snowMeltTemp()) return 0;  // 零上→无雪(远景无tickChunk融雪)
-    return SnowDepthRules.calcEffectiveDepth(temp, biomeDepth);
-}
+```
+DH:   estfc DhSnowService — DH 公共 API DhApiBlockColorOverrideEvent（每数据点触发）
+        └─ 需要 ES DistantHorizonsWinterLOD=false（ES @WrapOperation 会短路 getBlockColor）
+voxy: ES-Voxy-Compact MixinModelFactory → VoxyTool.changeBlockId
+        └─ MapChecker.shouldSnowAtBiome → estfc MapCheckerMixin（唯一接线点）
 ```
 
-DH 着色由 `snowColorFor(level, model, pos, baseArgb)` 吸收整条链
-（getBiomeDepthAt → calcSnowDepthClient → depth≤0 原样返回 → blendToWhite），
-`DhLevelWrapperMixin` 只保留 DH 类型相关守卫。
+**调用链（DH）**: `DhSnowService.maybeOverride(EventParam)` — 事件参数自带位置/群系/方块/
+数据源。列内自上而下，**首事件 = 表面数据点**；同一列其余数据点原样返回（列 key
+= level + x>>level + z>>level，所有数据点共享；列缓存按世界绑定，换世界清空）。
+→ `RegionClimateCache.sampleClimate(x,z)`（温度+区域高度一次采样）
+→ `DistantTemperature.distantTemperatureRegional`（avgSeaLevelTemp + 月温 − 区域海拔）
+→ `ClimateQuery.getBiomeDepth(level, biome)`（用事件传入的群系，未加载位置
+`level.getBiome(pos)` 只有占位群系雪深恒 0）
+→ `SnowDepthRules.depthFromTemp` → `shouldSnow(depth, seed)`（逐块抖动，二值输出；
+seed 的 y 用区域高度——事件 y 级别相关，直接用会产生级别边界细网格线）
 
-`TfcUnloadedTempEstimator`: 未加载区块 TFC 温度修正 (ChunkData.EMPTY 时 avgSeaLevelTemp 固定10°C → 从已加载区块Z轴采样替换)。缓存为 ConcurrentSkipListMap，采样线程由 CAS 选出唯一一个——它被 DH LOD Builder 线程池并发进入。
+**调用链（voxy）**: `MapCheckerMixin.shouldSnowAtBiome(level, biome, …, mcPos)`
+→ `ClimateQuery.getBiomeDepth(level, biome)`
+→ `DistantSnowService.calcSnowDepthClient(level, mcPos, biomeDepth)`
+→ `SnowDepthRules.shouldSnow(depth, seed)`
+
+**区域海拔（2026-08-22 定稿）**：DH 事件给的 y 不是表面高度——粗级别=列内最高点、
+细级别=顶部 merged run 的底部（run 可叠几块高），逐 quad 用不可靠 y 采样海拔 =
+quad 尺度噪声 = 网格（完整海拔、按级别分档均已失败）。改用**区域表面高度**：
+服务端 `TFCChunkGenerator.getBaseHeight`（复刻世界生成地形表面，无需加载区块）
+按 128 格网格同步 → 客户端双线性（`RegionClimatePayloads` 与温度同包）→
+`avgSeaLevelTemp + 月温 − 区域海拔`。区域场平滑、级别无关 → 相邻 quad 连续、
+无网格；高山（区域尺度）保留雪线。不做覆盖率亚采样（旧方案网格的另一来源）。
+voxy 例外：ingest 体素级 y=真实表面，海拔保留。
+
+**远景温度**：`DistantTemperature` = `avgSeaLevelTemp(x,z) + 月温(z) − 海拔(y)`，
+只去掉**日温**（±4°C 跨日跳变，LOD 重建才刷新，保留会造成随机变脸）。
+月温/海拔公式经 `OverworldClimateModelMixin` @Invoker 复用 TFC 原实现
+（`calculateMonthlyTemperature`/`adjustTemperatureByElevation`，日温=0），
+避免公式复刻随 TFC 漂移。海拔 y 两个来源：voxy 体素 y（=真实地表）与
+DH 区域表面高度（128 格平滑场）。
+
+**avgSeaLevelTemp / 区域高度数据源**：未加载区块 ChunkData.EMPTY 恒 10°C。
+服务端按 128 格网格点（`Units.GRID_BITS=7`）用
+`ChunkGeneratorExtension.chunkDataGenerator()` + `getBaseHeight` 确定性生成
+（纯种子函数、时不变、不加载区块），异步线程池计算（`dhTempServerThreads`/
+`dhTempServerSubmitPerTick` 可调），经 `RegionClimatePayloads` 同步，
+客户端 `RegionClimateCache` 缓存 + 双线性插值 + 玩家周围预取。
+首屏 1-2 秒数据未到时远景先无雪（回退纯 biomeDepth），属预期。
 
 ---
 
@@ -182,25 +228,30 @@ DH 着色由 `snowColorFor(level, model, pos, baseArgb)` 吸收整条链
 |------|------|------|------|
 | `snowAppearanceTemp` | 0.0 | [-20, 30] | 雪开始出现的温度 |
 | `snowFullCoverageTemp` | -4.0 | [-50, 20] | 温度满雪线(appear到full=过渡带宽度) |
-| `snowMeltTemp` | 0.0 | [-20, 30] | 融雪温度 |
-| `dhUnloadedTempOffset` | 0.0 | [-30, 30] | DH/Voxy远景温度微调 |
-| `unloadedTempSampleRange` | 10240 | [1024, 100000] | TfcUnloadedTempEstimator采样半径 |
+| `snowMeltTemp` | 0.0 | [-273, 500] | 融雪温度 |
+| `snowRainfallNoSnow` | 80 | [0, 500] | 年均降水<此值 → 无雪 |
+| `snowRainfallFullSnow` | 150 | [0, 500] | 年均降水>此值 → 覆雪不受降水影响 |
+| `dhTempPrefetchRadius` | 1024 | [128, 16384] | [DH/voxy] 区域气候点(128格网格)预取半径 |
+| `dhTempRequestsPerTick` | 512 | [1, 2048] | [DH/voxy] 客户端每tick区域点请求上限 |
+| `dhTempServerThreads` | 4 | [1, 32] | [DH/voxy] 服务端计算线程数(min(本值,核数)) |
+| `dhTempServerSubmitPerTick` | 64 | [1, 512] | [DH/voxy] 每tick提交给服务端线程池的上限 |
+| `voxyPeriodicRefresh` | true | - | [voxy] 定时刷新远景覆雪(内置兼容版, 默认开) |
+| `voxyPeriodicRefreshCompatVoxy` | false | - | [voxy] 定时刷新(兼容模组版, 默认关) |
+| `voxyPeriodicRefreshSeconds` | 15 | [5, 600] | [voxy] 定时刷新间隔(秒) |
 
 ### 4.2 速度控制
 
 | 配置 | 默认 | 范围 | 说明 |
 |------|------|------|------|
-| `tickChunkIntervalTicks` | 20 | [1, 200] | tickChunk处理+biomeDepth步进间隔(唯一速度控制器) |
+| `tickChunkIntervalTicks` | 10 | [1, 200] | tickChunk处理+biomeDepth步进间隔(唯一速度控制器) |
 | `biomeSyncIntervalTicks` | 100 | [20, 1200] | 服务端biomeDepth同步客户端间隔 |
-| `enableTFCCompat` | true | - | 总开关（**当前不生效**：getter 零调用；且注册为 COMMON 类型，NeoForge 不向客户端同步，做不成真正的全局开关。暂保持原样） |
 
 ### 4.3 覆雪贴图
 
 | 配置 | 默认 | 说明 |
 |------|------|------|
-| `snowTextureSimpleMode` | false | 全局开关—所有TFC方块强制简单雪(snow.png) |
+| `snowTextureSimpleMode` | false | 全局开关—所有TFC方块强制简单雪(原版 minecraft:block/snow，材质包可覆盖) |
 | `snowTextureReplaceMode` | true | 替换模式(关=ES叠加渲染) |
-| `snowTextureDefaultPath` | block/snow | 可自定义简单雪贴图路径 |
 
 ### 4.4 TFC方块覆雪匹配
 
@@ -280,36 +331,52 @@ TFC advanceWeatherCycle (每tick, 服务端主线程)
 ### 5.2 远景全流程 (客户端)
 
 ```
-DH LOD 着色: DhLevelWrapperMixin.getBlockColor RETURN
-  └─ DistantSnowService.snowColorFor(level, model, mcPos, baseArgb)
-      ├─ ClimateQuery.getBiomeDepthAt → ES 原生 O(1) 查询
-      ├─ calcSnowDepthClient
-      │   ├─ TfcUnloadedTempEstimator.getCorrectedTemperature → 修正未加载区块温度
-      │   ├─ temp>meltTemp → 0
-      │   └─ SnowDepthRules.calcEffectiveDepth(temp, biomeDepth)
-      └─ depth/100 → factor [0,1] → blendToWhite
+DH:   DhApiBlockColorOverrideEvent（每数据点，列内自上而下）  [要求 ES DistantHorizonsWinterLOD=false]
+        └─ DhSnowService.maybeOverride
+            ├─ 守卫: 非空气/非液体 + OverworldClimateModel
+            ├─ DistantTemperatureRegional(x,z)（区域海拔——128格平滑场，服务端 getBaseHeight 同步）
+            ├─ ClimateQuery.getBiomeDepth(level, biome)  ← 用事件传入群系
+            ├─ 首事件=表面 → 判定 + 雪色；同列其余数据点原样返回
+            └─ shouldSnow(depth, seed) → setColor(雪色)
 
-DH 未加载区块雪判断: MapCheckerMixin.shouldSnowAtBiome HEAD cancel
-  ├─ 仅客户端处理 (ServerLevel→return)
-  ├─ getBiomeDepthAt + calcSnowDepthClient
-  └─ shouldSnow(depth, seed) → boolean
+voxy: ES-Voxy-Compact MixinModelFactory → VoxyTool.changeBlockId（守卫: flag/skyLight/上方方块）
+        └─ MapChecker.shouldSnowAtBiome ─┐
+                                         │
+                                         ▼
+      MapCheckerMixin.shouldSnowAtBiome HEAD cancel
+        ├─ 仅客户端处理 (ServerLevel→return)
+        ├─ ClimateQuery.getBiomeDepth(level, biome)  ← 用传入群系
+        ├─ calcSnowDepthClient
+        │   ├─ DistantTemperature.distantTemperature(含海拔, voxy 体素 y=真实地表)
+        │   │   ├─ RegionClimateCache.avgSeaLevelTemp(x,z) ← 服务端同步的128格网格
+        │   │   │     （RegionClimatePayloads: ChunkGeneratorExtension 确定性生成 + getBaseHeight）
+        │   │   └─ + 月温(z)（无日温）
+        │   ├─ 数据未同步 → 回退 biomeDepth
+        │   └─ SnowDepthRules.depthFromTemp(temp, biomeDepth)
+        └─ shouldSnow(depth, seed) → boolean
 ```
 
 ---
 
 ## 6. Biome深度查找
 
-`ClimateQuery.getBiomeDepthAt(level, pos)`: 直接调 ES 原生
-`WeatherManager.getBiomeWeather(Level, Holder<Biome>)` —— O(1)，内部走
+`ClimateQuery.getBiomeDepth(level, biome)`: 直接调 ES 原生
+`WeatherManager.getBiomeWeather(Level, Biome)` —— O(1)，内部走
 `eclipticseasons$getBindId()` 带边界检查的 `list.get(id)`，与 ES 自己的
 `getSnowDepthAtBiome`/`getPrecipitationAt` 同源，无本地缓存。
 
+`getBiomeDepthAt(level, pos)` 是按坐标回查群系的便捷重载，**只能用于已加载区块**。
+远景路径必须用 `getBiomeDepth(level, biome)` 传入调用方给的群系，否则
+`level.getBiome(pos)` 对未加载位置返回占位群系，雪深恒为 0（累积雪深失效，
+退化成纯温度判定）。
+
 调用方:
-- `SnowyStatusKeeperMixin.getPerBlockDepth` — tickChunk中per-block
-- `ChunkSnowRefresh.prepare` — chunk加载 per-chunk
-- `MapCheckerMixin` / `DistantSnowService.snowColorFor` — DH per-block
-- `WeatherManagerMixin.getSnowStatusImpl` — per-block
-- `ExtraModelManagerMixin.maySnowyAt` — 客户端回退
+- `SnowyStatusKeeperMixin.getPerBlockDepth` — tickChunk中per-block（按坐标）
+- `ChunkSnowRefresh.prepare` — chunk加载 per-chunk（按坐标）
+- `WeatherManagerMixin.getSnowStatusImpl` — per-block（按坐标）
+- `ExtraModelManagerMixin.maySnowyAt` — 客户端回退（按坐标）
+- `MapCheckerMixin` — voxy 远景 per-block（**按传入群系**）
+- `DhSnowService` — DH 远景 per-数据点（**按事件传入群系**，TTL 缓存）
 
 ---
 
@@ -323,10 +390,11 @@ DH 未加载区块雪判断: MapCheckerMixin.shouldSnowAtBiome HEAD cancel
 | getSnowStatus (WeatherManagerMixin) | 主服务端线程 |
 | ClientConMixin.tick | 客户端线程 |
 | SnowModelMixin.getSnowyModel | 客户端渲染线程 |
-| MapCheckerMixin (经 ES DHTool) | DH transformer 线程 |
-| DhLevelWrapperMixin (DH getBlockColor) | DH LOD Builder 线程池 (大小=CPU核数, 异步!) |
-| TfcUnloadedTempEstimator | 并发: DH LOD Builder 池 + MapChecker 路径 (ConcurrentSkipListMap + CAS 采样) |
-| ClimateQuery.isPrecipitating(Level) 缓存 | 并发: DH workers + 区块编译线程 (volatile 不可变快照) |
+| DhSnowService (DhApiBlockColorOverrideEvent) | DH LOD 构建线程池（并发，列缓存 ConcurrentHashMap） |
+| MapCheckerMixin (经 VoxyTool) | voxy ingest/worker 线程（并发） |
+| RegionClimateCache | 并发: 请求集合 worker 写 / 客户端 tick 线程 drain 发包 (ConcurrentHashMap + newKeySet) |
+| RegionClimatePayloads 服务端生成 | 服务端主线程入队（ServerTickEvent.Post 限流），计算在 estfc-region-climate 线程池（daemon），回主线程发包 |
+| ClimateQuery.isPrecipitating(Level) 缓存 | 并发: 区块编译线程 (volatile 不可变快照) |
 | BlockPatternMatcher regex 缓存 | 并发: DH workers + 渲染线程 (ConcurrentHashMap) |
 
 ---

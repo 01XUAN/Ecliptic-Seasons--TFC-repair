@@ -34,12 +34,16 @@ public final class EstfcConfigScreen extends Screen {
     // ── 所有配置值（用于快照对比和重置） ──
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static final ModConfigSpec.ConfigValue[] ALL_VALUES = {
-        Config.ENABLE_TFC_COMPAT, Config.SNOW_APPEARANCE_TEMP,
+        Config.SNOW_APPEARANCE_TEMP,
         Config.SNOW_FULL_COVERAGE_TEMP, Config.SNOW_MELT_TEMP,
-        Config.DH_UNLOADED_TEMP_OFFSET, Config.UNLOADED_TEMP_SAMPLE_RANGE,
+        Config.SNOW_RAINFALL_NO_SNOW, Config.SNOW_RAINFALL_FULL_SNOW,
+        Config.DH_TEMP_PREFETCH_RADIUS, Config.DH_TEMP_REQUESTS_PER_TICK,
+        Config.DH_TEMP_SERVER_THREADS, Config.DH_TEMP_SERVER_SUBMIT_PER_TICK,
+        Config.VOXY_PERIODIC_REFRESH, Config.VOXY_PERIODIC_REFRESH_COMPAT_VOXY,
+        Config.VOXY_PERIODIC_REFRESH_SECONDS,
         Config.TICK_CHUNK_INTERVAL_TICKS, Config.BIOME_SYNC_INTERVAL_TICKS,
         Config.SNOW_TEXTURE_SIMPLE_MODE, Config.SNOW_TEXTURE_REPLACE_MODE,
-        Config.SNOW_TEXTURE_DEFAULT_PATH, Config.TFC_CONNECTED_TEXTURE,
+        Config.TFC_CONNECTED_TEXTURE,
         Config.SNOW_TFC_BLOCK_PREFIXES, Config.SNOW_TFC_SIMPLE_SNOW_BLOCKS,
         Config.SNOW_TFC_LEAVES_BLOCKS
     };
@@ -217,7 +221,6 @@ public final class EstfcConfigScreen extends Screen {
     private void buildTabContent(GridLayout.RowHelper rows, int tab) {
         switch (tab) {
             case 0 -> {
-                addBoolRow(rows, Config.ENABLE_TFC_COMPAT, "estfc.config.enableTFCCompat");
                 addBoolRow(rows, Config.TFC_CONNECTED_TEXTURE, "estfc.config.tfcConnectedTexture");
             }
             case 1 -> {
@@ -227,10 +230,24 @@ public final class EstfcConfigScreen extends Screen {
                         "estfc.config.snowFullCoverageTemp", "°C");
                 addDoubleRow(rows, Config.SNOW_MELT_TEMP,
                         "estfc.config.snowMeltTemp", "°C");
-                addDoubleRow(rows, Config.DH_UNLOADED_TEMP_OFFSET,
-                        "estfc.config.dhUnloadedTempOffset", "°C");
-                addIntRow(rows, Config.UNLOADED_TEMP_SAMPLE_RANGE,
-                        "estfc.config.unloadedTempSampleRange", " blocks");
+                addIntRow(rows, Config.SNOW_RAINFALL_NO_SNOW,
+                        "estfc.config.snowRainfallNoSnow", " mm");
+                addIntRow(rows, Config.SNOW_RAINFALL_FULL_SNOW,
+                        "estfc.config.snowRainfallFullSnow", " mm");
+                addIntRow(rows, Config.DH_TEMP_PREFETCH_RADIUS,
+                        "estfc.config.dhTempPrefetchRadius", " blocks");
+                addIntRow(rows, Config.DH_TEMP_REQUESTS_PER_TICK,
+                        "estfc.config.dhTempRequestsPerTick", " requests");
+                addIntRow(rows, Config.DH_TEMP_SERVER_THREADS,
+                        "estfc.config.dhTempServerThreads", " threads");
+                addIntRow(rows, Config.DH_TEMP_SERVER_SUBMIT_PER_TICK,
+                        "estfc.config.dhTempServerSubmitPerTick", " points");
+                addBoolRow(rows, Config.VOXY_PERIODIC_REFRESH,
+                        "estfc.config.voxyPeriodicRefresh");
+                addBoolRow(rows, Config.VOXY_PERIODIC_REFRESH_COMPAT_VOXY,
+                        "estfc.config.voxyPeriodicRefreshCompatVoxy");
+                addIntRow(rows, Config.VOXY_PERIODIC_REFRESH_SECONDS,
+                        "estfc.config.voxyPeriodicRefreshSeconds", " s");
             }
             case 2 -> {
                 addIntRow(rows, Config.TICK_CHUNK_INTERVAL_TICKS,
@@ -243,8 +260,6 @@ public final class EstfcConfigScreen extends Screen {
                         "estfc.config.snowTextureSimpleMode");
                 addBoolRow(rows, Config.SNOW_TEXTURE_REPLACE_MODE,
                         "estfc.config.snowTextureReplaceMode");
-                addStringRow(rows, Config.SNOW_TEXTURE_DEFAULT_PATH,
-                        "estfc.config.snowTextureDefaultPath");
             }
             case 4 -> {
                 buildListEditor(rows,
@@ -316,15 +331,6 @@ public final class EstfcConfigScreen extends Screen {
         return box;
     }
 
-    private void addStringRow(GridLayout.RowHelper rows,
-                              ModConfigSpec.ConfigValue<String> spec, String key) {
-        rows.addChild(makeLabel(key));
-        EditBox box = new EditBox(this.font, INPUT_W, ROW_H, Component.translatable(key));
-        box.setValue(spec.get());
-        box.setResponder(spec::set);
-        rows.addChild(box);
-        attachTooltip(box, key);
-    }
 
     // ── list editor (expandable, per-item rows) ──
 

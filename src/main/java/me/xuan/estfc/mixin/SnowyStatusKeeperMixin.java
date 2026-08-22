@@ -38,9 +38,7 @@ public abstract class SnowyStatusKeeperMixin {
     }
 
     /**
-     * 替换 SNOW_MELT 分支中的 getSnowDepthAtBiome (ordinal 1)。
-     * 与 SNOW 分支使用相同的真实位置深度：当 getSnowStatus 返回 MELT 时
-     * temp > meltTemp → depth=0 → 0 <= seedMod 恒成立 → 必定融雪。
+     * 替换 SNOW_MELT 分支中的 getSnowDepthAtBiome
      */
     @WrapOperation(
         method = "tickChunk",
@@ -55,11 +53,7 @@ public abstract class SnowyStatusKeeperMixin {
     }
 
     /**
-     * 基于 TFC per-block 温度 + biome 积雪历史返回有效雪深 (0-100)。
-     * 返回 -1 表示 TFC 不可用 → 回退到 ES 原生 biome 缓存深度。
-     *
-     * <p>服务端已加载区块：由 tickWeatherCycle 缓慢累积的 biomeDepth 主导，
-     * 不再混合瞬时温度贡献，确保积雪只在降雪期间逐渐增加。</p>
+     * 服务端已加载区块：由 tickWeatherCycle 缓慢累积的 biomeDepth 主导
      */
     @Unique
     private static int estfc$getPerBlockDepth(Level level, BlockPos pos) {
@@ -67,8 +61,9 @@ public abstract class SnowyStatusKeeperMixin {
             ClimateModel model = ClimateQuery.getModelIfActive(level);
             if (model == null) return -1;
             float temp = model.getInstantTemperature(level, pos);
+            float rainfall = model.getAverageRainfall(level, pos);
             int biomeDepth = ClimateQuery.getBiomeDepthAt(level, pos);
-            return SnowDepthRules.calcEffectiveDepth(temp, biomeDepth);
+            return SnowDepthRules.depthFromTemp(temp, biomeDepth, rainfall);
         } catch (Exception e) {
             return -1;
         }

@@ -20,7 +20,6 @@ public abstract class WeatherHelpersMixin {
 
     /**
      * 取消 TFC chunk tick 积雪处理。TFC 不再放置 SnowPileBlock/IcePileBlock/IcicleBlock，
-     * 转而由 ES SnowyStatusKeeper 提供纯视觉积雪。
      */
     @Inject(method = "onTickChunk", at = @At("HEAD"), cancellable = true)
     private static void estfc$cancelTfcSnowAccumulation(ServerLevel level, ChunkAccess chunk, CallbackInfo ci) {

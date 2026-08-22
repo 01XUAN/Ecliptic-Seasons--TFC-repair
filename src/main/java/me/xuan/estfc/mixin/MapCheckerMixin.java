@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 客户端 {@code shouldSnowAtBiome} — voxy/DH 未加载区块雪判断。
+ * 客户端 {@code shouldSnowAtBiome} — voxy 未加载区块雪判断。
  * 用 TFC per-position 温度替换 ES biome 缓存。
  */
 @Mixin(value = MapChecker.class, remap = false)
@@ -35,12 +35,14 @@ public abstract class MapCheckerMixin {
             ClimateModel model = Climate.get(level);
             if (!model.supportsRain()) return;
 
-            int biomeDepth = ClimateQuery.getBiomeDepthAt(level, mcPos);
-            int depth = DistantSnowService.calcSnowDepthClient(level, model, mcPos, biomeDepth);
+            // 用调用方传入的群系，不要按 mcPos 回查：远景位置的区块未加载，
+            // level.getBiome(pos) 只会返回占位群系（雪深恒 0）
+            int biomeDepth = ClimateQuery.getBiomeDepth(level, biome);
+            int depth = DistantSnowService.calcSnowDepthClient(level, mcPos, biomeDepth);
             cir.setReturnValue(SnowDepthRules.shouldSnow(depth, seed));
         } catch (Exception ignored) {
             // 不设返回值直接返回，让 ES 原生路径接管；
-            // 本方法跑在 DH transformer 线程上，异常逃逸会破坏对方流水线
+            // 本方法跑在 voxy worker 线程上，异常逃逸会破坏对方流水线
         }
     }
 }

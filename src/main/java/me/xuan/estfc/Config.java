@@ -15,33 +15,21 @@ public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     // ========================================================================
-    // 1. General — 总开关
-    // ========================================================================
-
-    public static final ModConfigSpec.BooleanValue ENABLE_TFC_COMPAT;
-
-    static {
-        BUILDER.push("General");
-        ENABLE_TFC_COMPAT = BUILDER
-            .comment(
-                "启用 TFC 兼容模式。",
-                "当启用时，节气和天气从 TFC 日历和气候系统派生。",
-                "Enable TFC compatibility mode. When enabled, solar terms and weather",
-                "are derived from TFC's calendar and climate system."
-            )
-            .define("enableTFCCompat", true);
-        BUILDER.pop();
-    }
-
-    // ========================================================================
-    // 2. Snow Temperature — 覆雪温度阈值
+    // 1. Snow Temperature — 覆雪温度阈值
     // ========================================================================
 
     public static final ModConfigSpec.DoubleValue SNOW_APPEARANCE_TEMP;
     public static final ModConfigSpec.DoubleValue SNOW_MELT_TEMP;
     public static final ModConfigSpec.DoubleValue SNOW_FULL_COVERAGE_TEMP;
-    public static final ModConfigSpec.DoubleValue DH_UNLOADED_TEMP_OFFSET;
-    public static final ModConfigSpec.IntValue UNLOADED_TEMP_SAMPLE_RANGE;
+    public static final ModConfigSpec.IntValue SNOW_RAINFALL_NO_SNOW;
+    public static final ModConfigSpec.IntValue SNOW_RAINFALL_FULL_SNOW;
+    public static final ModConfigSpec.IntValue DH_TEMP_PREFETCH_RADIUS;
+    public static final ModConfigSpec.IntValue DH_TEMP_REQUESTS_PER_TICK;
+    public static final ModConfigSpec.IntValue DH_TEMP_SERVER_THREADS;
+    public static final ModConfigSpec.IntValue DH_TEMP_SERVER_SUBMIT_PER_TICK;
+    public static final ModConfigSpec.BooleanValue VOXY_PERIODIC_REFRESH;
+    public static final ModConfigSpec.BooleanValue VOXY_PERIODIC_REFRESH_COMPAT_VOXY;
+    public static final ModConfigSpec.IntValue VOXY_PERIODIC_REFRESH_SECONDS;
 
     static {
         BUILDER.push("Snow Temperature");
@@ -52,61 +40,118 @@ public class Config {
 
         SNOW_APPEARANCE_TEMP = BUILDER
             .comment(
-                "雪开始出现的温度 (°C)。高于此温度 → 无雪 (depth=0)。",
-                "Temperature at which snow starts to appear (°C).",
-                "Above this temperature → no snow (depth=0).",
+                "雪出现温度 (°C)：高于此温度 → 无雪。",
+                "与完全覆雪温度之间的区间是过渡带：覆雪率随温度线性变化",
+                "（默认设置下 -1°C→25%，-2°C→50%，-3°C→75%）。",
+                "Snow appearance temperature (°C): above this → no snow.",
+                "Between this and the full-coverage temperature the coverage ramps",
+                "linearly (e.g. -1°C→25%, -2°C→50% with defaults).",
                 "默认/Default: 0.0"
             )
-            .defineInRange("snowAppearanceTemp", 0.0, -20.0, 30.0);
+            .defineInRange("snowAppearanceTemp", 0.0, -273.0, 500.0);
 
         SNOW_MELT_TEMP = BUILDER
             .comment(
-                "雪开始融化的温度 (°C)。高于此温度 → 融雪模式。",
-                "应与 snowAppearanceTemp 保持一致（默认均为 0°C）。",
-                "Temperature above which snow starts to melt (°C).",
-                "Should match snowAppearanceTemp (default both 0°C).",
+                "融雪温度 (°C)：高于此温度积雪消融，低于此温度且有降水则积雪。",
+                "建议与雪出现温度保持一致（默认均为 0°C）。",
+                "Snow melt temperature (°C): above this snow melts, below this +",
+                "precipitation it accumulates. Should match snowAppearanceTemp.",
                 "默认/Default: 0.0"
             )
-            .defineInRange("snowMeltTemp", 0.0, -20.0, 30.0);
+            .defineInRange("snowMeltTemp", 0.0, -273.0, 500.0);
 
         SNOW_FULL_COVERAGE_TEMP = BUILDER
             .comment(
-                    "100% 覆雪的温度 (°C)。低于此温度 → 满雪 (depth=100)。",
-                    "Temperature at which snow coverage reaches 100% (depth=100).",
-                    "Below this temperature → full snow.",
+                    "完全覆雪温度 (°C)：低于此温度 → 满雪 (100%)。",
+                    "与雪出现温度的差值决定过渡带宽度（默认 0~-4°C）。",
+                    "Full snow coverage temperature (°C): below this → 100% snow.",
+                    "The gap to snowAppearanceTemp sets the transition band width.",
                     "默认/Default: -4.0"
             )
-            .defineInRange("snowFullCoverageTemp", -4.0, -50.0, 20.0);
+            .defineInRange("snowFullCoverageTemp", -4.0, -273.0, 500.0);
 
-        DH_UNLOADED_TEMP_OFFSET = BUILDER
+        SNOW_RAINFALL_NO_SNOW = BUILDER
             .comment(
-                "DH/Voxy 远景温度微调偏移 (°C)。",
-                "主修正：TfcUnloadedTempEstimator 从已加载区块沿 Z 轴采样 avgSeaLevelTemp，",
-                "在采样范围内做线性插值/梯度外推，替换 ChunkData.EMPTY 的假 10°C 基线。",
-                "海拔修正 0.16225°C/block + 南北半球月度温度由 TFC 内部自动处理。",
-                "此偏移仅用于微调：正值=远景更暖（更少雪），负值=远景更冷（更多雪）。",
-                "Temperature fine-tuning offset for DH/Voxy distant view (°C).",
-                "Primary correction: TfcUnloadedTempEstimator samples avgSeaLevelTemp along Z",
-                "from loaded chunks within the configured range, using linear interpolation or gradient",
-                "extrapolation to replace ChunkData.EMPTY's fake 10°C baseline.",
-                "Elevation lapse rate (0.16225°C/block) and N/S hemisphere monthly variation",
-                "are handled automatically by TFC internals.",
-                "This offset is for fine-tuning: positive=warmer distant, negative=colder distant.",
-                "默认/Default: 0.0"
+                "无雪降水量阈值（mm/年，TFC 年均降水量）：低于此值 → 完全没有雪。",
+                "Rainfall below this → no snow at all (mm/year).",
+                "默认/Default: 80"
             )
-            .defineInRange("dhUnloadedTempOffset", 0.0, -30.0, 30.0);
+            .defineInRange("snowRainfallNoSnow", 80, 0, 500);
 
-        UNLOADED_TEMP_SAMPLE_RANGE = BUILDER
+        SNOW_RAINFALL_FULL_SNOW = BUILDER
             .comment(
-                "TfcUnloadedTempEstimator 沿 Z 轴采样已加载区块温度的半径（格）。",
-                "越大=远景温度越精确，越大=首次遍历越多但性能影响可忽略",
-                "（已缓存位置直接跳过，实际查询数受已加载区块数量限制）。",
-                "Sampling radius of TfcUnloadedTempEstimator along Z axis (blocks).",
-                "Larger = more accurate distant temperature, negligible performance impact",
-                "(cached positions are skipped, actual queries bounded by loaded chunks).",
-                "默认/Default: 10240"
+                "满雪降水量阈值（mm/年）：高于此值 → 覆雪率不受降水影响。",
+                "两阈值之间覆雪率线性过渡（如 115mm → 50%）。",
+                "Rainfall above this → snow not reduced by rainfall; between the two",
+                "thresholds coverage ramps linearly (e.g. 115mm → 50%).",
+                "默认/Default: 150"
             )
-            .defineInRange("unloadedTempSampleRange", 10240, 1024, 100000);
+            .defineInRange("snowRainfallFullSnow", 150, 0, 500);
+
+        // [DH/voxy] 区域气候点（温度+表面高度）同步同时服务 DH 与 voxy 两条远景路径
+        DH_TEMP_PREFETCH_RADIUS = BUILDER
+            .comment(
+                "[DH/voxy] 区域气候点（128 格网格）预取半径（格）。服务端按 128 格网格点",
+                "确定性生成 avgSeaLevelTemp 与表面高度（纯种子函数、时不变）并同步客户端；",
+                "此半径决定玩家周围预取的网格范围。远景覆雪温度 = avgSeaLevelTemp + 月温",
+                "± 区域海拔。",
+                "[DH/voxy] Prefetch radius of region climate points (128-block grid, blocks).",
+                "Region points are generated server-side deterministically from the world seed",
+                "and synced to the client; this radius bounds the prefetch area around the player.",
+                "默认/Default: 1024"
+            )
+            .defineInRange("dhTempPrefetchRadius", 1024, 128, 16384);
+
+        DH_TEMP_REQUESTS_PER_TICK = BUILDER
+            .comment(
+                "[DH/voxy] 客户端每 tick 发送的区域点请求上限。",
+                "[DH/voxy] Max region-point requests sent per tick (client).",
+                "默认/Default: 512"
+            )
+            .defineInRange("dhTempRequestsPerTick", 512, 1, 2048);
+
+        DH_TEMP_SERVER_THREADS = BUILDER
+            .comment(
+                "[DH/voxy] 服务端区域气候点计算线程数（异步）。",
+                "[DH/voxy] Server worker threads for region climate point computation (async).",
+                "默认/Default: 4"
+            )
+            .defineInRange("dhTempServerThreads", 4, 1, 32);
+
+        DH_TEMP_SERVER_SUBMIT_PER_TICK = BUILDER
+            .comment(
+                "[DH/voxy] 每 tick 提交给服务端计算线程池的区域点上限。",
+                "[DH/voxy] Per-tick submit budget to the server computation pool.",
+                "默认/Default: 64"
+            )
+            .defineInRange("dhTempServerSubmitPerTick", 64, 1, 512);
+
+        VOXY_PERIODIC_REFRESH = BUILDER
+            .comment(
+                "[voxy] 定时刷新 voxy 远景覆雪（默认开启）。voxy 的 LOD 雪在 ingest 时固化，",
+                "不刷新就不随温度/季节更新；开启后按固定间隔调 voxy 内置刷新入口",
+                "（SeasonalSnowRefresher，异步低优先级，运行中自动跳过）。",
+                "适用于内置 ES 兼容的 voxy 版本（voxy-NHblock714 分支）。",
+                "默认/Default: true"
+            )
+            .define("voxyPeriodicRefresh", true);
+
+        VOXY_PERIODIC_REFRESH_COMPAT_VOXY = BUILDER
+            .comment(
+                "[voxy] 定时刷新 voxy 远景覆雪（兼容模组版）。",
+                "适用于 Ecliptic-Seasons-Voxy-Compact 兼容模组驱动的 voxy。",
+                "[voxy] Periodic refresh for the ES-voxy-compact compat-mod version (default off).",
+                "默认/Default: false"
+            )
+            .define("voxyPeriodicRefreshCompatVoxy", false);
+
+        VOXY_PERIODIC_REFRESH_SECONDS = BUILDER
+            .comment(
+                "[voxy] 定时刷新间隔（秒）。",
+                "[voxy] Periodic refresh interval (seconds).",
+                "默认/Default: 15"
+            )
+            .defineInRange("voxyPeriodicRefreshSeconds", 15, 5, 600);
 
         BUILDER.pop();
     }
@@ -127,9 +172,9 @@ public class Config {
                 "tickChunk + biomeDepth 处理间隔（tick）。同时控制积雪/融雪速度和性能。",
                 "每 N tick：tickChunk处理 + biomeDepth ±1（100步=100×N tick）。",
                 "Interval for both tickChunk and depth step. Controls speed and performance.",
-                "默认/Default: 20"
+                "默认/Default: 10"
             )
-            .defineInRange("tickChunkIntervalTicks", 20, 1, 200);
+            .defineInRange("tickChunkIntervalTicks", 10, 1, 200);
 
         BIOME_SYNC_INTERVAL_TICKS = BUILDER
             .comment(
@@ -148,7 +193,6 @@ public class Config {
 
     public static final ModConfigSpec.BooleanValue SNOW_TEXTURE_SIMPLE_MODE;
     public static final ModConfigSpec.BooleanValue SNOW_TEXTURE_REPLACE_MODE;
-    public static final ModConfigSpec.ConfigValue<String> SNOW_TEXTURE_DEFAULT_PATH;
 
     static {
         BUILDER.push("Snow Texture");
@@ -174,14 +218,6 @@ public class Config {
                 "默认/Default: true"
             )
             .define("snowTextureReplaceMode", true);
-
-        SNOW_TEXTURE_DEFAULT_PATH = BUILDER
-            .comment(
-                "默认覆雪贴图路径（ResourceLocation 格式，不需要命名空间前缀）。",
-                "Default snow texture path (ResourceLocation format, no namespace prefix).",
-                "默认/Default: block/snow"
-            )
-            .define("snowTextureDefaultPath", "block/snow");
 
         BUILDER.pop();
     }
@@ -320,22 +356,32 @@ public class Config {
     private static float cachedSnowFullCoverageTemp = -4.0f;
     /** 雪融化的温度 (°C) */
     private static float cachedSnowMeltTemp = 0.0f;
-    /** 远景温度偏移 */
-    private static float cachedDhUnloadedTempOffset = 0.0f;
-    /** 未加载区块温度采样半径 */
-    private static int cachedUnloadedTempSampleRange = 10240;
-    /** TFC 兼容开关 */
-    private static boolean cachedEnableTfcCompat = true;
-    /** tickChunk + biomeDepth 间隔（tick），默认 20 */
-    private static int cachedTickChunkIntervalTicks = 20;
+    /** 无雪降水量阈值 (mm/年) */
+    private static int cachedSnowRainfallNoSnow = 80;
+    /** 满雪降水量阈值 (mm/年) */
+    private static int cachedSnowRainfallFullSnow = 150;
+    /** 区域温度预取半径（格） */
+    private static int cachedDhTempPrefetchRadius = 1024;
+    /** 每 tick 区域点请求上限 */
+    private static int cachedDhTempRequestsPerTick = 512;
+    /** 服务端计算线程数 */
+    private static int cachedDhTempServerThreads = 4;
+    /** 每 tick 提交给服务端线程池的上限 */
+    private static int cachedDhTempServerSubmitPerTick = 64;
+    /** voxy 定时刷新开关（内置兼容版） */
+    private static boolean cachedVoxyPeriodicRefresh = true;
+    /** voxy 定时刷新开关（兼容模组版） */
+    private static boolean cachedVoxyPeriodicRefreshCompatVoxy = false;
+    /** voxy 定时刷新间隔（秒） */
+    private static int cachedVoxyPeriodicRefreshSeconds = 15;
+    /** tickChunk + biomeDepth 间隔（tick） */
+    private static int cachedTickChunkIntervalTicks = 10;
     /** Biome 雪深同步间隔（tick） */
     private static int cachedBiomeSyncIntervalTicks = 100;
     /** 全局简单雪模式 */
     private static boolean cachedSnowTextureSimpleMode = false;
     /** 替换渲染模式 */
     private static boolean cachedSnowTextureReplaceMode = true;
-    /** 默认覆雪贴图路径 */
-    private static String cachedSnowTextureDefaultPath = "block/snow";
     /** TFC 方块覆雪路径前缀缓存 */
     private static Set<String> cachedTfcBlockPrefixes = Collections.emptySet();
     /** TFC 方块简单雪列表缓存（完整 ID 或路径前缀） */
@@ -349,17 +395,22 @@ public class Config {
     // Getters — 供其他类使用（返回缓存值，避免每帧查询 ModConfigSpec）
     // ========================================================================
 
-    public static boolean enableTFCCompat() { return cachedEnableTfcCompat; }
     public static float snowAppearanceTemp() { return cachedSnowAppearanceTemp; }
     public static float snowFullCoverageTemp() { return cachedSnowFullCoverageTemp; }
     public static float snowMeltTemp() { return cachedSnowMeltTemp; }
-    public static float dhUnloadedTempOffset() { return cachedDhUnloadedTempOffset; }
-    public static int unloadedTempSampleRange() { return cachedUnloadedTempSampleRange; }
+    public static int snowRainfallNoSnow() { return cachedSnowRainfallNoSnow; }
+    public static int snowRainfallFullSnow() { return cachedSnowRainfallFullSnow; }
+    public static int dhTempPrefetchRadius() { return cachedDhTempPrefetchRadius; }
+    public static int dhTempRequestsPerTick() { return cachedDhTempRequestsPerTick; }
+    public static int dhTempServerThreads() { return cachedDhTempServerThreads; }
+    public static int dhTempServerSubmitPerTick() { return cachedDhTempServerSubmitPerTick; }
+    public static boolean voxyPeriodicRefresh() { return cachedVoxyPeriodicRefresh; }
+    public static boolean voxyPeriodicRefreshCompatVoxy() { return cachedVoxyPeriodicRefreshCompatVoxy; }
+    public static int voxyPeriodicRefreshSeconds() { return cachedVoxyPeriodicRefreshSeconds; }
     public static int tickChunkIntervalTicks() { return cachedTickChunkIntervalTicks; }
     public static int biomeSyncIntervalTicks() { return cachedBiomeSyncIntervalTicks; }
     public static boolean snowTextureSimpleMode() { return cachedSnowTextureSimpleMode; }
     public static boolean snowTextureReplaceMode() { return cachedSnowTextureReplaceMode; }
-    public static String snowTextureDefaultPath() { return cachedSnowTextureDefaultPath; }
     public static Set<String> tfcBlockPrefixes() { return cachedTfcBlockPrefixes; }
     public static Set<String> tfcSimpleSnowBlocks() { return cachedTfcSimpleSnowBlocks; }
     public static boolean tfcConnectedTexture() { return cachedTfcConnectedTexture; }
@@ -373,17 +424,22 @@ public class Config {
         if (event instanceof ModConfigEvent.Unloading) return;
         if (event.getConfig().getSpec() != SPEC) return;
 
-        cachedEnableTfcCompat = ENABLE_TFC_COMPAT.getAsBoolean();
         cachedSnowAppearanceTemp = SNOW_APPEARANCE_TEMP.get().floatValue();
         cachedSnowFullCoverageTemp = SNOW_FULL_COVERAGE_TEMP.get().floatValue();
         cachedSnowMeltTemp = SNOW_MELT_TEMP.get().floatValue();
-        cachedDhUnloadedTempOffset = DH_UNLOADED_TEMP_OFFSET.get().floatValue();
-        cachedUnloadedTempSampleRange = UNLOADED_TEMP_SAMPLE_RANGE.get();
+        cachedSnowRainfallNoSnow = SNOW_RAINFALL_NO_SNOW.get();
+        cachedSnowRainfallFullSnow = SNOW_RAINFALL_FULL_SNOW.get();
+        cachedDhTempPrefetchRadius = DH_TEMP_PREFETCH_RADIUS.get();
+        cachedDhTempRequestsPerTick = DH_TEMP_REQUESTS_PER_TICK.get();
+        cachedDhTempServerThreads = DH_TEMP_SERVER_THREADS.get();
+        cachedDhTempServerSubmitPerTick = DH_TEMP_SERVER_SUBMIT_PER_TICK.get();
+        cachedVoxyPeriodicRefresh = VOXY_PERIODIC_REFRESH.get();
+        cachedVoxyPeriodicRefreshCompatVoxy = VOXY_PERIODIC_REFRESH_COMPAT_VOXY.get();
+        cachedVoxyPeriodicRefreshSeconds = VOXY_PERIODIC_REFRESH_SECONDS.get();
         cachedTickChunkIntervalTicks = TICK_CHUNK_INTERVAL_TICKS.get();
         cachedBiomeSyncIntervalTicks = BIOME_SYNC_INTERVAL_TICKS.get();
         cachedSnowTextureSimpleMode = SNOW_TEXTURE_SIMPLE_MODE.get();
         cachedSnowTextureReplaceMode = SNOW_TEXTURE_REPLACE_MODE.get();
-        cachedSnowTextureDefaultPath = SNOW_TEXTURE_DEFAULT_PATH.get();
         cachedTfcBlockPrefixes = new LinkedHashSet<>(SNOW_TFC_BLOCK_PREFIXES.get());
         cachedTfcSimpleSnowBlocks = new LinkedHashSet<>(SNOW_TFC_SIMPLE_SNOW_BLOCKS.get());
         cachedTfcConnectedTexture = TFC_CONNECTED_TEXTURE.get();

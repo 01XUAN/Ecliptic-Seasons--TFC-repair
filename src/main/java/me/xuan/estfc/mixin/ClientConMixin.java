@@ -2,6 +2,8 @@ package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.client.util.ClientCon;
 import com.teamtea.eclipticseasons.common.core.map.MapChecker;
+import me.xuan.estfc.client.RegionClimateCache;
+import me.xuan.estfc.client.VoxyRefreshService;
 import me.xuan.estfc.weather.HemisphereSeasons;
 import net.dries007.tfc.client.overworld.SolarCalculator;
 import net.dries007.tfc.util.climate.Climate;
@@ -20,8 +22,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ClientConMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private static void estfc$flipSeasonForSouthernHemisphere(Level clientLevel, CallbackInfo ci) {
+    private static void estfc$tickClient(Level clientLevel, CallbackInfo ci) {
         if (!MapChecker.isValidDimension(clientLevel)) return;
+
+        RegionClimateCache.tick(clientLevel);
+        VoxyRefreshService.tick(clientLevel);
 
         ClimateModel model = Climate.get(clientLevel);
         if (!model.supportsRain()) return;

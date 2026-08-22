@@ -9,6 +9,7 @@ import net.dries007.tfc.util.tracker.WorldTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 
 import javax.annotation.Nullable;
 
@@ -28,9 +29,8 @@ public final class ClimateQuery {
         return model;
     }
 
-    // ==================== 降水检测 ====================
+    // 降水检测
 
-    /** 不可变载体 + 单 volatile 字段：两个值不可能被观察到撕裂 */
     private record PrecipSnapshot(long calendarTick, boolean precipitating) {}
     private static volatile PrecipSnapshot precipCache = new PrecipSnapshot(Long.MIN_VALUE, false);
 
@@ -57,13 +57,25 @@ public final class ClimateQuery {
         return WeatherHelpers.isPrecipitating(rainIntensity, rainfall);
     }
 
-    // ==================== 群系累积雪深 ====================
+    // 群系累积雪深
 
-    /** ES 原生 O(1) 查询（bindId 直取），与 ES 自己的 getSnowDepthAtBiome 同源。 */
     public static int getBiomeDepthAt(Level level, BlockPos pos) {
         try {
-            WeatherManager.BiomeWeather bw =
-                WeatherManager.getBiomeWeather(level, level.getBiome(pos));
+            return getBiomeDepth(level, level.getBiome(pos).value());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /**
+     * 已知群系时的雪深查询。
+     *
+     * <p>远景路径必须走这个重载：{@code level.getBiome(pos)} 对未加载区块返回占位群系，
+     * 雪深恒为 0；voxy 从自己的 LOD 数据里解析出的群系才是该位置的真实群系。</p>
+     */
+    public static int getBiomeDepth(Level level, Biome biome) {
+        try {
+            WeatherManager.BiomeWeather bw = WeatherManager.getBiomeWeather(level, biome);
             return bw == null ? 0 : bw.getSnowDepth() & 0xFF;
         } catch (Exception e) {
             return 0;

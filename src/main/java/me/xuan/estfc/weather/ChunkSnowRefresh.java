@@ -25,20 +25,22 @@ public final class ChunkSnowRefresh {
     public static final float TFC_LAPSE = 0.16225f;
 
     /** 一个区块刷新过程中不变的共享量。 */
-    public record ChunkContext(float baseTemp, int centerSurface, int biomeSnowDepth) {}
+    public record ChunkContext(float baseTemp, int centerSurface, int biomeSnowDepth, float rainfall) {}
 
     public static ChunkContext prepare(ServerLevel level, ChunkAccess chunk, ClimateModel model) {
         // 查找该 chunk 对应 biome 的累积雪深
         int biomeSnowDepth = ClimateQuery.getBiomeDepthAt(level,
             new BlockPos(chunk.getPos().getMiddleBlockX(), 64, chunk.getPos().getMiddleBlockZ()));
 
-        // 取 chunk 中心地表温度作为基准（保证在已加载chunk内，避免ChunkData.EMPTY假10°C）
+        // 取 chunk 中心地表温度/降水量作为基准（保证在已加载chunk内，避免ChunkData.EMPTY假10°C）
         int midX = chunk.getPos().getMiddleBlockX();
         int midZ = chunk.getPos().getMiddleBlockZ();
         int centerSurface = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, midX, midZ);
-        float baseTemp = model.getInstantTemperature(level, new BlockPos(midX, centerSurface, midZ));
+        BlockPos centerPos = new BlockPos(midX, centerSurface, midZ);
+        float baseTemp = model.getInstantTemperature(level, centerPos);
+        float rainfall = model.getAverageRainfall(level, centerPos);
 
-        return new ChunkContext(baseTemp, centerSurface, biomeSnowDepth);
+        return new ChunkContext(baseTemp, centerSurface, biomeSnowDepth, rainfall);
     }
 
     /** O(1) 列温度 = chunk 中心地表温度 - 海拔差 × 递减率 */
@@ -55,9 +57,8 @@ public final class ChunkSnowRefresh {
     /**
      * 区块加载：按有效雪深决定加雪/除雪。
      *
-     * @param colSnowDepth 有效雪深（调用方用 {@code calcEffectiveDepth(colTemp, biomeSnowDepth)}
-     *                     计算，含温度地板 + 累积深度）。温度地板保证干冷（biomeDepth=0）地区
-     *                     也有覆雪；零上则不应有雪。
+     * @param colSnowDepth 有效雪深（调用方用 {@code depthFromTemp} 计算，含温度地板 +
+     *                     累积深度 + 降水 gate）。
      */
     public static void applyOnLoad(SnowyStatusKeeper keeper, BlockPos checkPos, BlockState state,
                                    float colTemp, int colSnowDepth, boolean hasSnow) {

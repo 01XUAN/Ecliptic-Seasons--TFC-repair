@@ -24,8 +24,6 @@ public final class WeatherCycleService {
 
     /**
      * 各维度的群系步进时间戳。按维度分键（不同维度各有一张群系表，索引不通用），
-     * 数组按实际群系表长度扩容——群系注册表可远超 256（TFC 单独就注册 127 个）。
-     * ConcurrentHashMap 是保险起见，该路径只在服务端主线程。
      */
     private static final Map<ResourceKey<Level>, long[]> LAST_STEP_TICK = new ConcurrentHashMap<>();
 

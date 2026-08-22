@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = WeatherManager.class, remap = false)
 public abstract class WeatherManagerMixin {
 
-    // ==================== 禁用 ES 自主天气循环 ====================
+    // 禁用 ES 自主天气循环
 
     /**
      * 直接取消 {@code agentAdvanceWeatherCycle}。
@@ -37,7 +37,7 @@ public abstract class WeatherManagerMixin {
         cir.setReturnValue(true);
     }
 
-    // ==================== 群系降水过滤器 ====================
+    // 群系降水过滤
 
     /**
      * 所有群系都可能通过 TFC 有降水，不让 ES 过滤掉。
@@ -47,7 +47,7 @@ public abstract class WeatherManagerMixin {
         cir.setReturnValue(false);
     }
 
-    // ==================== 雨/雪判断 ====================
+    // 雨/雪判断
 
     /**
      * 直接委托给 TFC 的降水判断。
@@ -62,14 +62,10 @@ public abstract class WeatherManagerMixin {
         } catch (Exception e) {}
     }
 
-    // ==================== 雪状态 — 4参数版（关键修复！） ====================
+    // 雪状态
 
     /**
-     * 4 参数版 — {@link com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper#tickChunk}
-     * 直接调用此版本，之前的 mixin 遗漏了这个重载，导致 per-block 雪判断走 ES 原生逻辑。
-     *
-     * <p>使用完整描述符精确指定目标，因为 ES 有同名 3 参数重载。
-     * 3 参数版是 @Deprecated 委托方法，内部调用此版本，所以拦截 4 参数版即可覆盖所有路径。</p>
+     * {@link com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper#tickChunk}
      */
     @Inject(
         method = "getSnowStatus(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/Holder;Lnet/minecraft/core/BlockPos;Z)Lcom/teamtea/eclipticseasons/common/core/biome/WeatherManager$SnowRenderStatus;",
@@ -82,11 +78,10 @@ public abstract class WeatherManagerMixin {
         estfc$getSnowStatusImpl(level, pos, cir);
     }
 
-    // ==================== 降水类型（修复：加入TFC降水判断） ====================
+    // 降水类型
 
     /**
-     * 之前的实现只看温度（depth > 0 → SNOW），无论是否真的在下雪。
-     * 修复：先检查 TFC 是否正在降水，不再降水时返回 NONE。
+     * 先检查 TFC 是否正在降水，不再降水时返回 NONE。
      */
     @Inject(method = "getPrecipitationAt", at = @At("HEAD"), cancellable = true)
     private static void estfc$getPrecipitationAt(
@@ -115,11 +110,8 @@ public abstract class WeatherManagerMixin {
         } catch (Exception e) {}
     }
 
-    // ==================== 共享实现 ====================
+    // 共享实现
 
-    /**
-     * getSnowStatus 的统一实现。所有重载版本都走这里。
-     */
     @Unique
     private static void estfc$getSnowStatusImpl(
         ServerLevel level, BlockPos pos,

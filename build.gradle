@@ -97,7 +97,9 @@ dependencies {
     implementation "maven.modrinth:ofdM7yJE:3aXVbSSm"
 
     // Distant Horizons (Modrinth project ID: uCdwusMi, version: ZpKb4kZp)
+    // 仅客户端 DhSnowService 用其公共 API 事件（级别感知海拔需要 dataDetailLevel）
     implementation "maven.modrinth:uCdwusMi:ZpKb4kZp"
+
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
