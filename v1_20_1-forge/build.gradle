@@ -1,0 +1,219 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+        maven { url = 'https://maven.parchmentmc.org' }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.33+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7+'
+        classpath group: 'org.parchmentmc', name: 'librarian', version: '1.+'
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'idea'
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
+
+version = "${mod_version}"
+group = "${mod_group_id}"
+
+base {
+    archivesName = "${mod_id}-1.20.1-forge"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+// 过滤后的生成数据输出目录（任务定义见文件末尾）
+def filteredGeneratedDir = layout.buildDirectory.dir('filtered-generated/resources')
+
+minecraft {
+    mappings channel: 'parchment', version: "${parchment_mappings_version}-${parchment_minecraft_version}"
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    copyIdeResources = true
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', mod_id
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods { "${mod_id}" { source sourceSets.main } }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', mod_id
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            args '--nogui'
+            mods { "${mod_id}" { source sourceSets.main } }
+        }
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            args '--mod', mod_id, '--all',
+                 '--output', file('../shared/generated/resources/').getAbsolutePath(),
+                 '--existing', file('src/main/resources/').getAbsolutePath(),
+                 '--existing', file('../shared/resources/').getAbsolutePath()
+            mods { "${mod_id}" { source sourceSets.main } }
+        }
+    }
+}
+
+// 跨 MC 版本不变的共享资源：贴图、lang、数据包标签、ES 模型定义
+// 生成数据走过滤后的副本（见下方 filterEstfcGeneratedData），不直接用 shared/generated
+sourceSets.main.resources {
+    srcDir '../shared/resources'
+    srcDir filteredGeneratedDir
+}
+
+tasks.named('processResources', ProcessResources) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    def replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            forge_version          : forge_version,
+            forge_version_range    : forge_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+    // TFE（可选模组）相关注入。required:false —— TFE 未安装时只是警告，不崩。
+    config "${mod_id}.tfe.mixins.json"
+    debug.export = true
+}
+
+repositories {
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content { includeGroup "maven.modrinth" }
+    }
+}
+
+configurations {
+    // 只用来读 TFC 的 blockstates（判断方块是否存在），不做 deobf
+    tfcBaseline
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        jarJar.ranged(it, "[0.4.1,)")
+    }
+
+    // TFC 1.20.1 3.2.25
+    implementation fg.deobf("maven.modrinth:JaCEZUhg:${tfc_version_id}")
+    tfcBaseline "maven.modrinth:JaCEZUhg:${tfc_version_id}"
+    // Ecliptic Seasons 1.20.1 0.15.0-rc-3
+    implementation fg.deobf("maven.modrinth:ofdM7yJE:${es_version_id}")
+    // Distant Horizons 1.20.1 3.2.0-b（仅客户端 DhSnowService 用其公共 API）
+    compileOnly fg.deobf("maven.modrinth:uCdwusMi:${dh_version_id}")
+
+    // TerraFirmaEarth（TFE，可选）：只为了给 mixin 提供目标类，运行期由 TFE 自己提供。
+    // TFE 不在 Modrinth/CurseForge maven 上，只能用本地 jar（libs/ 已 gitignore）。
+    compileOnly files('libs/Wildfire_TerraFirmaEarth-1.20.1-forge-2.1.0.jar')
+}
+
+// === 过滤共享的生成数据 ===
+// shared/generated 是按 TFC 1.21 的方块集生成的。1.20.1 上引用不存在的方块
+// （tuff 岩石、6 个新作物）会让 ES 的 snow_definitions 注册表加载失败，
+// 点「单人游戏」时 RegistryDataLoader 直接抛异常崩溃。
+// 这里按构建期 TFC jar 的 blockstates 过滤掉这些条目，输出到本工程 build/ 下。
+
+tasks.register('filterEstfcGeneratedData') {
+    group = 'estfc'
+    description = 'Drop shared snow_definitions referencing blocks absent from this version of TFC'
+
+    def srcDir = file('../shared/generated/resources')
+    def tfcJarProvider = configurations.tfcBaseline
+    inputs.dir(srcDir)
+    inputs.files(tfcJarProvider)
+    outputs.dir(filteredGeneratedDir)
+    outputs.upToDateWhen { false } // 依赖是 Modrinth 坐标，不做增量判断，直接重算
+
+    doLast {
+        def out = filteredGeneratedDir.get().asFile
+        out.deleteDir()
+        out.mkdirs()
+
+        def blocks = [] as Set
+        new java.util.zip.ZipFile(tfcJarProvider.singleFile).withCloseable { zip ->
+            def en = zip.entries()
+            while (en.hasMoreElements()) {
+                def n = en.nextElement().name
+                if (n.startsWith('assets/tfc/blockstates/') && n.endsWith('.json')) {
+                    blocks << n.substring('assets/tfc/blockstates/'.length(), n.length() - 5)
+                }
+            }
+        }
+
+        def dropped = []
+        srcDir.eachFileRecurse { f ->
+            if (!f.isFile()) return
+            def rel = srcDir.toPath().relativize(f.toPath()).toString().replace('\\', '/')
+            if (rel.startsWith('data/estfc/eclipticseasons/snow_definitions/') && f.name.endsWith('.json')) {
+                def m = (f.getText('UTF-8') =~ /"tfc:([^"]+)"/)
+                if (m.find() && !blocks.contains(m.group(1))) {
+                    dropped << rel
+                    return
+                }
+            }
+            def dest = new File(out, rel)
+            dest.parentFile.mkdirs()
+            dest.bytes = f.bytes
+        }
+        println "filterEstfcGeneratedData: TFC blocks=${blocks.size()}, dropped=${dropped.size()}"
+        dropped.each { println "  dropped ${it}" }
+    }
+}
+
+processResources.dependsOn filterEstfcGeneratedData
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_group_id,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : mod_group_id,
+        ])
+    }
+    finalizedBy 'reobfJar'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module { downloadSources = true; downloadJavadoc = true }
+}

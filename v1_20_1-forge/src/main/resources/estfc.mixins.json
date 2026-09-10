@@ -1,0 +1,28 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "me.xuan.estfc.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "SolarDataManagerMixin",
+        "WeatherManagerMixin",
+        "EnvironmentHelpersMixin",
+        "IceAndSnowFeatureMixin",
+        "EclipticUtilMixin",
+        "SnowyMapCheckerMixin",
+        "MapCheckerMixin",
+        "SnowyStatusKeeperMixin",
+        "ConnectedGrassBlockMixin",
+        "SnowCheckerMixin"
+    ],
+    "client": [
+        "SnowyStatusHandlerDebugMixin",
+        "FindModelDebugMixin",
+        "ClientConMixin",
+        "SnowModelMixin",
+        "ExtraModelManagerMixin",
+        "OverworldClimateModelMixin"
+    ],
+    "server": [],
+    "refmap": "estfc.refmap.json"
+}

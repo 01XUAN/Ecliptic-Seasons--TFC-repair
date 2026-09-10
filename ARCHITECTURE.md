@@ -4,6 +4,41 @@
 
 ---
 
+## 0. 仓库布局
+
+```
+shared/resources/        手写资源（贴图、lang、数据包标签、ES 模型定义）——两版共用
+shared/generated/        生成资源（snow_definitions / model_definitions / snowy_empty.json）——两版共用
+shared/png_snowy*/       贴图源文件
+v1_21_1-neoforge/        NeoForge 1.21.1 构建（Java 21，ModDevGradle，Gradle 9.x）
+v1_20_1-forge/           Forge 1.20.1 构建（Java 17，ForgeGradle 6，自带 Gradle 8.8 wrapper）
+```
+
+每个版本是**独立的 Gradle 构建**（ForgeGradle 6 与 ModDevGradle 不能同构建共存），根目录只放 wrapper 与文档。
+
+构建：`./gradlew -p v1_21_1-neoforge build`；1.20.1 必须 `cd v1_20_1-forge && ./gradlew build`（根 wrapper 是 Gradle 9.2.1，ForgeGradle 6 不支持）。
+
+下面 §1 起描述的是**两版共用的设计**；各版本的 API 差异集中在三处：TFC 气候/天气读取（`ClimateQuery`）、loader 粘接（配置/网络/配置界面）、DH 适配。
+
+### 1.20.1 侧的已知差异
+
+| 处 | 1.21.1 | 1.20.1 |
+|---|---|---|
+| 气候模型 | `Climate.get(level)` + `supportsRain()` | `Climate.model(level)` + `instanceof OverworldClimateModel`（收敛在 `ClimateQuery.getModelIfActive`） |
+| 瞬时温度 / 降水 | `model.getInstantTemperature` / `getInstantRainfall` | `Climate.getTemperature` / `Climate.getRainfall`（见 `ClimateQuery`） |
+| 是否降水 | `WeatherHelpers.isPrecipitating(intensity, rainfall)` | `WorldTracker.isRaining(level, pos)` |
+| 半球 | `SolarCalculator.getInNorthernHemisphere(z, model.hemisphereScale())` | TFC 1.20.1 无此概念 → `HemisphereSeasons.isNorthernHemisphere(z, Config.hemisphereScale)`（公式照搬 1.21） |
+| 阻止物理雪 | 取消 `WeatherHelpers.onTickChunk` | 取消 `EnvironmentHelpers.tickChunk`（`EnvironmentHelpersMixin`） |
+| 天气循环驱动 | 注入 `WeatherHelpers.advanceWeatherCycle` RETURN | 监听 `TickEvent.LevelTickEvent` END（入口注册） |
+| 区域气候点生成 | `chunkDataGenerator().generate(data)` | `chunkDataProvider().createAndGeneratePartial(pos)` |
+| `ChunkData` 字段 | `getAverageSeaLevelTemp` / `getAverageRainfall` | `getAverageTemp` / `getRainfall` |
+| 网络 | NeoForge payload（`RegisterPayloadHandlersEvent`） | Forge `SimpleChannel`（`RegionClimatePayloads.CHANNEL`） |
+| 配置界面 | 自定义 `EstfcConfigScreen` | **用 Forge 自带界面**（1.20.1 缺 `AbstractContainerWidget`，自定义滚动布局未移植） |
+| 方块 ID 查询 | `state.getBlockHolder().getKey()` | `BuiltInRegistries.BLOCK.getKey(state.getBlock())` |
+| 命名空间 | `tfc` | `tfc` + `tfe`（TerraFirmaEarth 向下移植模组，见 `Config.blockNamespaces`） |
+
+---
+
 ## 1. 包结构
 
 ```
@@ -43,7 +78,6 @@ me.xuan.estfc/
 │   ├── DistantSnowService.java     — voxy 远景覆雪 (calcSnowDepthClient=温度 vs 群系累积深度取大)
 │   ├── DistantTemperature.java     — 远景温度（avgSeaLevelTemp+月温±海拔，无日温；月温/海拔复用 TFC @Invoker）
 │   ├── RegionClimateCache.java     — 区域气候点（温度+高度）客户端缓存/请求/双线性/预取/自检
-│   ├── VoxyRefreshService.java     — voxy 远景覆雪定时刷新（反射调 SeasonalSnowRefresher/VoxyTool.tryUpdate）
 │   ├── SnowTextureSwapModel.java   — 覆雪BakedModel (tfc:→estfc:贴图替换, IESReplaceModel)
 │   ├── BakedQuadTextureOnly.java  — 保留UV的贴图替换
 │   └── gui/
@@ -235,9 +269,6 @@ DH 区域表面高度（128 格平滑场）。
 | `dhTempRequestsPerTick` | 512 | [1, 2048] | [DH/voxy] 客户端每tick区域点请求上限 |
 | `dhTempServerThreads` | 4 | [1, 32] | [DH/voxy] 服务端计算线程数(min(本值,核数)) |
 | `dhTempServerSubmitPerTick` | 64 | [1, 512] | [DH/voxy] 每tick提交给服务端线程池的上限 |
-| `voxyPeriodicRefresh` | true | - | [voxy] 定时刷新远景覆雪(内置兼容版, 默认开) |
-| `voxyPeriodicRefreshCompatVoxy` | false | - | [voxy] 定时刷新(兼容模组版, 默认关) |
-| `voxyPeriodicRefreshSeconds` | 15 | [5, 600] | [voxy] 定时刷新间隔(秒) |
 
 ### 4.2 速度控制
 

@@ -1,0 +1,12 @@
+{
+    "required": false,
+    "minVersion": "0.8",
+    "package": "me.xuan.estfc.mixin.tfe",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "NTEWeatherHelpersMixin"
+    ],
+    "client": [],
+    "server": [],
+    "refmap": "estfc.refmap.json"
+}

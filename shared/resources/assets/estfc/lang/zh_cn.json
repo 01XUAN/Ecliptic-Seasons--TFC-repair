@@ -1,0 +1,76 @@
+{
+    "estfc.config.title": "Ecliptic Seasons TFC Compat 配置",
+    "estfc.config.back": "返回",
+    "estfc.config.done": "完成",
+    "estfc.config.reset": "重置",
+    "estfc.config.listAdd": "+ 添加",
+    "estfc.config.save": "保存修改",
+    "estfc.config.discard": "放弃修改",
+
+    "estfc.config.resetConfirm": "确认重置？",
+    "estfc.config.resetConfirm.message": "所有配置将恢复默认值。",
+    "estfc.config.discardConfirm": "放弃修改？",
+    "estfc.config.discardConfirm.message": "未保存的修改将丢失。",
+
+    "estfc.config.tfcLeavesSnowBlocks": "树叶覆雪方块",
+    "estfc.config.tfcLeavesSnowBlocks.tooltip": "使用树叶覆雪效果（双层雪：顶部积雪 + 内部雪斑）的方块。\n支持路径前缀、完整 ID、正则三种格式。\n修改后按 F3+T 重载资源生效。\n默认: regex:plant/.*_leaves（TFC 果树树叶）",
+
+    "estfc.config.section.general": "通用",
+    "estfc.config.section.snowTemperature": "覆雪温度",
+    "estfc.config.section.climateCalculation": "气候计算",
+    "estfc.config.section.snowTexture": "覆雪贴图",
+    "estfc.config.section.tfcBlockSnowPrefixes": "TFC 方块覆雪前缀",
+
+
+    "estfc.config.tfcConnectedTexture": "TFC 连接纹理",
+    "estfc.config.tfcConnectedTexture.tooltip": "启用 TFC 连接纹理（草地/泥土等方块的平滑过渡）。\n⚠ 启用会导致 ConnectedGrassBlock 无法覆雪。\n默认: false（禁用，保证覆雪正常）",
+
+    "estfc.config.snowAppearanceTemp": "雪出现温度",
+    "estfc.config.snowAppearanceTemp.tooltip": "雪出现温度 (°C)：高于此温度 → 无雪。\n与完全覆雪温度之间的区间是过渡带，覆雪率随温度线性变化。\n默认: 0.0",
+
+    "estfc.config.snowFullCoverageTemp": "完全覆雪温度",
+    "estfc.config.snowFullCoverageTemp.tooltip": "完全覆雪温度 (°C)：低于此温度 → 满雪 (100%)。\n默认: -4.0",
+
+    "estfc.config.snowMeltTemp": "融雪温度",
+    "estfc.config.snowMeltTemp.tooltip": "融雪温度 (°C)：高于此温度积雪消融，低于此温度且有降水则积雪。\n默认: 0.0",
+
+    "estfc.config.snowRainfallNoSnow": "无雪降水量阈值",
+    "estfc.config.snowRainfallNoSnow.tooltip": "年均降水量低于此值（mm/年）→ 完全没有雪。\n默认: 80",
+
+    "estfc.config.snowRainfallFullSnow": "满雪降水量阈值",
+    "estfc.config.snowRainfallFullSnow.tooltip": "年均降水量高于此值（mm/年）→ 覆雪率不受降水影响。\n两阈值之间覆雪率线性过渡。\n默认: 150",
+
+    "estfc.config.dhTempPrefetchRadius": "[DH/voxy] 区域气候点预取半径",
+    "estfc.config.dhTempPrefetchRadius.tooltip": "[DH/voxy] 区域气候点（128 格网格，温度+表面高度）预取半径（格）。\n默认: 1024",
+
+    "estfc.config.dhTempRequestsPerTick": "[DH/voxy] 区域点请求上限",
+    "estfc.config.dhTempRequestsPerTick.tooltip": "[DH/voxy] 客户端每 tick 发送的区域点请求上限。\n默认: 512",
+
+    "estfc.config.dhTempServerThreads": "[DH/voxy] 服务端计算线程数",
+    "estfc.config.dhTempServerThreads.tooltip": "[DH/voxy] 服务端区域气候点计算线程数（异步）。\n默认: 4",
+
+    "estfc.config.dhTempServerSubmitPerTick": "[DH/voxy] 每 tick 提交计算上限",
+    "estfc.config.dhTempServerSubmitPerTick.tooltip": "[DH/voxy] 每 tick 提交给服务端计算线程池的区域点上限。\n首屏约 81 个预取点，64/tick 一两个 tick 内全部提交。\n默认: 64",
+
+    "estfc.config.tickChunkIntervalTicks": "积雪/融雪 处理间隔",
+    "estfc.config.tickChunkIntervalTicks.tooltip": "tickChunk + biomeDepth 处理间隔（tick）。\n同时影响积雪/融雪速度和性能。\n每 N tick：tickChunk处理 + biomeDepth±1。\n默认 10 tick",
+
+    "estfc.config.biomeSyncIntervalTicks": "Biome 雪深同步间隔",
+    "estfc.config.biomeSyncIntervalTicks.tooltip": "服务端 Biome 雪深同步到客户端的间隔（tick）。\n默认: 100 (5 秒)",
+
+    "estfc.config.snowTextureSimpleMode": "简单雪模式",
+    "estfc.config.snowTextureSimpleMode.tooltip": "开启后对所有 TFC 方块统一使用原版雪贴图（minecraft:block/snow，材质包可覆盖）。\n关闭则按方块类型区分贴图。\n默认: false",
+
+    "estfc.config.snowTextureReplaceMode": "替换渲染模式",
+    "estfc.config.snowTextureReplaceMode.tooltip": "开启后 ES 用本模型替换原方块模型（而非叠加渲染）。\n关闭会使用 ES 的叠加模式（可能导致双层贴图）。\n默认: true",
+
+
+    "estfc.config.tfcSnowBlockPrefixes": "覆雪方块匹配",
+    "estfc.config.tfcSnowBlockPrefixes.tooltip": "TFC 方块匹配列表（逗号分隔）。\n支持三种格式：\n  plant/ → 路径前缀匹配\n  tfc:plant/plum_leaves → 完整 ID 匹配\n  regex:plant/.*_leaves → 正则匹配",
+
+    "estfc.config.blockNamespaces": "覆雪方块命名空间",
+    "estfc.config.blockNamespaces.tooltip": "参与覆雪的方块命名空间（逗号分隔）。\n上面的匹配规则只在这些命名空间内生效。\ntfc = 群峦本体；tfe = TerraFirmaCraft 内容向下移植模组（TerraFirmaEarth）。\n命名空间不存在时无副作用。\n默认: tfc, tfe",
+
+    "estfc.config.tfcSimpleSnowBlocks": "简单雪方块列表",
+    "estfc.config.tfcSimpleSnowBlocks.tooltip": "使用简单雪模式的方块列表（逗号分隔）。\n这些方块所有面统一用 snow.png 贴图。\n格式同上：路径前缀、完整 ID、正则。"
+}

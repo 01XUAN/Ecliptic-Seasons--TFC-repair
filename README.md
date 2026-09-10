@@ -23,7 +23,8 @@
 
 - 在 **DH 生成的 LOD 网格** 中，根据修正后的 TFC 温度为方块着色，使**远景雪色与近景尽可能接近**。
 
-- 关于 **Voxy** 模组，已通过 *Ecliptic Seasons: VoxyCompact* 兼容，但是只针对部分 Voxy 版本，其中对于[这个版本](https://github.com/NHblock714/voxy)不需要 Ecliptic Seasons: VoxyCompact（Voxy 里面已经内置），并且有额外的功能。
+- 关于 **Voxy** 模组，已通过 *Ecliptic Seasons: VoxyCompact* 兼容，但是只针对部分 Voxy 版本，其中对于[这个版本](https://github.com/NHblock714/voxy)不需要 Ecliptic Seasons: VoxyCompact（Voxy 里面已经内置），并且有额外的功能。<br>
+  <font color="#8e8e8e">新版的 Ecliptic Seasons: VoxyCompact 已改为渲染时判雪（不再写 LOD 存储），并自带 15 秒定时刷新（`voxyAutoRefresh`），无需 estfc 额外触发。</font>
 
 ---
 
@@ -40,6 +41,19 @@
 
 - **开始下雪后已加载区块和新加载区块覆雪率不一致**<br>
   <font color="#8e8e8e"></font>
+
+---
+
+### 4. 构建🛠️
+
+仓库同时维护两个版本，各自是独立 Gradle 构建（ForgeGradle 与 ModDevGradle 无法共存于同一构建）：
+
+```
+./gradlew -p v1_21_1-neoforge build     # NeoForge 1.21.1（需 JDK 21）
+./gradlew -p v1_20_1-forge   build      # Forge 1.20.1（需 JDK 17，自带 Gradle 8.x wrapper）
+```
+
+贴图、语言文件、方块标签等跨版本资源在 `shared/`，改一次两个版本都生效。
 
 ---
 <br>*❗<font color="#feeb43">必要的前置模组：</font>**[Ecliptic Seasons（节气）](https://github.com/TeamTeaMC/Ecliptic-Seasons)**，**[TerraFirmaCraft（TFC）](https://github.com/TerraFirmaCraft/TerraFirmaCraft)***<br>
