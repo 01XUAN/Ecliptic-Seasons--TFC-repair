@@ -66,12 +66,6 @@ public final class WeatherCycleService {
             long gameTime = level.getGameTime();
             int currentDepth = biomeWeather.getSnowDepth() & 0xFF;
 
-            // 临时诊断：每 200 tick 一行
-            if (gameTime % 200 == 0) {
-                LOGGER.info("[estfc] cycle biomes={} idx={} temp={} melt={} precip={} depth={} | {}",
-                    biomes.size(), index, playerTemp, meltTemp, precip, currentDepth, ChunkSnowScheduler.stats());
-            }
-
             int interval = Config.tickChunkIntervalTicks();
             if (precip && playerTemp <= meltTemp && currentDepth < 100) {
                 int gain = (int)((gameTime - lastStepTick[index]) / interval);

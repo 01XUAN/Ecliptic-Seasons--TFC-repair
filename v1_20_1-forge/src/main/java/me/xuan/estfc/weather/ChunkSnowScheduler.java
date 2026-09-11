@@ -45,23 +45,12 @@ public final class ChunkSnowScheduler {
 
     private static final Map<Key, Entry> PENDING = new ConcurrentHashMap<>();
 
-    /** 临时诊断计数 */
-    private static final java.util.concurrent.atomic.AtomicLong ENQUEUED = new java.util.concurrent.atomic.AtomicLong();
-    private static final java.util.concurrent.atomic.AtomicLong PROCESSED = new java.util.concurrent.atomic.AtomicLong();
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("estfc");
-
     private ChunkSnowScheduler() {}
-
-    /** 临时诊断 */
-    public static String stats() {
-        return "queue=" + PENDING.size() + " enq=" + ENQUEUED.get() + " done=" + PROCESSED.get();
-    }
 
     /** 入队（主线程，可能在区块加载回调中）。key 含维度，避免跨维度误用。 */
     public static void enqueue(ServerLevel level, ChunkInfoMap chunkMap, ChunkPos pos, boolean loadingChunk) {
         if (PENDING.size() >= MAX_PENDING) return;
         PENDING.put(new Key(level.dimension(), pos.toLong()), new Entry(level, chunkMap, loadingChunk));
-        ENQUEUED.incrementAndGet();
     }
 
     /** 服务端 tick（END 相位、非区块回调上下文）。 */
@@ -86,7 +75,6 @@ public final class ChunkSnowScheduler {
     }
 
     private static void refresh(ServerLevel level, long packedKey, Entry entry) {
-        PROCESSED.incrementAndGet();
         boolean loadingChunk = entry.loadingChunk();
         ChunkInfoMap chunkMap = entry.chunkMap();
         ChunkPos pos = new ChunkPos(packedKey);
@@ -112,11 +100,6 @@ public final class ChunkSnowScheduler {
             int worldMin = chunk.getMinBuildHeight();
             int worldMax = chunk.getMaxBuildHeight() - 1;
 
-            int wrote = 0;
-            int scanned = 0;
-            float logTemp = Float.NaN;
-            int logSnowDepth = -1;
-
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     int surfaceHeight = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
@@ -128,29 +111,22 @@ public final class ChunkSnowScheduler {
 
                     float colTemp = ChunkSnowRefresh.columnTemperature(ctx, surfaceHeight);
                     int colSnowDepth = SnowDepthRules.depthFromTemp(colTemp, ctx.biomeSnowDepth(), ctx.rainfall());
-                    if (Float.isNaN(logTemp)) { logTemp = colTemp; logSnowDepth = colSnowDepth; }
 
                     for (int y = minY; y <= maxY; y++) {
                         checkPos.set(x, y, z);
                         BlockState state = chunk.getBlockState(checkPos);
 
                         if (ChunkSnowRefresh.isSkippable(state)) continue;
-                        scanned++;
 
                         boolean hasSnow = keeper.isSnowyBlock(checkPos);
 
-                        boolean changed = loadingChunk
-                            ? ChunkSnowRefresh.applyOnLoad(keeper, checkPos, state, colTemp, colSnowDepth, hasSnow)
-                            : ChunkSnowRefresh.applyMeltOnly(keeper, checkPos, colTemp, hasSnow);
-                        if (changed) wrote++;
+                        if (loadingChunk) {
+                            ChunkSnowRefresh.applyOnLoad(keeper, checkPos, state, colTemp, colSnowDepth, hasSnow);
+                        } else {
+                            ChunkSnowRefresh.applyMeltOnly(keeper, checkPos, colTemp, hasSnow);
+                        }
                     }
                 }
-            }
-
-            // 每 300 个处理过的区块打一行，避免只在世界加载瞬间采样
-            if (PROCESSED.get() % 300 == 0) {
-                LOGGER.info("[estfc] sched {} load={} biomeDepth={} rain={} colTemp={} snowDepth={} scanned={} wrote={}",
-                    pos, loadingChunk, ctx.biomeSnowDepth(), ctx.rainfall(), logTemp, logSnowDepth, scanned, wrote);
             }
 
             // 必须在这里主动推送。ES 的发送绑在 forceChunkUpdateHeight 流程上

@@ -3,6 +3,7 @@ package me.xuan.estfc;
 import me.xuan.estfc.client.DhSnowService;
 import me.xuan.estfc.net.RegionClimatePayloads;
 import me.xuan.estfc.weather.ChunkSnowScheduler;
+import me.xuan.estfc.weather.ChunkSnowTicker;
 import me.xuan.estfc.weather.WeatherCycleService;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.MinecraftForge;
@@ -49,6 +50,7 @@ public class EclipticSeasonsTFCrepair {
             if (e.phase == TickEvent.Phase.END && e.level instanceof ServerLevel serverLevel) {
                 ChunkSnowScheduler.tick(serverLevel);
                 WeatherCycleService.tickWeatherCycle(serverLevel);
+                ChunkSnowTicker.tickLevel(serverLevel);
             }
         });
 

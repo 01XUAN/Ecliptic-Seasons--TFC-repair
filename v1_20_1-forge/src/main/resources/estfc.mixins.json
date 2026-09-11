@@ -7,7 +7,8 @@
         "SolarDataManagerMixin",
         "WeatherManagerMixin",
         "EnvironmentHelpersMixin",
-        "IceAndSnowFeatureMixin",
+        "ClimateMixin",
+        "SnowAndFreezeFeatureMixin",
         "EclipticUtilMixin",
         "SnowyMapCheckerMixin",
         "MapCheckerMixin",
@@ -16,8 +17,6 @@
         "SnowCheckerMixin"
     ],
     "client": [
-        "SnowyStatusHandlerDebugMixin",
-        "FindModelDebugMixin",
         "ClientConMixin",
         "SnowModelMixin",
         "ExtraModelManagerMixin",

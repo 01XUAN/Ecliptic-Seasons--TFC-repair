@@ -25,20 +25,6 @@ public abstract class ClientConMixin {
 
         RegionClimateCache.tick(clientLevel);
 
-        // 临时诊断：每 200 tick 汇总一次客户端覆雪链路
-        if (clientLevel.getGameTime() % 200 == 0) {
-            org.slf4j.LoggerFactory.getLogger("estfc").info(
-                "[estfc] clientTick findModelHits={} deltaPkts={} deltaPos={} initialPkts={}",
-                me.xuan.estfc.client.DebugCounters.FIND_MODEL_HITS.getAndSet(0),
-                me.xuan.estfc.client.DebugCounters.DELTA_PACKETS.getAndSet(0),
-                me.xuan.estfc.client.DebugCounters.DELTA_POSITIONS.getAndSet(0),
-                me.xuan.estfc.client.DebugCounters.INITIAL_PACKETS.getAndSet(0));
-            org.slf4j.LoggerFactory.getLogger("estfc").info(
-                "[estfc] clientTex swapped={} missingSwap={}",
-                me.xuan.estfc.client.DebugCounters.TEX_SWAPPED.getAndSet(0),
-                me.xuan.estfc.client.DebugCounters.TEX_MISSING.getAndSet(0));
-        }
-
         if (ClimateQuery.getModelIfActive(clientLevel) == null) return;
 
         var player = Minecraft.getInstance().player;

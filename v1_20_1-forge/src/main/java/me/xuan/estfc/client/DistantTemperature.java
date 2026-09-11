@@ -31,16 +31,15 @@ public final class DistantTemperature {
     }
 
     /**
-     * DH 路径：<b>不含海拔项</b>。
+     * DH 路径：海拔取<b>区域表面高度</b>（128 格场，服务端 {@code getBaseHeight} 同步）。
      *
-     * <p>区域海拔是 128 格平滑场，本身就不准；再叠加海拔修正会让相邻网格单元的温度跳变，
-     * 远景出现斑驳图案。传 {@code SEA_LEVEL} 进 TFC 的海拔修正函数 = 只保留
-     * avgSea + 月温，不加海拔项（该函数 y == SEA_LEVEL 时海拔项为 0）。</p>
+     * <p>DH 事件给的 y 不是地面高度（粗级别 = 列内最高点、细级别 = 顶部 merged run 的底部），
+     * 逐数据点用它当海拔会按级别分档 → 远景网格。区域高度级别无关，与 1.21.1 一致。</p>
      */
     @Nullable
     public static Float distantTemperatureRegional(Level level, RegionClimateCache.Sample sample) {
         BaseTemp base = baseTemperature(level, sample.x(), sample.z());
-        return base == null ? null : adjust(base, (int) OverworldClimateModel.SEA_LEVEL);
+        return base == null ? null : adjust(base, (int) sample.height());
     }
 
     /** avgSeaLevelTemp + 月温（都是 (x,z,日历) 纯函数）。 */

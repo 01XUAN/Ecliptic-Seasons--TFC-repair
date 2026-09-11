@@ -48,29 +48,24 @@ public final class ChunkSnowRefresh {
      * @param colSnowDepth 有效雪深（调用方用 {@code depthFromTemp} 计算，含温度地板 +
      *                     累积深度 + 降水 gate）。
      */
-    public static boolean applyOnLoad(SnowyStatusKeeper keeper, BlockPos checkPos, BlockState state,
-                                      float colTemp, int colSnowDepth, boolean hasSnow) {
+    public static void applyOnLoad(SnowyStatusKeeper keeper, BlockPos checkPos, BlockState state,
+                                   float colTemp, int colSnowDepth, boolean hasSnow) {
         // 零上 → 不应有雪（即使全局 biomeDepth > 0）
         int snowDepth = colTemp > Config.snowMeltTemp() ? 0 : colSnowDepth;
         if (SnowDepthRules.shouldSnow(snowDepth, state.getSeed(checkPos))) {
             if (!hasSnow) {
                 keeper.set(checkPos, SnowyStatusKeeper.FLAG_SNOW);
-                return true;
             }
         } else if (hasSnow) {
             keeper.set(checkPos, SnowyStatusKeeper.FLAG_NONE);
-            return true;
         }
-        return false;
     }
 
     /** 方块变更/其他：只融雪。 */
-    public static boolean applyMeltOnly(SnowyStatusKeeper keeper, BlockPos checkPos,
-                                        float colTemp, boolean hasSnow) {
+    public static void applyMeltOnly(SnowyStatusKeeper keeper, BlockPos checkPos,
+                                     float colTemp, boolean hasSnow) {
         if (colTemp > Config.snowMeltTemp() && hasSnow) {
             keeper.set(checkPos, SnowyStatusKeeper.FLAG_NONE);
-            return true;
         }
-        return false;
     }
 }

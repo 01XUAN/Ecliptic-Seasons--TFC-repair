@@ -16,7 +16,7 @@ v1_20_1-forge/           Forge 1.20.1 构建（Java 17，ForgeGradle 6，自带 
 
 每个版本是**独立的 Gradle 构建**（ForgeGradle 6 与 ModDevGradle 不能同构建共存），根目录只放 wrapper 与文档。
 
-构建：`./gradlew -p v1_21_1-neoforge build`；1.20.1 必须 `cd v1_20_1-forge && ./gradlew build`（根 wrapper 是 Gradle 9.2.1，ForgeGradle 6 不支持）。
+构建：两个版本都 `cd <版本目录> && ./gradlew build`，各用自带 wrapper（1.21.1 = Gradle 9.2.1，1.20.1 = 8.8）。
 
 下面 §1 起描述的是**两版共用的设计**；各版本的 API 差异集中在三处：TFC 气候/天气读取（`ClimateQuery`）、loader 粘接（配置/网络/配置界面）、DH 适配。
 
@@ -28,7 +28,9 @@ v1_20_1-forge/           Forge 1.20.1 构建（Java 17，ForgeGradle 6，自带 
 | 瞬时温度 / 降水 | `model.getInstantTemperature` / `getInstantRainfall` | `Climate.getTemperature` / `Climate.getRainfall`（见 `ClimateQuery`） |
 | 是否降水 | `WeatherHelpers.isPrecipitating(intensity, rainfall)` | `WorldTracker.isRaining(level, pos)` |
 | 半球 | `SolarCalculator.getInNorthernHemisphere(z, model.hemisphereScale())` | TFC 1.20.1 无此概念 → `HemisphereSeasons.isNorthernHemisphere(z, Config.hemisphereScale)`（公式照搬 1.21） |
-| 阻止物理雪 | 取消 `WeatherHelpers.onTickChunk` | 取消 `EnvironmentHelpers.tickChunk`（`EnvironmentHelpersMixin`） |
+| 阻止物理雪 | 取消 `WeatherHelpers.onTickChunk` | 取消 `EnvironmentHelpers.tickChunk`（`EnvironmentHelpersMixin`）+ 拦 TFE 的 `NTEWeatherHelpers.onTickChunk`（`estfc.tfe.mixins.json`） |
+| 实时逐块覆雪驱动 | ES 自驱：它在 `ServerLevel.tickChunk` 里包 `getBlockRandomPos`（ordinal 1）= `tickPrecipitation` 循环，正常执行 | **estfc 自驱 `ChunkSnowTicker`**：ES 包的 ordinal 1 在 MC 1.20.1 指向 `iceandsnow` 块，而 TFC 的 `ServerLevelMixin` 把该块守卫 `nextInt(16)` 强改成 1 → 整块不执行。TFC 那条 `EnvironmentHelpers.tickChunk` TAIL 路径实测也不执行 |
+| 世界生成的物理雪 | 取消 `WeatherHelpers.onTickChunk` 即可（无世界生成铺雪） | 拦两处：`ClimateMixin` 取消 `Climate.onChunkLoad`（TFC 自己在冷区按温度+噪声铺 `minecraft:snow`/冰，入口是 TFC 自己的方法名，能稳定命中）+ `SnowAndFreezeFeatureMixin` 取消 vanilla 的 `minecraft:freeze_top_layer`。**注意**：`IceAndSnowFeature.place` 覆写的是 MC 的 `Feature.place`，生产 jar 里叫 `m_142674_`，用字面量 `place` + `remap=false` 的 mixin 永远命不中 |
 | 天气循环驱动 | 注入 `WeatherHelpers.advanceWeatherCycle` RETURN | 监听 `TickEvent.LevelTickEvent` END（入口注册） |
 | 区域气候点生成 | `chunkDataGenerator().generate(data)` | `chunkDataProvider().createAndGeneratePartial(pos)` |
 | `ChunkData` 字段 | `getAverageSeaLevelTemp` / `getAverageRainfall` | `getAverageTemp` / `getRainfall` |
@@ -36,6 +38,87 @@ v1_20_1-forge/           Forge 1.20.1 构建（Java 17，ForgeGradle 6，自带 
 | 配置界面 | 自定义 `EstfcConfigScreen` | **用 Forge 自带界面**（1.20.1 缺 `AbstractContainerWidget`，自定义滚动布局未移植） |
 | 方块 ID 查询 | `state.getBlockHolder().getKey()` | `BuiltInRegistries.BLOCK.getKey(state.getBlock())` |
 | 命名空间 | `tfc` | `tfc` + `tfe`（TerraFirmaEarth 向下移植模组，见 `Config.blockNamespaces`） |
+
+### 1.20.1 工具链约束（不要"升级"）
+
+- **Gradle 必须是 8.8**：ForgeGradle 6.0.33 在 Gradle 8.14+ 上会报
+  `GradleRepositoryAdapter$1 does not define ... isContinueOnConnectionFailure()`。
+- **JDK 必须是 17**（已由 `org.gradle.java.home` 钉在 `v1_20_1-forge/gradle.properties`）：
+  Gradle 8.8 的 Groovy 解析不了 Java 25 编出的 class 文件（`Unsupported class file major version 69`）。
+- Parchment 映射依赖 `org.parchmentmc:librarian` 插件（`buildscript` classpath + `apply plugin`），
+  缺了会报 `Unknown mapping provider: parchment_...`。
+- 反向的坑：**1.21.1 别用 8.x wrapper**。8.13 上 MDG 2.0.141 会在创建 `:test` 任务时炸
+  （`Could not create task ':test' … Type T not present`）。两个模块各钉 9.2.1 / 8.8，互不借用。
+
+### Forge 1.20.1 必须有 pack.mcmeta
+
+NeoForge 1.21.1 对缺 `pack.mcmeta` 的模组 jar 会自动补一个；**Forge 1.20.1 不会**，
+缺了直接报「未能为 estfc 加载有效资源包信息」并拒绝加载模组。
+
+`pack.mcmeta` 放**各版本目录**（`pack_format` 随 MC 版本变，不能放 `shared/`）：
+
+| 版本 | pack_format |
+|---|---|
+| 1.20.1 | 15 |
+| 1.21.1 | 34 |
+
+### 1.20.1 的物理雪来自三处，都要拦
+
+运行期：
+
+- **TFC 本体**：`EnvironmentHelpers.tickChunk` → 由 estfc 的 `EnvironmentHelpersMixin` HEAD 取消。
+- **TFE（TerraFirmaEarth，可选）**：它自己也注入 `EnvironmentHelpers.tickChunk` 的 HEAD 并 cancel，
+  在里面调用 `NTEWeatherHelpers.onTickChunk` 放雪。**同一注入点的多个 handler 都会执行，
+  `ci.cancel()` 只取消目标方法体、不跳过其它 handler —— 给 mixin 提优先级没用**。
+  必须单独拦 `NTEWeatherHelpers.onTickChunk`（`mixin/tfe/`，放在 `estfc.tfe.mixins.json`，
+  `required:false`）。
+
+世界生成（运行期怎么拦都没用，只在新区块出现）：
+
+- **TFC 自己**：`Climate.onChunkLoad` → `OverworldClimateModel.onChunkLoad`，按
+  `snowPatchNoise + 温度` 给地表放 `minecraft:snow`、给水面放冰 —— 判据**与群系无关**，
+  所以「任何群系只要温度低」都会出现。由 `ClimateMixin` 在 HEAD 取消。
+- **vanilla**：`minecraft:freeze_top_layer`（`SnowAndFreezeFeature`），由
+  `SnowAndFreezeFeatureMixin` 取消（MC 类，用默认 remap 走 refmap）。
+
+### 绝不在区块加载回调里读 TFC 气候（1.20.1 会自死锁）
+
+1.20.1 的 `Climate.getTemperature/getRainfall` → `ChunkData.get` → `Level.getBiome` →
+`Level.getChunk(load=true)` → 把加载任务提交给主线程并 park 等待。
+
+ES 的 `SnowyMapChecker.forceChunkUpdateHeight` 是从 `ChunkMap` 的区块加载 future 回调触发的，
+**跑在主线程上**。在那里读气候 = 主线程等自己 = 永久卡在「加载世界 0%」，无异常无日志。
+
+**规则：**
+- 注入点只入队，真正的刷新放服务端 tick（`ChunkSnowScheduler`，`LevelTickEvent` END 相位）。
+- 取群系必须用 `chunk.getNoiseBiome(QuartPos...)`，**不要用 `level.getBiome(pos)`**。
+- `ChunkSnowRefresh.prepare` 已删除 —— 那正是踩雷的实现，别再写回来。
+
+（1.21.1 没这个问题：那边 TFC 的瞬时温度不走 ChunkData。）
+
+### 校验生成数据（1.20.1）
+
+`verifySnowBlockIds` 任务**解析太粗**（只认 `register("...", ...)` 字面量，漏掉 `Helpers.mapOf` 拼接注册的 berry bush、`wood/fallen_leaves`、`wood/twig`），会报大量假阳性。要可信结果，用 TFC jar 的 blockstate 列表比对：
+
+```bash
+# 从 TFC jar 抽方块 ID
+unzip -l <TFC jar> | grep "assets/tfc/blockstates/" | sed 's|.*blockstates/||;s|\.json$||' | sort -u > /tmp/tfc_blocks.txt
+# 从生成的雪定义抽引用的方块 ID
+grep -ho '"tfc:[^"]*"' shared/generated/resources/data/estfc/eclipticseasons/snow_definitions/*.json \
+  | tr -d '"' | sed 's/^tfc://' | sort -u > /tmp/defs.txt
+comm -23 /tmp/defs.txt /tmp/tfc_blocks.txt   # 输出 = 该版本 TFC 里不存在的 ID
+```
+
+2026-09-10 实测：170 条定义在 TFC 1.21.1 全部存在；在 TFC 1.20.1 缺 8 条 ——
+`rock/loose/tuff`、`rock/mossy_loose/tuff`（1.21 新增岩石）与
+`wild_crop/{alfalfa,canola,cassava,lentil,peanut,radish}`（TFE 补的 6 个作物）。
+
+⚠ **这 8 条不是"无害的死条目"——它们会让游戏崩。** `snow_definitions` 是 ES 的
+**数据包注册表**，引用不存在的方块 → 整个注册表解析失败 →
+点「单人游戏」时 `RegistryDataLoader` 抛 `Failed to load registries due to above errors` 直接崩。
+所以 1.20.1 的 build 里加了 `filterEstfcGeneratedData` 任务，按构建期 TFC jar 的
+blockstates 把这类条目过滤掉（输出到本工程 `build/filtered-generated/`，不污染 `shared/`）。
+**新增生成器条目后要重建一次，确认输出里 `dropped=N` 符合预期。**
 
 ---
 

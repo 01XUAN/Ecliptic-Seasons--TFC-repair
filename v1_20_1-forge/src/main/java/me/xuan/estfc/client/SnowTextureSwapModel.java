@@ -108,10 +108,8 @@ public class SnowTextureSwapModel implements BakedModel, IESReplaceModel {
             if (ns.equals("tfc")) {
                 TextureAtlasSprite estfcSprite = estfc$findSprite(atlas, name.getPath());
                 if (estfcSprite != null) {
-                    DebugCounters.TEX_SWAPPED.incrementAndGet();
                     out.add(new BakedQuadTextureOnly(quad, estfcSprite, preserveTint));
                 } else {
-                    DebugCounters.TEX_MISSING.incrementAndGet();
                     out.add(quad);
                 }
             } else if (name.equals(VANILLA_SNOW)) {

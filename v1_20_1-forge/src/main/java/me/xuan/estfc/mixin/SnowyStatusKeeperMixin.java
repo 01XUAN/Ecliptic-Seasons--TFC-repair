@@ -25,6 +25,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * SnowyStatusKeeper.tickChunk 的注入：节流 + 深度替换。
+ *
+ * <p>驱动本方法的调用点是 {@link me.xuan.estfc.weather.ChunkSnowTicker}（1.20.1 上 ES 自己的
+ * 驱动点被 TFC 掐掉了，原因见该类的 Javadoc）。</p>
  */
 @Mixin(value = SnowyStatusKeeper.class, remap = false)
 public abstract class SnowyStatusKeeperMixin {
@@ -53,7 +56,7 @@ public abstract class SnowyStatusKeeperMixin {
     }
 
     /**
-     * 服务端已加载区块：由 tickWeatherCycle 缓慢累积的 biomeDepth 主导
+     * 服务端已加载区块：按该点温度/降水算有效雪深，零上恒 0（即该点无条件融雪）
      */
     @Unique
     private static int estfc$getPerBlockDepth(Level level, BlockPos pos) {

@@ -49,8 +49,8 @@
 仓库同时维护两个版本，各自是独立 Gradle 构建（ForgeGradle 与 ModDevGradle 无法共存于同一构建）：
 
 ```
-./gradlew -p v1_21_1-neoforge build     # NeoForge 1.21.1（需 JDK 21）
-./gradlew -p v1_20_1-forge   build      # Forge 1.20.1（需 JDK 17，自带 Gradle 8.x wrapper）
+cd v1_21_1-neoforge && ./gradlew build   # NeoForge 1.21.1（需 JDK 21，Gradle 9.2.1）
+cd v1_20_1-forge   && ./gradlew build    # Forge 1.20.1（需 JDK 17，Gradle 8.8）
 ```
 
 贴图、语言文件、方块标签等跨版本资源在 `shared/`，改一次两个版本都生效。

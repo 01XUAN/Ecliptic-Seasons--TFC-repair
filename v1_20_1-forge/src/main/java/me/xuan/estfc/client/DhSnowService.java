@@ -84,7 +84,7 @@ public final class DhSnowService {
             LOGGER.warn("[estfc] DH API bind failed: {}", e.toString());
         }
 
-        warnIfEsDhCompatActive();
+        disableEsDhCompat();
     }
 
     private static void maybeOverride(DhApiBlockColorOverrideEvent.EventParam param) {
@@ -170,20 +170,26 @@ public final class DhSnowService {
         boundLevel = new WeakReference<>(level);
     }
 
-    /** 检测 ES DH 兼容是否活跃（反射读 ES 配置）。 */
-    private static void warnIfEsDhCompatActive() {
+    /**
+     * 关掉 ES 自带的 DH 兼容（反射读写 ES 配置）。
+     *
+     * <p>它开启时会短路 DH 的 {@code getBlockColor}，本类的事件根本收不到；而且它经
+     * {@code MapChecker.shouldSnowAtBiome} 决策时传的是 DH 数据点的 y（粗级别 = 列内最高点、
+     * 细级别 = 顶部 run 底部，级别相关）→ 远景网格/斑驳。关掉后 DH 回到本类的区域高度路径。</p>
+     */
+    private static void disableEsDhCompat() {
         try {
             Class<?> compatClass = Class.forName("com.teamtea.eclipticseasons.compat.CompatModule$CommonConfig");
             var dhField = compatClass.getDeclaredField("DistantHorizonsWinterLOD");
             dhField.setAccessible(true);
             Object value = dhField.get(null);
             if (value instanceof net.minecraftforge.common.ForgeConfigSpec.BooleanValue boolValue && boolValue.get()) {
-                LOGGER.warn("[estfc] ES DistantHorizonsWinterLOD is enabled — it short-circuits DH getBlockColor before "
-                    + "estfc's API event. Set DistantHorizonsWinterLOD=false in config/eclipticseasons-common.toml "
-                    + "for consistent coverage.");
+                boolValue.set(false);
+                LOGGER.info("[estfc] ES DistantHorizonsWinterLOD forced off in memory; "
+                    + "set DistantHorizonsWinterLOD=false in config/eclipticseasons-common.toml to persist");
             }
         } catch (Throwable ignored) {
-            // ES 无此配置项（DH 未加载时）→ 无需提示
+            // ES 无此配置项（DH 未加载时）→ 无需处理
         }
     }
 }

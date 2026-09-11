@@ -16,6 +16,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * <p>TerraFirmaEarth 也在同一方法的 HEAD 上注入并 cancel（它调用自己的
  * {@code NTEWeatherHelpers.onTickChunk} 放雪）。同注入点的多个 handler 都会执行，
  * 提优先级没用 —— 物理雪由 {@code me.xuan.estfc.mixin.tfe.NTEWeatherHelpersMixin} 单独拦。</p>
+ *
+ * <p>本方法<b>不做驱动点</b>：实测它在这个整合包里从不被调用（TFC 在
+ * {@code ServerLevel.tickChunk} TAIL 的注入没跑到，服务端日志 {@code ticker calls=0}），
+ * 实时覆雪由 {@link me.xuan.estfc.weather.ChunkSnowTicker} 从 estfc 自己的服务端 tick 驱动。</p>
  */
 @Mixin(value = EnvironmentHelpers.class, remap = false, priority = 1500)
 public abstract class EnvironmentHelpersMixin {

@@ -125,13 +125,8 @@ public abstract class WeatherManagerMixin {
             float meltTemp = Config.snowMeltTemp();
 
             if (temp > meltTemp) {
-                // 高于融雪温度 → 仅当 biome 已有积雪时才融雪
-                int biomeDepth = ClimateQuery.getBiomeDepthAt(level, pos);
-                if (biomeDepth > 0) {
-                    cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW_MELT);
-                } else {
-                    cir.setReturnValue(WeatherManager.SnowRenderStatus.NONE);
-                }
+                // 高于融雪温度 → 融雪。
+                cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW_MELT);
             } else if (precipitating) {
                 // 低于融雪温度 + 正在降水 → 积雪（只在降雪期间添加）
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW);
