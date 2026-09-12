@@ -399,6 +399,44 @@ getSnowyModel(state, ...) TAIL
   └─ 都不匹配 → return (无雪)
 ```
 
+> 上面画的是「取到模型之后」的贴图分类。能不能取到模型由 ES 的可覆雪判定决定 ——
+> 运行时雪定义的 `offset` 语义（双层高植物的坑）见 §4.5.1。
+
+### 4.5.1 双层高植物的 offset（`SnowDefinitionRegistrar`）
+
+`SnowChecker.resetUpdate` 之后由 `SnowCheckerMixin` → `SnowDefinitionRegistrar.registerDefaults()`
+补齐 datapack 未覆盖的 TFC 方块；datapack 已覆盖的跳过（`SNOW_DEFINITION_MAP.containsKey` 提前 continue）。
+
+**offset 决定 ES 的可覆雪判定**（`ExtraModelManager.findModel` / `canSnowy`）：
+
+```
+isLight = mapHeight <= pos.getY() - offset        // mapHeight = IMapSlice.getBlockHeight(pos)
+最终标雪还要求 isLight == true
+```
+
+| 方块 | offset | 原因 |
+|---|---|---|
+| crop / groundcover / 浆果丛 / 单层花 | 1 | y 在列高之上，判定天然通过 |
+| **TFC 双层高植物**（`part=lower`+`part=upper`，`marigold`/`switchgrass`/`foxglove`…） | **0** | `part=lower`（真正画植物的那半）的 y 正好等于列高，offset=1 时 `isLight=false` → 拿不到覆雪模型；`part=upper` 反而拿得到，可它的模型是 `tfc:block/empty`（空几何）→ 什么都不画。现象 = 雪旗打在 upper 上、植物看不见雪，物种级全灭 |
+
+故 `offset = isTallPlant(block) ? 0 : 1`（`isTallPlant` = 方块有 `part` 属性且取值恰为 lower/upper）；
+upper 那半同用 0 无副作用（空模型渲染不出几何）。
+
+**不要用 `SnowDefinition.PropertyTester` + `ExactMatcher` 按 part 分注册。**
+`ExactMatcher` 比的是 `blockState.getValue(property).toString()`，TFC `Part` 枚举的 `toString()`
+是大写 `LOWER`/`UPPER`；写小写永不命中 → 所有状态退回 `SnowDefinition.Info.EMPTY`（`flag=0`）
+→ **全场掉雪**（连原本正常的方块一起）。
+
+排查时排除过的方向（别再走）：
+
+- 贴图替换链路本身正常：plant 贴图全 HIT；MISS 的都是 estfc 本来就没有的贴图
+  （`clay/*`、`dirt/*`、`fruit_tree/*`、`wood/log_top/*`、`block/empty`），且 `atlasHas=minecraft:missingno` 属预期。
+- **Continuity**（连接纹理）的 `EmissiveBakedModel extends ForwardingBakedModel`（FRAPI）不转发
+  NeoForge 的 `getModelData` → TFC 动态模型的 `BakedModelData`（带真实 blockPos）丢失。
+  实测**不影响覆雪**（`part=lower` 渲染时仍拿到数据），关掉 Continuity 现象不变。
+- 逐块图案是 ES 设计使然：`shouldSnow(depth, seed)` 按坐标定死、随温度/累积雪深变化 →
+  同一物种隔一格一个有雪一个没雪属正常，不是物种级 bug。
+
 ### 4.6 配置界面
 
 `EstfcConfigScreen` — 纯原生MC组件, 无前置依赖:
