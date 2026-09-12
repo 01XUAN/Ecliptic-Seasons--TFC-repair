@@ -59,9 +59,11 @@ public final class SnowDefinitionRegistrar {
                     .mid2(LEAVES_ATTACH)
                     .build();
             } else if (BlockPatternMatcher.matches(path, full, Config.tfcBlockPrefixes())) {
+                // TFC 双层高植物（part=lower/upper）必须用 offset 0，否则永远不覆雪：
+                // ES 的可见性判定是 isLight = columnHeight <= y - offset，而 part=lower
                 info = SnowDefinition.Info.builder()
                     .flag(MapChecker.FLAG_CUSTOM_JSON_PLANTS)
-                    .offset(1)
+                    .offset(isTallPlant(block) ? 0 : 1)
                     .build();
             } else {
                 continue;
@@ -79,5 +81,17 @@ public final class SnowDefinitionRegistrar {
     private static boolean isLeafBlock(String path, String full) {
         return path.startsWith(WOOD_LEAVES_PREFIX)
             || BlockPatternMatcher.matches(path, full, Config.tfcLeavesSnowBlocks());
+    }
+
+    /** 是否为 TFC 双层高植物：part 属性只有 lower / upper 两个值 */
+    private static boolean isTallPlant(Block block) {
+        for (net.minecraft.world.level.block.state.properties.Property<?> p
+                : block.defaultBlockState().getProperties()) {
+            if (!"part".equals(p.getName())) continue;
+            return p.getPossibleValues().size() == 2
+                && p.getValue("lower").isPresent()
+                && p.getValue("upper").isPresent();
+        }
+        return false;
     }
 }
