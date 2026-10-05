@@ -14,38 +14,41 @@ import net.minecraft.world.level.levelgen.Heightmap;
  * 区块加载/更新时的覆雪刷新逻辑（由 SnowyMapCheckerMixin 驱动）。
  *
  * <p>用 TFC per-position 温度覆写雪的开关决策——比 ES 的 biome 级缓存更精确
- * （同 biome 不同海拔温度不同）。列温度取区块中心地表温度按海拔递减率外推，
- * 保证采样点在已加载 chunk 内，避免 ChunkData.EMPTY 假 10°C。</p>
+ * （同 biome 不同海拔温度不同）。列温度**逐列直接问 TFC**（与实时路径
+ * {@code SnowyStatusKeeperMixin.estfc$getPerBlockDepth} 同源），不用"区块中心锚点 + 外推"。</p>
+ *
+ * <p><b>为什么必须逐列问</b>：TFC 自己的海拔降温在 {@code Helpers.adjustAverageTemperatureByElevation}
+ * 里被 {@code Mth.clamp(..., 0, 17.822f)} 封顶（≈110 格海拔），所以高地形的"区块中心温度"
+ * 几乎不随中心高度变化；而"中心锚点 + 相对外推"让每个区块都从同一个温度重新起一轮，
+ * 陡坡上表现为每过一个区块覆雪图案重复一遍（2026-10-05 实测：相邻区块交界处中心高度差 21 格、
+ * 温度只差 0.05°C ⇒ 相邻两列差 3°C / 深度 50）。</p>
  */
 public final class ChunkSnowRefresh {
 
     private ChunkSnowRefresh() {}
 
-    /** TFC 海拔递减率 °C/格（更高 = 更冷） */
+    /** TFC 海拔递减率 °C/格（与 TFC 的 0.16225 一致，仅作参考/文档用） */
     public static final float TFC_LAPSE = 0.16225f;
 
     /** 一个区块刷新过程中不变的共享量。 */
-    public record ChunkContext(float baseTemp, int centerSurface, int biomeSnowDepth, float rainfall) {}
+    public record ChunkContext(int biomeSnowDepth, float rainfall) {}
 
     public static ChunkContext prepare(ServerLevel level, ChunkAccess chunk, ClimateModel model) {
         // 查找该 chunk 对应 biome 的累积雪深
         int biomeSnowDepth = ClimateQuery.getBiomeDepthAt(level,
             new BlockPos(chunk.getPos().getMiddleBlockX(), 64, chunk.getPos().getMiddleBlockZ()));
 
-        // 取 chunk 中心地表温度/降水量作为基准（保证在已加载chunk内，避免ChunkData.EMPTY假10°C）
         int midX = chunk.getPos().getMiddleBlockX();
         int midZ = chunk.getPos().getMiddleBlockZ();
         int centerSurface = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, midX, midZ);
-        BlockPos centerPos = new BlockPos(midX, centerSurface, midZ);
-        float baseTemp = model.getInstantTemperature(level, centerPos);
-        float rainfall = model.getAverageRainfall(level, centerPos);
+        float rainfall = model.getAverageRainfall(level, new BlockPos(midX, centerSurface, midZ));
 
-        return new ChunkContext(baseTemp, centerSurface, biomeSnowDepth, rainfall);
+        return new ChunkContext(biomeSnowDepth, rainfall);
     }
 
-    /** O(1) 列温度 = chunk 中心地表温度 - 海拔差 × 递减率 */
-    public static float columnTemperature(ChunkContext ctx, int surfaceHeight) {
-        return ctx.baseTemp() - (surfaceHeight - ctx.centerSurface()) * TFC_LAPSE;
+    /** 列温度：直接取该列地表处的 TFC 瞬时温度（绝对场，跨区块连续） */
+    public static float columnTemperature(ServerLevel level, ClimateModel model, int x, int surfaceHeight, int z) {
+        return model.getInstantTemperature(level, new BlockPos(x, surfaceHeight, z));
     }
 
     /** 既非地图标记方块也不阻挡移动 → 跳过。 */

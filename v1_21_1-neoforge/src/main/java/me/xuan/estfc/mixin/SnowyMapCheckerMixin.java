@@ -60,7 +60,7 @@ public abstract class SnowyMapCheckerMixin {
                     int minY = Math.min(solidHeight, surfaceHeight);
                     int maxY = Math.max(solidHeight, surfaceHeight);
 
-                    float colTemp = ChunkSnowRefresh.columnTemperature(ctx, surfaceHeight);
+                    float colTemp = ChunkSnowRefresh.columnTemperature(level, model, x, surfaceHeight, z);
                     // 有效深度 = 温度地板/累积深度取斜坡，再乘降水系数（<80mm 无雪，80-150 线性）
                     int colSnowDepth = SnowDepthRules.depthFromTemp(colTemp, ctx.biomeSnowDepth(), ctx.rainfall());
 

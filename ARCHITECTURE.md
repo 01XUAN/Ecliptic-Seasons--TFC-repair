@@ -29,7 +29,7 @@ v1_20_1-forge/           Forge 1.20.1 构建（Java 17，ForgeGradle 6，自带 
 | 是否降水 | `WeatherHelpers.isPrecipitating(intensity, rainfall)` | `WorldTracker.isRaining(level, pos)` |
 | 半球 | `SolarCalculator.getInNorthernHemisphere(z, model.hemisphereScale())` | TFC 1.20.1 无此概念 → `HemisphereSeasons.isNorthernHemisphere(z, Config.hemisphereScale)`（公式照搬 1.21） |
 | 阻止物理雪 | 取消 `WeatherHelpers.onTickChunk` | 取消 `EnvironmentHelpers.tickChunk`（`EnvironmentHelpersMixin`）+ 拦 TFE 的 `NTEWeatherHelpers.onTickChunk`（`estfc.tfe.mixins.json`） |
-| 实时逐块覆雪驱动 | ES 自驱：它在 `ServerLevel.tickChunk` 里包 `getBlockRandomPos`（ordinal 1）= `tickPrecipitation` 循环，正常执行 | **estfc 自驱 `ChunkSnowTicker`**：ES 包的 ordinal 1 在 MC 1.20.1 指向 `iceandsnow` 块，而 TFC 的 `ServerLevelMixin` 把该块守卫 `nextInt(16)` 强改成 1 → 整块不执行。TFC 那条 `EnvironmentHelpers.tickChunk` TAIL 路径实测也不执行 |
+| 实时逐块覆雪驱动 | ES 自驱：它在 `ServerLevel.tickChunk` 里包 `getBlockRandomPos`（ordinal 1）= `tickPrecipitation` 循环，正常执行（采样坐标保持原样，见 §3.2.1） | **estfc 自驱 `ChunkSnowTicker`**：ES 包的 ordinal 1 在 MC 1.20.1 指向 `iceandsnow` 块，而 TFC 的 `ServerLevelMixin` 把该块守卫 `nextInt(16)` 强改成 1 → 整块不执行。TFC 那条 `EnvironmentHelpers.tickChunk` TAIL 路径实测也不执行 |
 | 世界生成的物理雪 | 取消 `WeatherHelpers.onTickChunk` 即可（无世界生成铺雪） | 拦两处：`ClimateMixin` 取消 `Climate.onChunkLoad`（TFC 自己在冷区按温度+噪声铺 `minecraft:snow`/冰，入口是 TFC 自己的方法名，能稳定命中）+ `SnowAndFreezeFeatureMixin` 取消 vanilla 的 `minecraft:freeze_top_layer`。**注意**：`IceAndSnowFeature.place` 覆写的是 MC 的 `Feature.place`，生产 jar 里叫 `m_142674_`，用字面量 `place` + `remap=false` 的 mixin 永远命不中 |
 | 天气循环驱动 | 注入 `WeatherHelpers.advanceWeatherCycle` RETURN | 监听 `TickEvent.LevelTickEvent` END（入口注册） |
 | 区域气候点生成 | `chunkDataGenerator().generate(data)` | `chunkDataProvider().createAndGeneratePartial(pos)` |
@@ -273,6 +273,44 @@ else                    → NONE        // 冷无降水 → 保持
 
 ES的 `SnowyStatusKeeper.tickChunk` 根据返回状态决定: SNOW→尝试设FLAG_SNOW, MELT→尝试清FLAG_NONE, NONE→不变。
 
+该分支里两处 `WeatherManager.getSnowDepthAtBiome`（源码顺序 = ordinal：0 = SNOW 分支、1 = SNOW_MELT 分支）
+**都由 `SnowyStatusKeeperMixin` 的 `@WrapOperation` 换成 `estfc$getPerBlockDepth`**（不设 `ordinal`，两处都命中）。
+早期只包了 `ordinal = 1`，加雪分支读 biome 累积深度（无海拔、无降水量），与融雪分支、以及远景
+（DH/voxy 都走 `depthFromTemp`）用的是两套深度 → 过渡带（-4..0°C）里近景满雪、远景按斜坡打折，
+坡地上就是一条偏差带。**改回单 ordinal 会重新引入这个不一致。**
+
+### 3.2.1 列温度：必须逐列问 TFC（区块中心锚点会造成跨区块锯齿）
+
+现象：陡坡上覆雪图案**每过一个区块重复一遍**（下坡走到新区块又从头开始）。
+
+原因（2026-10-05 实测，探针已删）：`ChunkSnowRefresh` 原本用
+「本区块中心地表温度 + `(列高 − 中心高) × 0.16225` 外推」当列温度。而 TFC 自己的海拔降温在
+`Helpers.adjustAverageTemperatureByElevation` 里被 **`Mth.clamp(..., 0, 17.822f)` 封顶**
+（≈110 格海拔，即 `17.822 / 0.16225`）。高地形的中心温度早就封顶 ⇒ **几乎不随中心高度变化**：
+
+```
+[55,125] baseTemp=-1.09  centerSurface=212     ← 中心高 212
+[56,125] baseTemp=-1.04  centerSurface=191     ← 中心低 21 格，温度只差 0.05°C
+交界处：A 在 h≈199 深度≈0，B 在 h≈197 深度≈50   ← 相邻两列差 3°C / 50 深度
+```
+
+每个区块都拿自己中心（≈同一个封顶温度）当锚点 ⇒ 每块重新起一轮 16 格的斜坡 ⇒ 锯齿。
+
+**修法**：列温度逐列直接取 TFC 瞬时温度（`ChunkSnowRefresh.columnTemperature(level, x, y, z)`
+→ `model.getInstantTemperature`），与实时路径 `estfc$getPerBlockDepth` 同源 ⇒ 绝对场、跨区块连续。
+`ChunkContext` 只留 `biomeSnowDepth` + `rainfall`。
+1.20.1 侧同一处照改（其调用点在 `ChunkSnowScheduler`，服务端 tick，不在区块加载回调里，
+逐列读气候安全）。
+
+**排查过但不是原因的（别再走）**：
+
+- vanilla 选点 LCG 低位退化：ES 用 `ServerLevel.getBlockRandomPos` 的 (x,z)，其 LCG
+  （`randValue = randValue * 3 + 1013904223`，x 偏移 `(randValue >> 2) & 15` 周期仅 32）
+  经节流后每区块只反复采到固定 2~4 列（步长 200 时 x 偏移只出现 {0,4,8,12}）—— 退化真实存在，
+  但**换成 `level.random` 均匀取列后现象不变**，且会扰动全局随机流 ⇒ 保持原样。
+- 抖动种子：`Mth.getSeed` 原样实现后统计 16×16 区块覆盖率（42%/51%）分布均匀，无角状聚簇。
+- `WORLD_SURFACE − ES 雪位高度` 实测全 0 ⇒ 植被没顶高海拔基准。
+
 ### 3.3 降水检测 (ClimateQuery, 三个重载)
 
 | 重载 | 用途 | 线程 |
@@ -474,7 +512,8 @@ TFC advanceWeatherCycle (每tick, 服务端主线程)
   │           → shouldSnow(depth, seed) → keeper.set(pos, FLAG_SNOW/FLAG_NONE)
   │
   └─ Chunk加载: SnowyMapCheckerMixin (forceChunkUpdateHeight TAIL) → ChunkSnowRefresh
-      ├─ prepare: 中心地表温度 + biomeDepth; 每列: columnTemperature (海拔外推),
+      ├─ prepare: biomeDepth + rainfall（不再取区块中心温度作锚点，见 §3.2.2）
+      ├─ 每列: columnTemperature = 该列地表处的 TFC 瞬时温度（逐列问 TFC，绝对场）
       │   colSnowDepth = calcEffectiveDepth(colTemp, biomeDepth)
       ├─ loadingChunk: applyOnLoad (零上→depth=0, 零下→shouldSnow); 否则 applyMeltOnly
       └─ keeper.updateAndSend

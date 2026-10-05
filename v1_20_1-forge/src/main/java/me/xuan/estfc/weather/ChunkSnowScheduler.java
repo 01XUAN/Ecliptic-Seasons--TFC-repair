@@ -109,7 +109,7 @@ public final class ChunkSnowScheduler {
                     int maxY = Math.min(Math.max(surfaceHeight, worldMin), worldMax);
                     if (maxY < minY) maxY = minY;
 
-                    float colTemp = ChunkSnowRefresh.columnTemperature(ctx, surfaceHeight);
+                    float colTemp = ChunkSnowRefresh.columnTemperature(level, x, surfaceHeight, z);
                     int colSnowDepth = SnowDepthRules.depthFromTemp(colTemp, ctx.biomeSnowDepth(), ctx.rainfall());
 
                     for (int y = minY; y <= maxY; y++) {
@@ -158,9 +158,8 @@ public final class ChunkSnowScheduler {
         int biomeSnowDepth = ClimateQuery.getBiomeDepth(level, biome);
 
         // 区块已加载（上面 getChunkNow 已确认），此处的气候读取不会触发加载
-        float baseTemp = ClimateQuery.instantTemperature(level, centerPos);
         float rainfall = ClimateQuery.averageRainfall(level, centerPos);
 
-        return new ChunkSnowRefresh.ChunkContext(baseTemp, centerSurface, biomeSnowDepth, rainfall);
+        return new ChunkSnowRefresh.ChunkContext(biomeSnowDepth, rainfall);
     }
 }

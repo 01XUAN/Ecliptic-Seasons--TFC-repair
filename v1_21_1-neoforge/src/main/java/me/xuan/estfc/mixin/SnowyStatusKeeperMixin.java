@@ -25,6 +25,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * SnowyStatusKeeper.tickChunk 的注入：节流 + 深度替换。
+ *
+ * <p>采样坐标不碰：曾怀疑 vanilla 选点 LCG（{@code randValue * 3 + 1013904223}，x 偏移
+ * {@code (randValue >> 2) & 15} 周期仅 32）经节流后会让同一区块反复只采到固定几列，
+ * 实测该退化存在，但**不是「概率覆雪集中在一角」的原因**（换成均匀取列后现象不变），
+ * 且会白扰动 {@code level.random} 这条全局随机流，故保持原样。</p>
  */
 @Mixin(value = SnowyStatusKeeper.class, remap = false)
 public abstract class SnowyStatusKeeperMixin {
@@ -38,13 +43,19 @@ public abstract class SnowyStatusKeeperMixin {
     }
 
     /**
-     * 替换 SNOW_MELT 分支中的 getSnowDepthAtBiome
+     * 把 ES tickChunk 里两处 getSnowDepthAtBiome（biome 级累积深度）都换成 per-position 有效雪深。
+     *
+     * <p>原来只包了 {@code ordinal = 1}（SNOW_MELT 分支，源码里第二个调用），加雪分支
+     * （{@code ordinal = 0}）仍读 biome 深度 —— 同一条判定在两个分支用两套深度：加雪看累积量
+     * （无海拔、无降水量），融雪看 per-position 温度斜坡，互相拉锯；而远景（DH/voxy）走的是
+     * {@code depthFromTemp}，于是过渡带（-4..0°C）里近景满雪、远景按斜坡打折，坡地上就是一条
+     * 明显的偏差带。现在两个分支统一走 per-position 深度（与 ARCHITECTURE §2.2 的
+     * 「所有路径统一」一致），顺带让加雪/融雪互为补集，不再来回翻。</p>
      */
     @WrapOperation(
         method = "tickChunk",
         at = @At(value = "INVOKE",
-            target = "Lcom/teamtea/eclipticseasons/common/core/biome/WeatherManager;getSnowDepthAtBiome(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/biome/Biome;)I",
-            ordinal = 1)
+            target = "Lcom/teamtea/eclipticseasons/common/core/biome/WeatherManager;getSnowDepthAtBiome(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/biome/Biome;)I")
     )
     private int estfc$replaceDepthForMelt(Level level, Biome biome, Operation<Integer> original,
                                            @Local BlockPos checkPos) {
