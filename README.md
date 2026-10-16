@@ -5,6 +5,8 @@
 是一个将 **[Ecliptic Seasons（节气）](https://github.com/TeamTeaMC/Ecliptic-Seasons)** 的视觉雪系统代替了 **[TerraFirmaCraft（TFC）](https://github.com/TerraFirmaCraft/TerraFirmaCraft)** 的方块雪系统的模组，为了解决 **[Distant Horizons（DH）](https://gitlab.com/distant-horizons-team/distant-horizons)** 等模组的 TFC 远景没有实时雪景的缺陷。
 
 ---
+![image](1.gif)<br>
+---
 
 ### 1. 雪与贴图☃️
 
