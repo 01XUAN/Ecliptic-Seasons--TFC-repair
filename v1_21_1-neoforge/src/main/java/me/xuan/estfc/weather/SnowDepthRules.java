@@ -3,7 +3,7 @@ package me.xuan.estfc.weather;
 import me.xuan.estfc.Config;
 
 /**
- * 温度 → 雪深的纯函数规则，不碰 Level。
+ * 温度/降水/累积覆雪率 → 覆雪率的纯函数规则，不碰 Level。
  */
 public final class SnowDepthRules {
 
@@ -12,36 +12,29 @@ public final class SnowDepthRules {
     public static int tempToSnowDepth(float temp) {
         float appear = Config.snowAppearanceTemp();
         float full = Config.snowFullCoverageTemp();
+        if (appear <= full) return temp <= appear ? 100 : 0;
         if (temp > appear) return 0;
         if (temp < full) return 100;
         return (int)((appear - temp) / (appear - full) * 100);
     }
 
-    /**
-     * 有效雪深（0-100）。
-     *
-     * <ul>
-     *   <li>temp ≤ full（-4°C）→ 100：温度地板，满雪。</li>
-     *   <li>过渡带（full..appear，-4..0°C）：有积雪时覆雪率 = min(累积量, 温度斜坡)
-     *       —— 下过雪后回温，覆雪率跟随温度（-1°C→25%，-2°C→50%），累积量只作上限；
-     *       干冷（无累积）时温度斜坡兜底（干冷地区也有覆雪）。</li>
-     *   <li>temp > appear → 0。</li>
-     * </ul>
-     */
-    /** 温度 → 有效雪深（零上恒 0，再乘降水系数）。 */
-    public static int depthFromTemp(float actualTemp, int biomeDepth, float rainfall) {
-        return actualTemp > Config.snowMeltTemp() ? 0 : calcEffectiveDepth(actualTemp, biomeDepth, rainfall);
+    /** 气候种子：只用于 BiomeSnowSeed 首次播种，不参与运行时远景/新区块渲染。 */
+    public static int climateSeed(float temp, float rainfall) {
+        return Math.round(tempToSnowDepth(temp) * rainfallFactor(rainfall));
     }
 
     /**
-     * 有效雪深（0-100）：≤-4°C 满雪；过渡带内有积雪时取 min(累积量, 温度斜坡)
-     * （下雪后回温覆雪率跟随温度：-1°C→25%，-2°C→50%），干冷时温度斜坡兜底。
-     * 最后乘降水系数（< snowRainfallNoSnow → 0；> snowRainfallFullSnow → 1）。
+     * 当前温度下允许显示的覆雪率：高于融雪温度恒 0；C 未初始化时不显示雪，
+     * 等 BiomeSnowSeed 播种/服务端同步后再逐渐增加（远景和新加载区块一致）。
      */
-    public static int calcEffectiveDepth(float actualTemp, int biomeDepth, float rainfall) {
-        int ramp = tempToSnowDepth(actualTemp);
-        int depth = ramp == 100 ? 100 : (biomeDepth <= 0 ? ramp : Math.min(biomeDepth, ramp));
-        return (int) (depth * rainfallFactor(rainfall));
+    public static int depthFromCoverage(float actualTemp, int coverage, float rainfall) {
+        if (actualTemp > Config.snowMeltTemp()) return 0;
+        return Math.max(0, Math.min(100, coverage));
+    }
+
+    /** 降水允许的最大覆盖率（0-100）。 */
+    public static float maxCoverage(float rainfall) {
+        return 100f * rainfallFactor(rainfall);
     }
 
     /** 降水系数：< noSnow → 0；> fullSnow → 1；之间线性。 */

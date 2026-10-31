@@ -18,6 +18,9 @@ public interface OverworldClimateModelMixin {
     @Invoker("calculateMonthlyTemperature")
     float estfc$calculateMonthlyTemperature(int z, float monthTemperatureModifier);
 
+    @Invoker("calculateDailyTemperature")
+    float estfc$calculateDailyTemperature(long calendarTime, long daysInMonth, int z);
+
     @Invoker("adjustTemperatureByElevation")
     float estfc$adjustTemperatureByElevation(int y, float averageTemperature, float monthTemperature, float dailyTemperature);
 }

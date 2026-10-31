@@ -29,9 +29,9 @@ public final class RegionClimateCache {
     private static final Logger LOGGER = LoggerFactory.getLogger("estfc");
 
     /** 缓存上限（满则清空重算，数据静态可重取） */
-    private static final int REGION_CACHE_CAP = 32768;
+    private static final int REGION_CACHE_CAP = 65536;
     /** 待请求集合上限 */
-    private static final int PENDING_CAP = 8192;
+    private static final int PENDING_CAP = 32768;
     /** 自检周期（tick） */
     private static final int SELF_CHECK_INTERVAL_TICKS = 100;
     /** 预取环重扫间隔（tick） */
@@ -65,7 +65,9 @@ public final class RegionClimateCache {
         RegionPoint v01 = point(gx, gz + 1);
         RegionPoint v10 = point(gx + 1, gz);
         RegionPoint v11 = point(gx + 1, gz + 1);
-        if (v00 == null || v01 == null || v10 == null || v11 == null) return null;
+        if (v00 == null || v01 == null || v10 == null || v11 == null) {
+            return sampleNearest(x, z);
+        }
 
         float deltaX = (x & 127) / 128f;
         float deltaZ = (z & 127) / 128f;
@@ -73,6 +75,34 @@ public final class RegionClimateCache {
             lerp4(v00.temp, v01.temp, v10.temp, v11.temp, deltaX, deltaZ),
             lerp4(v00.height, v01.height, v10.height, v11.height, deltaX, deltaZ),
             lerp4(v00.rainfall, v01.rainfall, v10.rainfall, v11.rainfall, deltaX, deltaZ));
+    }
+
+    /** 四角缺失/请求未回时用最近的已缓存区域点，避免 Voxy 直接落到 biomeDepth=1。 */
+    @Nullable
+    private static Sample sampleNearest(int x, int z) {
+        int gx = x >> 7;
+        int gz = z >> 7;
+        RegionPoint best = null;
+        int bestGridX = 0;
+        int bestGridZ = 0;
+        int bestDist = Integer.MAX_VALUE;
+        for (int radius = 0; radius <= 2 && best == null; radius++) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != radius) continue;
+                    RegionPoint point = REGION_POINTS.get(RegionClimatePayloads.gridKey(gx + dx, gz + dz));
+                    if (point == null) continue;
+                    int dist = Math.abs((gx + dx) * 128 + 64 - x) + Math.abs((gz + dz) * 128 + 64 - z);
+                    if (dist < bestDist) {
+                        best = point;
+                        bestGridX = gx + dx;
+                        bestGridZ = gz + dz;
+                        bestDist = dist;
+                    }
+                }
+            }
+        }
+        return best == null ? null : new Sample(x, z, best.temp(), best.height(), best.rainfall());
     }
 
     /** 仅温度（自检/月温基准用）。 */
@@ -104,7 +134,7 @@ public final class RegionClimateCache {
         if (REGION_POINTS.putIfAbsent(RegionClimatePayloads.gridKey(gridX, gridZ),
             new RegionPoint(temperature, surfaceHeight, rainfall)) == null) {
             long n = REGION_POINTS.size();
-            if (n <= 5) {
+            if (Config.debugLogs() && n <= 5) {
                 LOGGER.info("[estfc] region climate received #{} ({},{}) = {}°C, h={}, rain={}",
                     n, gridX, gridZ, temperature, surfaceHeight, rainfall);
             }
@@ -127,6 +157,30 @@ public final class RegionClimateCache {
 
     /** 先按预算 drain 请求集合；玩家跨网格单元或每 PREFETCH_RESCAN_TICKS 补扫一次环。 */
     private static void requestMissing(Level level) {
+        // 先把预取环加入待请求集合，再按预算发送；否则 Voxy 的按需请求会把 PENDING
+        // 占满，预取环永远拿不到预算，远处大量 no region sample。
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            int gridX = player.blockPosition().getX() >> 7;
+            int gridZ = player.blockPosition().getZ() >> 7;
+            long tick = level.getGameTime();
+            if (gridX != lastScanGridX || gridZ != lastScanGridZ || tick - lastScanTick >= PREFETCH_RESCAN_TICKS) {
+                lastScanGridX = gridX;
+                lastScanGridZ = gridZ;
+                lastScanTick = tick;
+
+                int rings = Math.max(1, Config.dhTempPrefetchRadius() >> 7);
+                for (int ring = 0; ring <= rings; ring++) {
+                    for (int i = -ring; i <= ring; i++) {
+                        point(gridX + i, gridZ - ring);
+                        if (ring > 0) point(gridX + i, gridZ + ring);
+                        point(gridX - ring, gridZ + i);
+                        if (ring > 0) point(gridX + ring, gridZ + i);
+                    }
+                }
+            }
+        }
+
         int budget = Config.dhTempRequestsPerTick();
         for (Iterator<Long> it = PENDING.iterator(); it.hasNext() && budget > 0; ) {
             long key = it.next();
@@ -134,29 +188,6 @@ public final class RegionClimateCache {
             if (!REGION_POINTS.containsKey(key)) {
                 send(key);
                 budget--;
-            }
-        }
-        if (budget <= 0) return;
-
-        Player player = Minecraft.getInstance().player;
-        if (player == null) return;
-        int gridX = player.blockPosition().getX() >> 7;
-        int gridZ = player.blockPosition().getZ() >> 7;
-        long tick = level.getGameTime();
-        if (gridX == lastScanGridX && gridZ == lastScanGridZ && tick - lastScanTick < PREFETCH_RESCAN_TICKS) {
-            return;
-        }
-        lastScanGridX = gridX;
-        lastScanGridZ = gridZ;
-        lastScanTick = tick;
-
-        int rings = Math.max(1, Config.dhTempPrefetchRadius() >> 7);
-        for (int ring = 0; ring <= rings; ring++) {
-            for (int i = -ring; i <= ring; i++) {
-                point(gridX + i, gridZ - ring);
-                if (ring > 0) point(gridX + i, gridZ + ring);
-                point(gridX - ring, gridZ + i);
-                if (ring > 0) point(gridX + ring, gridZ + i);
             }
         }
     }
@@ -179,7 +210,7 @@ public final class RegionClimateCache {
                 .getAverageSeaLevelTemp(pos.getX(), pos.getZ());
             float cached = avgSeaLevelTemp(pos.getX(), pos.getZ());
             if (Float.isNaN(cached)) return;
-            if (Math.abs(cached - real) > 0.01f) {
+            if (Config.debugLogs() && Math.abs(cached - real) > 0.01f) {
                 LOGGER.warn("[estfc] region temp mismatch at {}: cache={} chunkData={}", pos, cached, real);
             }
         } catch (Exception ignored) {

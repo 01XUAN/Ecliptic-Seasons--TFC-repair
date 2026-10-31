@@ -1,5 +1,6 @@
 package me.xuan.estfc.weather;
 
+import com.teamtea.eclipticseasons.api.misc.IBiomeWeatherProvider;
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
@@ -76,6 +77,18 @@ public final class ClimateQuery {
     public static int getBiomeDepth(Level level, Biome biome) {
         try {
             WeatherManager.BiomeWeather bw = WeatherManager.getBiomeWeather(level, biome);
+            if (bw == null && level instanceof IBiomeWeatherProvider provider) {
+                // Voxy/其它包装可能绕过 ES 的 bind id 快查；按 Biome 实例回退找一次
+                var list = provider.es$get();
+                if (list != null) {
+                    for (WeatherManager.BiomeWeather candidate : list) {
+                        if (candidate != null && candidate.biomeHolder != null
+                            && candidate.biomeHolder.value() == biome) {
+                            return candidate.getSnowDepth() & 0xFF;
+                        }
+                    }
+                }
+            }
             return bw == null ? 0 : bw.getSnowDepth() & 0xFF;
         } catch (Exception e) {
             return 0;

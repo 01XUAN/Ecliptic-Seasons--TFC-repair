@@ -32,13 +32,13 @@ config="estfc.mixins.json"
 [[dependencies.${mod_id}]]
     modId="tfc"
     type="required"
-    versionRange="[1.21.1,)"
+    versionRange="[4.2,)"
     ordering="AFTER"
     side="BOTH"
 
 [[dependencies.${mod_id}]]
     modId="eclipticseasons"
     type="required"
-    versionRange="[0.13,)"
+    versionRange="[0.15.0-rc,)"
     ordering="AFTER"
     side="BOTH"

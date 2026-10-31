@@ -41,7 +41,7 @@ public final class EstfcConfigScreen extends Screen {
         Config.DH_TEMP_SERVER_THREADS, Config.DH_TEMP_SERVER_SUBMIT_PER_TICK,
         Config.TICK_CHUNK_INTERVAL_TICKS, Config.BIOME_SYNC_INTERVAL_TICKS,
         Config.SNOW_TEXTURE_SIMPLE_MODE, Config.SNOW_TEXTURE_REPLACE_MODE,
-        Config.TFC_CONNECTED_TEXTURE,
+        Config.TFC_CONNECTED_TEXTURE, Config.TFC_PHYSICAL_SNOW, Config.DEBUG_LOGS,
         Config.SNOW_TFC_BLOCK_PREFIXES, Config.SNOW_TFC_SIMPLE_SNOW_BLOCKS,
         Config.SNOW_BLOCK_NAMESPACES,
         Config.SNOW_TFC_LEAVES_BLOCKS
@@ -221,6 +221,8 @@ public final class EstfcConfigScreen extends Screen {
         switch (tab) {
             case 0 -> {
                 addBoolRow(rows, Config.TFC_CONNECTED_TEXTURE, "estfc.config.tfcConnectedTexture");
+                addBoolRow(rows, Config.TFC_PHYSICAL_SNOW, "estfc.config.tfcPhysicalSnow");
+                addBoolRow(rows, Config.DEBUG_LOGS, "estfc.config.debugLogs");
             }
             case 1 -> {
                 addDoubleRow(rows, Config.SNOW_APPEARANCE_TEMP,

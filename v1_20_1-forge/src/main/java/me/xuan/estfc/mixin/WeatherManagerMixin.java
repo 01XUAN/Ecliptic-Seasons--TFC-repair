@@ -2,6 +2,7 @@ package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
 import me.xuan.estfc.Config;
+import me.xuan.estfc.weather.BiomeCoverageCache;
 import me.xuan.estfc.weather.ClimateQuery;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
@@ -74,7 +75,7 @@ public abstract class WeatherManagerMixin {
     private static void estfc$getSnowStatus4(
         ServerLevel level, Biome biome, BlockPos pos, boolean rain,
         CallbackInfoReturnable<WeatherManager.SnowRenderStatus> cir) {
-        estfc$getSnowStatusImpl(level, pos, cir);
+        estfc$getSnowStatusImpl(level, biome, pos, cir);
     }
 
     // 降水类型
@@ -113,25 +114,35 @@ public abstract class WeatherManagerMixin {
 
     @Unique
     private static void estfc$getSnowStatusImpl(
-        ServerLevel level, BlockPos pos,
+        ServerLevel level, Biome biome, BlockPos pos,
         CallbackInfoReturnable<WeatherManager.SnowRenderStatus> cir) {
+
+        // ES 的 WeatherManager.updateSnowOrMelt 用 BlockPos.ZERO 作哨兵，直接加减
+        // BiomeWeather.snowDepth；estfc 的 WeatherCycleService 也在写同一个值，
+        // 两者交替会把群系雪深在 100 和覆盖率之间来回拉。雪深只允许 estfc 更新。
+        if (BlockPos.ZERO.equals(pos)) {
+            cir.setReturnValue(WeatherManager.SnowRenderStatus.NONE);
+            return;
+        }
 
         try {
             ClimateModel model = ClimateQuery.getModelIfActive(level);
             if (model == null) return;
 
             float temp = ClimateQuery.instantTemperature(level, pos);
-            boolean precipitating = ClimateQuery.isPrecipitating(level, pos);
             float meltTemp = Config.snowMeltTemp();
 
             if (temp > meltTemp) {
                 // 高于融雪温度 → 融雪。
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW_MELT);
-            } else if (precipitating) {
-                // 低于融雪温度 + 正在降水 → 积雪（只在降雪期间添加）
-                cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW);
+            } else if (BiomeCoverageCache.isClimateOnly(level, biome)) {
+                // 初始气候种子：奇偶 tick 交替加/清，双向逼近 C
+                cir.setReturnValue((level.getGameTime() & 1L) == 0L
+                    ? WeatherManager.SnowRenderStatus.SNOW
+                    : WeatherManager.SnowRenderStatus.SNOW_MELT);
             } else {
-                // 低于融雪温度 + 无降水 → 不动（保持现有雪，不增不减）
+                // 低温无降水：物理雪/冰不要继续生成；可视化补齐在 SnowyStatusKeeperMixin
+                // 内单独把 NONE 包成 SNOW，只改雪标志，不影响物理雪。
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.NONE);
             }
         } catch (Exception e) {}

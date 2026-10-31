@@ -1,5 +1,6 @@
 package me.xuan.estfc.weather;
 
+import com.teamtea.eclipticseasons.api.misc.IBiomeWeatherProvider;
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
 import net.dries007.tfc.util.calendar.Calendars;
 import net.dries007.tfc.util.climate.Climate;
@@ -7,6 +8,7 @@ import net.dries007.tfc.util.climate.ClimateModel;
 import net.dries007.tfc.util.tracker.WeatherHelpers;
 import net.dries007.tfc.util.tracker.WorldTracker;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -31,16 +33,19 @@ public final class ClimateQuery {
 
     // 降水检测
 
-    private record PrecipSnapshot(long calendarTick, boolean precipitating) {}
-    private static volatile PrecipSnapshot precipCache = new PrecipSnapshot(Long.MIN_VALUE, false);
+    private record PrecipSnapshot(ResourceKey<Level> dimension, long calendarTick, boolean precipitating) {}
+    private static volatile PrecipSnapshot precipCache = new PrecipSnapshot(null, Long.MIN_VALUE, false);
 
     public static boolean isPrecipitating(Level level) {
         long calTicks = Calendars.get(level).getCalendarTicks();
+        ResourceKey<Level> dimension = level.dimension();
         PrecipSnapshot snap = precipCache;                    // 单次 volatile 读
-        if (snap.calendarTick() == calTicks) return snap.precipitating();
+        if (dimension.equals(snap.dimension()) && snap.calendarTick() == calTicks) {
+            return snap.precipitating();
+        }
         ClimateModel model = Climate.get(level);
         boolean result = model.supportsRain() && model.getRain(calTicks) > 0;
-        precipCache = new PrecipSnapshot(calTicks, result);   // 单次 volatile 写
+        precipCache = new PrecipSnapshot(dimension, calTicks, result); // 单次 volatile 写
         return result;
     }
 
@@ -76,6 +81,18 @@ public final class ClimateQuery {
     public static int getBiomeDepth(Level level, Biome biome) {
         try {
             WeatherManager.BiomeWeather bw = WeatherManager.getBiomeWeather(level, biome);
+            if (bw == null && level instanceof IBiomeWeatherProvider provider) {
+                // Voxy/其它包装可能绕过 ES 的 bind id 快查；按 Biome 实例回退找一次
+                var list = provider.es$get();
+                if (list != null) {
+                    for (WeatherManager.BiomeWeather candidate : list) {
+                        if (candidate != null && candidate.biomeHolder != null
+                            && candidate.biomeHolder.value() == biome) {
+                            return candidate.getSnowDepth() & 0xFF;
+                        }
+                    }
+                }
+            }
             return bw == null ? 0 : bw.getSnowDepth() & 0xFF;
         } catch (Exception e) {
             return 0;

@@ -3,18 +3,9 @@ package me.xuan.estfc.mixin;
 import com.teamtea.eclipticseasons.common.core.map.BiomeHolder;
 import com.teamtea.eclipticseasons.common.core.map.ChunkInfoMap;
 import com.teamtea.eclipticseasons.common.core.snow.SnowyMapChecker;
-import com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper;
-import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
 import me.xuan.estfc.weather.ChunkSnowRefresh;
-import me.xuan.estfc.weather.SnowDepthRules;
-import net.dries007.tfc.util.climate.Climate;
-import net.dries007.tfc.util.climate.ClimateModel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.Heightmap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,59 +27,6 @@ public abstract class SnowyMapCheckerMixin {
         @Nullable BiomeHolder biomeHolder, boolean loadingChunk, CallbackInfo ci) {
 
         if (chunkMap == null) return;
-
-        try {
-            ClimateModel model = Climate.get(level);
-            if (!model.supportsRain()) return;
-
-            SnowyStatusKeeper keeper = SnowyMapChecker.getSnowyStatusKeeper(chunk);
-            WeatherStatusKeeper weatherKeeper = SnowyMapChecker.getWeatherStatusKeeper(chunk);
-
-            ChunkSnowRefresh.ChunkContext ctx = ChunkSnowRefresh.prepare(level, chunk, model);
-
-            int minX = chunk.getPos().getMinBlockX();
-            int minZ = chunk.getPos().getMinBlockZ();
-            int maxX = chunk.getPos().getMaxBlockX();
-            int maxZ = chunk.getPos().getMaxBlockZ();
-            BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
-
-            for (int x = minX; x <= maxX; x++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    int surfaceHeight = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
-                    int solidHeight = chunkMap.getHeight(x, z);
-
-                    int minY = Math.min(solidHeight, surfaceHeight);
-                    int maxY = Math.max(solidHeight, surfaceHeight);
-
-                    float colTemp = ChunkSnowRefresh.columnTemperature(level, model, x, surfaceHeight, z);
-                    // 有效深度 = 温度地板/累积深度取斜坡，再乘降水系数（<80mm 无雪，80-150 线性）
-                    int colSnowDepth = SnowDepthRules.depthFromTemp(colTemp, ctx.biomeSnowDepth(), ctx.rainfall());
-
-                    for (int y = minY; y <= maxY; y++) {
-                        checkPos.set(x, y, z);
-                        BlockState state = chunk.getBlockState(checkPos);
-
-                        if (ChunkSnowRefresh.isSkippable(state)) continue;
-
-                        boolean hasSnow = keeper.isSnowyBlock(checkPos);
-
-                        if (loadingChunk) {
-                            ChunkSnowRefresh.applyOnLoad(keeper, checkPos, state,
-                                colTemp, colSnowDepth, hasSnow);
-                        } else {
-                            ChunkSnowRefresh.applyMeltOnly(keeper, checkPos, colTemp, hasSnow);
-                        }
-                    }
-                }
-            }
-
-            // loadingChunk 时 ES 不调用 updateAndSend，此处补上
-            if (loadingChunk && chunk instanceof LevelChunk levelChunk) {
-                keeper.updateAndSend(level, levelChunk);
-                weatherKeeper.updateAndSend(level, levelChunk);
-            }
-        } catch (Exception e) {
-            // TFC 不可用时跳过
-        }
+        ChunkSnowRefresh.refreshChunk(level, chunk, chunkMap, loadingChunk);
     }
 }

@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin;
 
+import me.xuan.estfc.Config;
 import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.world.chunkdata.ChunkData;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -31,6 +32,7 @@ public abstract class ClimateMixin {
     @Inject(method = "onChunkLoad", at = @At("HEAD"), cancellable = true)
     private static void estfc$skipWorldgenSnow(WorldGenLevel level, ChunkAccess chunk, ChunkData chunkData,
                                                CallbackInfo ci) {
+        if (Config.tfcPhysicalSnow()) return;
         ci.cancel();
     }
 }

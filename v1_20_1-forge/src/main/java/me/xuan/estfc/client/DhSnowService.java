@@ -8,6 +8,9 @@ import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockSt
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam;
 import com.seibel.distanthorizons.api.objects.data.IDhApiFullDataSource;
 import com.seibel.distanthorizons.core.dataObjects.fullData.sources.FullDataSourceV2;
+import com.seibel.distanthorizons.core.pos.DhSectionPos;
+import com.seibel.distanthorizons.core.util.FullDataPointUtil;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import me.xuan.estfc.Config;
 import me.xuan.estfc.weather.ClimateQuery;
 import me.xuan.estfc.weather.SnowDepthRules;
@@ -48,7 +51,11 @@ public final class DhSnowService {
     private static final ConcurrentHashMap<String, BiomeDepthEntry> BIOME_DEPTH_CACHE = new ConcurrentHashMap<>();
 
     /** 列状态：key=列(level,x,z)，同一列所有数据点共享 (x,z)，首事件=表面 */
-    private record ColumnEntry(long day, int biomeDepth) {}
+    /**
+     * 列状态：key=列(level,x,z)。首个事件=表面；firstBottom 用于跳过同列更低的数据点，
+     * 等于首个底部时视为新一轮 LOD 构建，重算温度（日温）但复用缓存的地表高度。
+     */
+    private record ColumnEntry(long day, int biomeDepth, int firstBottom, int surfaceTop) {}
     private static final ConcurrentHashMap<Long, ColumnEntry> COLUMN_CACHE = new ConcurrentHashMap<>();
 
     private static WeakReference<Level> boundLevel = new WeakReference<>(null);
@@ -103,23 +110,40 @@ public final class DhSnowService {
         int z = param.getBlockPosZ();
         long day = Calendars.get(level).getCalendarTicks() / ICalendar.TICKS_IN_DAY;
         long columnKey = columnKey(levelIndex, x >> levelIndex, z >> levelIndex);
+        int eventBottom = param.getBlockPosY() - param.getLevelWrapper().getMinHeight();
 
-        // 有效缓存 = 该列表面已处理 → 非表面数据点原样返回
         ColumnEntry col = COLUMN_CACHE.get(columnKey);
-        if (col != null && col.day() == day && col.biomeDepth() == biomeDepth) return;
+        boolean cacheValid = col != null && col.day() == day && col.biomeDepth() == biomeDepth;
+        int cachedSurfaceY = Integer.MIN_VALUE;
+        if (cacheValid) {
+            if (eventBottom > col.firstBottom()) return;
+            cachedSurfaceY = col.surfaceTop();
+        }
 
         // 首事件 = 表面数据点：一次采样温度+区域高度，判定覆雪
         RegionClimateCache.Sample sample = RegionClimateCache.sampleClimate(x, z);
-        if (sample == null) return; // 区域数据未同步 → 本轮跳过，下轮重试
+        if (sample == null) {
+            // 区域数据未到：用已同步的群系覆盖率兜底，避免整块 LOD 烘焙成 0%
+            if (biomeDepth > 0 && SnowDepthRules.shouldSnow(biomeDepth, Mth.getSeed(x, param.getBlockPosY(), z))) {
+                param.setColor(SNOW_COLOR_R, SNOW_COLOR_G, SNOW_COLOR_B);
+            }
+            return;
+        }
 
-        Float temp = DistantTemperature.distantTemperatureRegional(level, sample);
+        int surfaceY = cachedSurfaceY;
+        if (surfaceY == Integer.MIN_VALUE) {
+            surfaceY = exactSurfaceY(param, eventBottom);
+        }
+        int resolvedY = surfaceY != Integer.MIN_VALUE ? surfaceY : (int) sample.height();
+
+        Float temp = DistantTemperature.distantTemperature(level, sample, resolvedY);
         if (temp == null) return;
 
-        COLUMN_CACHE.put(columnKey, new ColumnEntry(day, biomeDepth));
+        COLUMN_CACHE.put(columnKey, new ColumnEntry(day, biomeDepth, eventBottom, resolvedY));
         if (COLUMN_CACHE.size() > CACHE_CAP) COLUMN_CACHE.clear();
 
-        int depth = SnowDepthRules.depthFromTemp(temp, biomeDepth, sample.rainfall());
-        if (depth > 0 && SnowDepthRules.shouldSnow(depth, Mth.getSeed(x, (int) sample.height(), z))) {
+        int depth = SnowDepthRules.depthFromCoverage(temp, biomeDepth, sample.rainfall());
+        if (depth > 0 && SnowDepthRules.shouldSnow(depth, Mth.getSeed(x, resolvedY, z))) {
             param.setColor(SNOW_COLOR_R, SNOW_COLOR_G, SNOW_COLOR_B);
         }
     }
@@ -129,6 +153,58 @@ public final class DhSnowService {
             return Math.max(0, fullDataSource.getDataDetailLevel());
         }
         return FALLBACK_DETAIL_LEVEL;
+    }
+
+    /**
+     * 从 DH 数据源反推该列真实地表高度。
+     * 事件自带的 y 是 merged run 底部，不是地表；这里取列内最高 data point 的 topY。
+     * 失败时返回 Integer.MIN_VALUE，回退 128 格区域高度。
+     */
+    private static int exactSurfaceY(DhApiBlockColorOverrideEvent.EventParam param, int eventBottom) {
+        try {
+            if (!(param.getDataSource() instanceof FullDataSourceV2 dataSource)) {
+                return Integer.MIN_VALUE;
+            }
+
+            int detail = dataDetailLevel(dataSource);
+            int cell = 1 << detail;
+            int width = dataSource.getWidthInDataColumns();
+            long pos = dataSource.getPos();
+            int minX = DhSectionPos.getCenterBlockPosX(pos) - (width * cell) / 2;
+            int minZ = DhSectionPos.getCenterBlockPosZ(pos) - (width * cell) / 2;
+            int relX = (param.getBlockPosX() - minX) / cell;
+            int relZ = (param.getBlockPosZ() - minZ) / cell;
+            if (relX < 0 || relX >= width || relZ < 0 || relZ >= width) {
+                return Integer.MIN_VALUE;
+            }
+
+            LongArrayList column = dataSource.tryGetColumnAtRelPos(relX, relZ);
+            if (column == null) return Integer.MIN_VALUE;
+
+            int minY = param.getLevelWrapper().getMinHeight();
+            int eventTop = Integer.MIN_VALUE;
+            int top = Integer.MIN_VALUE;
+            for (int i = 0; i < column.size(); i++) {
+                long point = column.getLong(i);
+                if (point == FullDataPointUtil.EMPTY_DATA_POINT) continue;
+                try {
+                    if (dataSource.mapping.getBlockStateWrapper(FullDataPointUtil.getId(point)).isAir()) {
+                        continue;
+                    }
+                } catch (RuntimeException ignored) {
+                    // 父级/旧版列可能带当前 mapping 不认识的 id，跳过该数据点而不是整列回退
+                    continue;
+                }
+
+                int bottom = FullDataPointUtil.getBottomY(point);
+                int pointTop = bottom + FullDataPointUtil.getHeight(point) + minY;
+                top = Math.max(top, pointTop);
+                if (bottom == eventBottom) eventTop = pointTop;
+            }
+            return eventTop != Integer.MIN_VALUE ? eventTop : top;
+        } catch (Throwable ignored) {
+            return Integer.MIN_VALUE;
+        }
     }
 
     /** 列 key：level(3bit) + x>>level(25bit) + z>>level(25bit)。 */
@@ -167,6 +243,7 @@ public final class DhSnowService {
     private static void bind(Level level) {
         if (boundLevel.get() == level) return;
         COLUMN_CACHE.clear();
+        BIOME_DEPTH_CACHE.clear();
         boundLevel = new WeakReference<>(level);
     }
 

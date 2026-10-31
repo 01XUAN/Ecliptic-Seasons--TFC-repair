@@ -37,32 +37,32 @@ public class Config {
 
         SNOW_APPEARANCE_TEMP = BUILDER
             .comment(
-                "雪出现温度 (°C)：高于此温度 → 无雪。",
-                "与完全覆雪温度之间的区间是过渡带：覆雪率随温度线性变化",
-                "（默认设置下 -1°C→25%，-2°C→50%，-3°C→75%）。",
-                "Snow appearance temperature (°C): above this → no snow.",
-                "Between this and the full-coverage temperature the coverage ramps",
-                "linearly (e.g. -1°C→25%, -2°C→50% with defaults).",
+                "开始出现雪的温度 (°C)：高于此温度不会按气候生成雪。",
+                "用于未初始化群系的气候种子；初始化后覆雪率 = 累积雪深 × 降水系数。",
+                "Snow appearance temperature (°C): above this the temperature ramp is 0.",
+                "The ramp seeds uninitialized biomes; after seeding,",
+                "coverage = accumulated snow depth * rainfall factor.",
                 "默认/Default: 0.0"
             )
             .defineInRange("snowAppearanceTemp", 0.0, -273.0, 500.0);
 
         SNOW_MELT_TEMP = BUILDER
             .comment(
-                "融雪温度 (°C)：高于此温度积雪消融，低于此温度且有降水则积雪。",
-                "建议与雪出现温度保持一致（默认均为 0°C）。",
-                "Snow melt temperature (°C): above this snow melts, below this +",
-                "precipitation it accumulates. Should match snowAppearanceTemp.",
+                "开始融雪的温度 (°C)：高于此温度积雪消融；低于此温度按累积雪深显示覆雪。",
+                "建议与开始出现雪的温度保持一致（默认均为 0°C）。",
+                "Snow melt temperature (°C): above this snow melts; below this coverage",
+                "follows accumulated snow depth. Should match snowAppearanceTemp.",
                 "默认/Default: 0.0"
             )
             .defineInRange("snowMeltTemp", 0.0, -273.0, 500.0);
-
         SNOW_FULL_COVERAGE_TEMP = BUILDER
             .comment(
-                    "完全覆雪温度 (°C)：低于此温度 → 满雪 (100%)。",
-                    "与雪出现温度的差值决定过渡带宽度（默认 0~-4°C）。",
-                    "Full snow coverage temperature (°C): below this → 100% snow.",
-                    "The gap to snowAppearanceTemp sets the transition band width.",
+                    "满雪覆盖的温度 (°C)：低于此温度，气候种子达到 100%。",
+                    "实际覆雪率 = 累积雪深 × 降水系数；温度斜坡只用于未初始化群系。",
+                    "与开始出现雪的温度的差值决定过渡带宽度（默认 0~-4°C）。",
+                    "Full temperature ramp (°C): below this the ramp / climate seed is 100%.",
+                    "Actual coverage = accumulated snow depth * rainfall factor.",
+                    "The ramp is only used for uninitialized biomes.",
                     "默认/Default: -4.0"
             )
             .defineInRange("snowFullCoverageTemp", -4.0, -273.0, 500.0);
@@ -95,9 +95,9 @@ public class Config {
                 "[DH/voxy] Prefetch radius of region climate points (128-block grid, blocks).",
                 "Region points are generated server-side deterministically from the world seed",
                 "and synced to the client; this radius bounds the prefetch area around the player.",
-                "默认/Default: 1024"
+                "默认/Default: 2560"
             )
-            .defineInRange("dhTempPrefetchRadius", 1024, 128, 16384);
+            .defineInRange("dhTempPrefetchRadius", 8192, 128, 16384);
 
         DH_TEMP_REQUESTS_PER_TICK = BUILDER
             .comment(
@@ -127,6 +127,41 @@ public class Config {
     }
 
     // ========================================================================
+    // 2. Physical Snow — TFC 原版物理雪
+    // ========================================================================
+
+    public static final ModConfigSpec.BooleanValue TFC_PHYSICAL_SNOW;
+    public static final ModConfigSpec.BooleanValue DEBUG_LOGS;
+
+    static {
+        BUILDER.push("Physical Snow");
+        BUILDER.comment(
+            "是否允许 TFC 放置原版物理雪层（雪堆 / 雪块 / 冰 / 冰柱）。",
+            "关闭时覆雪完全由 ES 视觉系统表现；开启后恢复 TFC 的原版积雪行为，",
+            "物理雪会与 ES 视觉雪同时存在。",
+            "1.20.1 此开关同时控制世界生成阶段的物理雪（Climate.onChunkLoad、",
+            "minecraft:freeze_top_layer）以及 TFE 的物理雪。",
+            "Allow TFC's original physical snow (snow piles, snow layers, ice, icicles).",
+            "Disabled: snow is visual-only via ES. Enabled: TFC behavior returns and",
+            "physical snow coexists with ES visual snow.",
+            "On 1.20.1 this also gates worldgen physical snow (Climate.onChunkLoad,",
+            "minecraft:freeze_top_layer) and TFE's physical snow.",
+            "默认/Default: false"
+        );
+        TFC_PHYSICAL_SNOW = BUILDER
+            .define("tfcPhysicalSnow", false);
+
+        DEBUG_LOGS = BUILDER
+            .comment(
+                "输出 Voxy/区域气候等诊断日志。正常游玩建议关闭。",
+                "Enable diagnostic logs (Voxy snow, region climate). Keep off for normal play.",
+                "默认/Default: false"
+            )
+            .define("debugLogs", false);
+        BUILDER.pop();
+    }
+
+    // ========================================================================
     // 3. Elevation & Climate — 海拔/气候计算参数
     // ========================================================================
 
@@ -142,9 +177,9 @@ public class Config {
                 "tickChunk + biomeDepth 处理间隔（tick）。同时控制积雪/融雪速度和性能。",
                 "每 N tick：tickChunk处理 + biomeDepth ±1（100步=100×N tick）。",
                 "Interval for both tickChunk and depth step. Controls speed and performance.",
-                "默认/Default: 10"
+                "默认/Default: 2"
             )
-            .defineInRange("tickChunkIntervalTicks", 10, 1, 200);
+            .defineInRange("tickChunkIntervalTicks", 2, 1, 200);
 
         BIOME_SYNC_INTERVAL_TICKS = BUILDER
             .comment(
@@ -334,9 +369,12 @@ public class Config {
     // Cached runtime values — 在 UpdateConfig 中刷新
     // ========================================================================
 
+    /** 是否恢复 TFC/原版物理雪 */
+    private static boolean cachedTfcPhysicalSnow = false;
+    private static boolean cachedDebugLogs = false;
     /** 雪开始出现的温度 (°C)，高于此值为零雪 */
     private static float cachedSnowAppearanceTemp = 0.0f;
-    /** 100% 覆雪的温度 (°C)，低于此值为满雪 */
+    /** 温度斜坡达到 100% 的温度 (°C) */
     private static float cachedSnowFullCoverageTemp = -4.0f;
     /** 雪融化的温度 (°C) */
     private static float cachedSnowMeltTemp = 0.0f;
@@ -345,7 +383,7 @@ public class Config {
     /** 满雪降水量阈值 (mm/年) */
     private static int cachedSnowRainfallFullSnow = 150;
     /** 区域温度预取半径（格） */
-    private static int cachedDhTempPrefetchRadius = 1024;
+    private static int cachedDhTempPrefetchRadius = 8192;
     /** 每 tick 区域点请求上限 */
     private static int cachedDhTempRequestsPerTick = 512;
     /** 服务端计算线程数 */
@@ -353,7 +391,7 @@ public class Config {
     /** 每 tick 提交给服务端线程池的上限 */
     private static int cachedDhTempServerSubmitPerTick = 64;
     /** tickChunk + biomeDepth 间隔（tick） */
-    private static int cachedTickChunkIntervalTicks = 10;
+    private static int cachedTickChunkIntervalTicks = 2;
     /** Biome 雪深同步间隔（tick） */
     private static int cachedBiomeSyncIntervalTicks = 100;
     /** 全局简单雪模式 */
@@ -375,6 +413,8 @@ public class Config {
     // Getters — 供其他类使用（返回缓存值，避免每帧查询 ModConfigSpec）
     // ========================================================================
 
+    public static boolean tfcPhysicalSnow() { return cachedTfcPhysicalSnow; }
+    public static boolean debugLogs() { return cachedDebugLogs; }
     public static float snowAppearanceTemp() { return cachedSnowAppearanceTemp; }
     public static float snowFullCoverageTemp() { return cachedSnowFullCoverageTemp; }
     public static float snowMeltTemp() { return cachedSnowMeltTemp; }
@@ -402,6 +442,8 @@ public class Config {
         if (event instanceof ModConfigEvent.Unloading) return;
         if (event.getConfig().getSpec() != SPEC) return;
 
+        cachedTfcPhysicalSnow = TFC_PHYSICAL_SNOW.get();
+        cachedDebugLogs = DEBUG_LOGS.get();
         cachedSnowAppearanceTemp = SNOW_APPEARANCE_TEMP.get().floatValue();
         cachedSnowFullCoverageTemp = SNOW_FULL_COVERAGE_TEMP.get().floatValue();
         cachedSnowMeltTemp = SNOW_MELT_TEMP.get().floatValue();

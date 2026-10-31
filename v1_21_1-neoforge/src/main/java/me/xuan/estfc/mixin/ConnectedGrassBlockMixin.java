@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin;
 
+import me.xuan.estfc.Config;
 import net.dries007.tfc.common.blocks.soil.ConnectedGrassBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,6 +23,7 @@ public abstract class ConnectedGrassBlockMixin {
     @Inject(method = "updateStateFromDirection", at = @At("RETURN"), cancellable = true)
     private void estfc$clearConnection(BlockGetter worldIn, BlockPos pos, BlockState stateIn,
                                        Direction direction, CallbackInfoReturnable<BlockState> cir) {
+        if (Config.tfcConnectedTexture()) return;
         // updateStateFromDirection 返回 stateIn.setValue(...)，结构上必带方向属性，无需守卫
         cir.setReturnValue(estfc$clearHorizontalConnections(cir.getReturnValue()));
     }
@@ -31,6 +33,7 @@ public abstract class ConnectedGrassBlockMixin {
                                                     BlockState facingState, LevelAccessor level,
                                                     BlockPos currentPos, BlockPos facingPos,
                                                     CallbackInfoReturnable<BlockState> cir) {
+        if (Config.tfcConnectedTexture()) return;
         BlockState original = cir.getReturnValue();
         // updateShape 按约定可能返回别的方块的 state（如第三方子类返回 AIR），守卫必需
         if (original.hasProperty(ConnectedGrassBlock.NORTH)) {

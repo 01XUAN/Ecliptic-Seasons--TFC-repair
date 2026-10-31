@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin;
 
+import me.xuan.estfc.Config;
 import me.xuan.estfc.weather.WeatherCycleService;
 import net.dries007.tfc.util.tracker.WeatherHelpers;
 import net.minecraft.server.level.ServerLevel;
@@ -19,10 +20,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class WeatherHelpersMixin {
 
     /**
-     * 取消 TFC chunk tick 积雪处理。TFC 不再放置 SnowPileBlock/IcePileBlock/IcicleBlock，
+     * 默认取消 TFC chunk tick 积雪处理，TFC 不再放置 SnowPileBlock/IcePileBlock/IcicleBlock；
+     * 配置 {@code tfcPhysicalSnow=true} 时放行。
      */
     @Inject(method = "onTickChunk", at = @At("HEAD"), cancellable = true)
     private static void estfc$cancelTfcSnowAccumulation(ServerLevel level, ChunkAccess chunk, CallbackInfo ci) {
+        if (Config.tfcPhysicalSnow()) return;
         ci.cancel();
     }
 

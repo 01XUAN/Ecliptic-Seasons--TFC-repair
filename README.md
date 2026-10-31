@@ -10,8 +10,8 @@
 
 ### 1. 雪与贴图☃️
 
-- 雪的出现、累积和融化完全由 **TFC 的温度和天气** 决定，而温度同时受海拔影响，并且阻止了 TFC 放置物理雪方块。<br>
-  *<font color="#8e8e8e">由于 TFC 每个地方的温度差异无法使用 ES 原有的群系雪深逻辑，不可避免的出现新加载区块与已加载区块积雪量不同而产生的断层。</font>*
+- 雪的出现、累积和融化完全由 **TFC 的温度和天气** 决定，而温度同时受海拔影响，默认阻止 TFC 放置物理雪方块（配置 `tfcPhysicalSnow` 可恢复原版物理雪）。<br>
+  *<font color="#8e8e8e">每个群系用代表点采样局部温度/降水，覆雪率由累积雪深决定；新区块加载时按当前雪深铺设，局部气候差异仍可能造成轻微断层。</font>*
 
 - 给 TFC 方块添加**视觉雪覆盖**，同时支持**两种雪纹理模式**：  
   - **简单模式**（`simpleSnow`） – 所有面统一使用 `estfc:block/snow` 贴图。  
@@ -23,8 +23,7 @@
 
 ### 2. 模组兼容🖇️
 
-- 在 **DH 生成的 LOD 网格** 中，根据修正后的 TFC 温度为方块着色，使**远景雪色与近景尽可能接近**。
-
+- 在 **DH 生成的 LOD 网格** 中，根据修正后的 TFC 温度为方块着色，使**远景雪色与近景尽可能相同**。<br>
 - 关于 **Voxy** 模组，已通过 *Ecliptic Seasons: VoxyCompact* 兼容，但是只针对部分 Voxy 版本，其中对于[这个版本](https://github.com/NHblock714/voxy)不需要 Ecliptic Seasons: VoxyCompact（Voxy 里面已经内置），并且有额外的功能。<br>
   <font color="#8e8e8e">新版的 Ecliptic Seasons: VoxyCompact 已改为渲染时判雪（不再写 LOD 存储），并自带 15 秒定时刷新（`voxyAutoRefresh`），无需 estfc 额外触发。</font>
 
@@ -35,14 +34,11 @@
 - **开启 TFC 自带的连接纹理（`tfcConnectedTexture = true`）时，覆雪贴图会失效**<br>
   <font color="#8e8e8e">连接纹理与覆雪贴图渲染冲突，当前只能在两者之间二选一；默认关闭连接纹理以保证覆雪正常。</font>
 
-- **DH 远景高度采样精度问题，覆雪与实际有偏差**<br>
-  <font color="#8e8e8e">高度数据来自 TFC 的 `getBaseHeight`，大尺度的高山/低谷在远景中表现正确，但局部陡峭地形（单座尖峰、窄谷、凹坑）会被平滑，导致远景雪线与实际有明显偏差。</font>
-
 - **覆雪贴图全是脚本生成的**<br>
   <font color="#8e8e8e">不好看:(</font>
 
-- **开始下雪后已加载区块和新加载区块覆雪率不一致**<br>
-  <font color="#8e8e8e"></font>
+- **降雪时，已加载区块和新加载区块可能不同步**<br>
+  <font color="#8e8e8e">两者用同一份 `BiomeCoverageCache` 覆盖率；新区块加载时直接按当前覆盖率铺设，已加载区块按区块内 16×16 随机列序游标逐列推进，一轮 256 列内每列只检查一次，不会因随机重复命中已覆雪列而越来越慢。目标概率始终是 C（降水时不再用 100 抢跑），雪停后仍会按 C 补齐剩余列。一轮耗时约 `256 × tickChunkIntervalTicks × (48 / randomTickSpeed)` tick；默认 interval=2、randomTickSpeed=3 约 6.8 分钟。</font>
 
 ---
 

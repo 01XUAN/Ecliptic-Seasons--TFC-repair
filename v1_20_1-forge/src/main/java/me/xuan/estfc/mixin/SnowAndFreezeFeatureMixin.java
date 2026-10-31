@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin;
 
+import me.xuan.estfc.Config;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.SnowAndFreezeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -26,6 +27,7 @@ public abstract class SnowAndFreezeFeatureMixin {
     @Inject(method = "place", at = @At("HEAD"), cancellable = true)
     private void estfc$skipWorldgenSnowIce(FeaturePlaceContext<NoneFeatureConfiguration> context,
                                            CallbackInfoReturnable<Boolean> cir) {
+        if (Config.tfcPhysicalSnow()) return;
         cir.setReturnValue(true);
     }
 }

@@ -92,15 +92,15 @@ configurations {
 }
 
 dependencies {
-    // TerraFirmaCraft (Modrinth project ID: JaCEZUhg, version: cvJPpviG)
-    implementation "maven.modrinth:JaCEZUhg:cvJPpviG"
+    // TerraFirmaCraft 4.2.11（Modrinth project ID: JaCEZUhg）
+    implementation "maven.modrinth:JaCEZUhg:${tfc_version_id}"
 
-    // Ecliptic Seasons (Modrinth project ID: ofdM7yJE, version: 3aXVbSSm)
-    implementation "maven.modrinth:ofdM7yJE:3aXVbSSm"
+    // Ecliptic Seasons 0.15.0-rc-3（Modrinth project ID: ofdM7yJE）
+    implementation "maven.modrinth:ofdM7yJE:${es_version_id}"
 
-    // Distant Horizons (Modrinth project ID: uCdwusMi, version: ZpKb4kZp)
+    // Distant Horizons（Modrinth project ID: uCdwusMi）
     // 仅客户端 DhSnowService 用其公共 API 事件（级别感知海拔需要 dataDetailLevel）
-    implementation "maven.modrinth:uCdwusMi:ZpKb4kZp"
+    implementation "maven.modrinth:uCdwusMi:${dh_version_id}"
 
 }
 

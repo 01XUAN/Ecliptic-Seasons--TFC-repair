@@ -18,7 +18,8 @@
         "ClientConMixin",
         "SnowModelMixin",
         "ExtraModelManagerMixin",
-        "OverworldClimateModelMixin"
+        "OverworldClimateModelMixin",
+        "DHToolMixin"
     ],
     "server": [],
     "refmap": "estfc.refmap.json"

@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin.tfe;
 
+import me.xuan.estfc.Config;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,6 +25,7 @@ public abstract class NTEWeatherHelpersMixin {
 
     @Inject(method = "onTickChunk", at = @At("HEAD"), cancellable = true)
     private static void estfc$cancelTfeSnow(ServerLevel level, LevelChunk chunk, CallbackInfo ci) {
+        if (Config.tfcPhysicalSnow()) return;
         ci.cancel();
     }
 }

@@ -36,17 +36,9 @@ public final class SnowDefinitionRegistrar {
     /** 普通 TFC 树树叶（datapack 若移除后也由此兜底） */
     private static final String WOOD_LEAVES_PREFIX = "wood/leaves/";
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("estfc");
-
     public static void registerDefaults() {
         // 配置缓存未初始化（极早期）时无可匹配，直接返回
-        if (Config.tfcBlockPrefixes().isEmpty() && Config.tfcLeavesSnowBlocks().isEmpty()) {
-            LOGGER.info("[estfc] registrar skipped: config cache empty (prefixes={}, leaves={})",
-                Config.tfcBlockPrefixes().size(), Config.tfcLeavesSnowBlocks().size());
-            return;
-        }
-
-        int registered = 0;
+        if (Config.tfcBlockPrefixes().isEmpty() && Config.tfcLeavesSnowBlocks().isEmpty()) return;
         for (Block block : BuiltInRegistries.BLOCK) {
             ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
             if (!Config.blockNamespaces().contains(id.getNamespace())) continue;
@@ -81,10 +73,7 @@ public final class SnowDefinitionRegistrar {
                 .info(info)
                 .build()
                 .fillMap(SnowChecker.SNOW_DEFINITION_MAP);
-            registered++;
         }
-        LOGGER.info("[estfc] registrar: namespaces={} prefixes={} registered={} mapSize={}",
-            Config.blockNamespaces(), Config.tfcBlockPrefixes(), registered, SnowChecker.SNOW_DEFINITION_MAP.size());
     }
 
     /** 树叶类：配置的树叶列表（默认 regex:plant/.*_leaves，含果树树叶）+ 普通树树叶前缀 */

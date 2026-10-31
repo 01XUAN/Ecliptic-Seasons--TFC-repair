@@ -6,6 +6,8 @@ import com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper;
 import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
 import me.xuan.estfc.Config;
 import net.dries007.tfc.util.climate.ClimateModel;
+import net.dries007.tfc.util.climate.OverworldClimateModel;
+import net.dries007.tfc.world.chunkdata.ChunkData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.resources.ResourceKey;
@@ -60,10 +62,10 @@ public final class ChunkSnowScheduler {
         int budget = MAX_CHUNKS_PER_TICK;
         for (Iterator<Map.Entry<Key, Entry>> it = PENDING.entrySet().iterator(); it.hasNext() && budget > 0; ) {
             Map.Entry<Key, Entry> e = it.next();
-            budget--; // 按「检查过的条目」计数，避免其他维度把循环拖住
             Entry entry = e.getValue();
             if (entry.level() != level) continue;
 
+            budget--;
             it.remove();
             refresh(level, e.getKey().pos(), entry);
         }
@@ -88,7 +90,7 @@ public final class ChunkSnowScheduler {
             SnowyStatusKeeper keeper = SnowyMapChecker.getSnowyStatusKeeper(chunk);
             WeatherStatusKeeper weatherKeeper = SnowyMapChecker.getWeatherStatusKeeper(chunk);
 
-            ChunkSnowRefresh.ChunkContext ctx = prepare(level, chunk, model);
+            ChunkSnowRefresh.ChunkContext ctx = prepare(level, chunk);
 
             int minX = pos.getMinBlockX();
             int minZ = pos.getMinBlockZ();
@@ -109,8 +111,9 @@ public final class ChunkSnowScheduler {
                     int maxY = Math.min(Math.max(surfaceHeight, worldMin), worldMax);
                     if (maxY < minY) maxY = minY;
 
-                    float colTemp = ChunkSnowRefresh.columnTemperature(level, x, surfaceHeight, z);
-                    int colSnowDepth = SnowDepthRules.depthFromTemp(colTemp, ctx.biomeSnowDepth(), ctx.rainfall());
+                    float colTemp = ctx.temperature().at(level, x, surfaceHeight, z);
+                    int colSnowDepth = SnowDepthRules.depthFromCoverage(
+                        colTemp, ctx.coverage(), ctx.rainfall());
 
                     for (int y = minY; y <= maxY; y++) {
                         checkPos.set(x, y, z);
@@ -147,7 +150,7 @@ public final class ChunkSnowScheduler {
      * 列温度基准。biome 必须从区块本地取（{@code getNoiseBiome}），
      * 不能用 {@code level.getBiome} —— 后者会触发区块加载。
      */
-    private static ChunkSnowRefresh.ChunkContext prepare(ServerLevel level, ChunkAccess chunk, ClimateModel model) {
+    private static ChunkSnowRefresh.ChunkContext prepare(ServerLevel level, ChunkAccess chunk) {
         int midX = chunk.getPos().getMiddleBlockX();
         int midZ = chunk.getPos().getMiddleBlockZ();
         int centerSurface = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, midX, midZ);
@@ -155,11 +158,17 @@ public final class ChunkSnowScheduler {
 
         Biome biome = chunk.getNoiseBiome(
             QuartPos.fromBlock(midX), QuartPos.fromBlock(centerSurface), QuartPos.fromBlock(midZ)).value();
-        int biomeSnowDepth = ClimateQuery.getBiomeDepth(level, biome);
+        BiomeSnowSeed.ensureSeeded(level, biome, centerPos);
 
-        // 区块已加载（上面 getChunkNow 已确认），此处的气候读取不会触发加载
+        ChunkData data = chunk instanceof LevelChunk levelChunk ? ChunkData.get(levelChunk) : ChunkData.EMPTY;
+        BlockPos seaRef = new BlockPos(midX, (int) OverworldClimateModel.SEA_LEVEL, midZ);
+        float monthDaily = data == ChunkData.EMPTY ? 0f
+            : ClimateQuery.instantTemperature(level, seaRef) - data.getAverageTemp(midX, midZ);
+
         float rainfall = ClimateQuery.averageRainfall(level, centerPos);
-
-        return new ChunkSnowRefresh.ChunkContext(biomeSnowDepth, rainfall);
+        Float coverage = BiomeCoverageCache.getDisplay(level, biome);
+        int biomeDepth = coverage != null ? Math.round(coverage) : ClimateQuery.getBiomeDepth(level, biome);
+        return new ChunkSnowRefresh.ChunkContext(biomeDepth, rainfall,
+            new ChunkSnowRefresh.ChunkTemperature(data, monthDaily));
     }
 }

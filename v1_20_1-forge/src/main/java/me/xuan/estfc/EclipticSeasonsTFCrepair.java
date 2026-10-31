@@ -1,13 +1,18 @@
 package me.xuan.estfc;
 
 import me.xuan.estfc.client.DhSnowService;
+import me.xuan.estfc.command.EstfcDiagnosticsCommand;
 import me.xuan.estfc.net.RegionClimatePayloads;
+import me.xuan.estfc.weather.BiomeCoverageCache;
+import me.xuan.estfc.weather.BiomeSampleCache;
+import me.xuan.estfc.weather.BiomeSnowSeed;
 import me.xuan.estfc.weather.ChunkSnowScheduler;
 import me.xuan.estfc.weather.ChunkSnowTicker;
 import me.xuan.estfc.weather.WeatherCycleService;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -17,6 +22,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.eventbus.api.IEventBus;
+import com.teamtea.eclipticseasons.common.core.map.ChunkInfoMap;
+import com.teamtea.eclipticseasons.common.core.map.MapChecker;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +48,20 @@ public class EclipticSeasonsTFCrepair {
 
         // 区域气候点：服务端 tick 入队提交 + 服务器停止清缓存
         MinecraftForge.EVENT_BUS.addListener(RegionClimatePayloads::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(EstfcDiagnosticsCommand::register);
+        MinecraftForge.EVENT_BUS.addListener((ChunkEvent.Load e) -> {
+            if (e.getLevel() instanceof ServerLevel level && e.getChunk() instanceof LevelChunk chunk) {
+                ChunkInfoMap map = MapChecker.getChunkInfoMapOrCreate(level, chunk.getPos());
+                if (map != null) ChunkSnowScheduler.enqueue(level, map, chunk.getPos(), true);
+            }
+        });
         MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent e) -> {
             RegionClimatePayloads.clearServerCaches();
             ChunkSnowScheduler.clear();
+            BiomeCoverageCache.clear();
+            BiomeSampleCache.clear();
+            BiomeSnowSeed.clear();
+            WeatherCycleService.clear();
         });
 
         // 群系雪深主循环：1.20.1 的 TFC 在 LevelTickEvent.START 推进天气循环，

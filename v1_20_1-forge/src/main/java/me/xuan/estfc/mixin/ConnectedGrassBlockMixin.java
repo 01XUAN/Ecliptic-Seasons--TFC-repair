@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin;
 
+import me.xuan.estfc.Config;
 import net.dries007.tfc.common.blocks.soil.ConnectedGrassBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,12 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * 禁用 TFC ConnectedGrassBlock 的连接纹理方向属性。
  * 所有 NORTH/EAST/SOUTH/WEST 强制为 false，避免连接纹理干扰覆雪渲染。
  */
-@Mixin(value = ConnectedGrassBlock.class, remap = false)
+@Mixin(ConnectedGrassBlock.class)
 public abstract class ConnectedGrassBlockMixin {
 
-    @Inject(method = "updateStateFromDirection", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "updateStateFromDirection", at = @At("RETURN"), cancellable = true, remap = false)
     private void estfc$clearConnection(BlockGetter worldIn, BlockPos pos, BlockState stateIn,
                                        Direction direction, CallbackInfoReturnable<BlockState> cir) {
+        if (Config.tfcConnectedTexture()) return;
         // updateStateFromDirection 返回 stateIn.setValue(...)，结构上必带方向属性，无需守卫
         cir.setReturnValue(estfc$clearHorizontalConnections(cir.getReturnValue()));
     }
@@ -31,6 +33,7 @@ public abstract class ConnectedGrassBlockMixin {
                                                     BlockState facingState, LevelAccessor level,
                                                     BlockPos currentPos, BlockPos facingPos,
                                                     CallbackInfoReturnable<BlockState> cir) {
+        if (Config.tfcConnectedTexture()) return;
         BlockState original = cir.getReturnValue();
         // updateShape 按约定可能返回别的方块的 state（如第三方子类返回 AIR），守卫必需
         if (original.hasProperty(ConnectedGrassBlock.NORTH)) {

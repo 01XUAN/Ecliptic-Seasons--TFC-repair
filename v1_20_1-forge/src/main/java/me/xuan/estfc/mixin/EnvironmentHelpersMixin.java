@@ -1,5 +1,6 @@
 package me.xuan.estfc.mixin;
 
+import me.xuan.estfc.Config;
 import net.dries007.tfc.util.EnvironmentHelpers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -27,6 +28,7 @@ public abstract class EnvironmentHelpersMixin {
     @Inject(method = "tickChunk", at = @At("HEAD"), cancellable = true)
     private static void estfc$cancelTfcSnowAccumulation(ServerLevel level, LevelChunk chunk,
                                                        ProfilerFiller profiler, CallbackInfo ci) {
+        if (Config.tfcPhysicalSnow()) return;
         ci.cancel();
     }
 }
