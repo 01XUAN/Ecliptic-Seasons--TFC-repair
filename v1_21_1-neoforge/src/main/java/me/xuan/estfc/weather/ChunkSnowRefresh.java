@@ -5,6 +5,8 @@ import com.teamtea.eclipticseasons.common.core.map.MapChecker;
 import com.teamtea.eclipticseasons.common.core.snow.SnowyMapChecker;
 import com.teamtea.eclipticseasons.common.core.snow.SnowyStatusKeeper;
 import com.teamtea.eclipticseasons.common.core.snow.WeatherStatusKeeper;
+import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import me.xuan.estfc.Config;
 import net.dries007.tfc.util.Helpers;
 import net.dries007.tfc.util.climate.ClimateModel;
@@ -98,39 +100,47 @@ public final class ChunkSnowRefresh {
             ChunkContext ctx = prepare(level, chunk, model);
             int minX = chunk.getPos().getMinBlockX();
             int minZ = chunk.getPos().getMinBlockZ();
-            int maxX = chunk.getPos().getMaxBlockX();
-            int maxZ = chunk.getPos().getMaxBlockZ();
             BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
 
-            int worldMin = chunk.getMinBuildHeight();
-            int worldMax = chunk.getMaxBuildHeight() - 1;
-
-            for (int x = minX; x <= maxX; x++) {
-                for (int z = minZ; z <= maxZ; z++) {
+            float[] colTemps = new float[256];
+            int[] colSnowDepths = new int[256];
+            for (int dx = 0; dx < 16; dx++) {
+                for (int dz = 0; dz < 16; dz++) {
+                    int x = minX + dx;
+                    int z = minZ + dz;
                     int surfaceHeight = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
-                    int solidHeight = chunkMap.getHeight(x, z);
-
-                    int minY = Math.min(Math.max(solidHeight, worldMin), worldMax);
-                    int maxY = Math.min(Math.max(surfaceHeight, worldMin), worldMax);
-                    if (maxY < minY) maxY = minY;
-
                     float colTemp = ctx.temperature().at(level, x, surfaceHeight, z);
-                    int colSnowDepth = SnowDepthRules.depthFromCoverage(
+                    int index = dx + dz * 16;
+                    colTemps[index] = colTemp;
+                    colSnowDepths[index] = SnowDepthRules.depthFromCoverage(
                         colTemp, ctx.coverage(), ctx.rainfall());
+                }
+            }
 
-                    for (int y = minY; y <= maxY; y++) {
-                        checkPos.set(x, y, z);
-                        BlockState state = chunk.getBlockState(checkPos);
-                        if (isSkippable(state)) continue;
+            // ES 刚扫描过整列并把候选方块写进 posMap；只重算这些位置，
+            // 不再逐列 solidHeight..WORLD_SURFACE 调 chunk.getBlockState。
+            Long2IntLinkedOpenHashMap posMap = keeper.getPosMap();
+            if (!posMap.isEmpty()) {
+                LongArrayList positions = new LongArrayList(posMap.keySet());
+                for (long packed : positions) {
+                    checkPos.set(BlockPos.of(packed));
+                    int x = checkPos.getX();
+                    int z = checkPos.getZ();
+                    if (x < minX || x >= minX + 16 || z < minZ || z >= minZ + 16) continue;
 
-                        boolean hasSnow = keeper.isSnowyBlock(checkPos);
-                        if (loadingChunk) {
-                            applyOnLoad(keeper, checkPos, state, colTemp, colSnowDepth, hasSnow);
-                        } else {
-                            applyMeltOnly(keeper, checkPos, colTemp, hasSnow);
-                        }
+                    BlockState state = chunk.getBlockState(checkPos);
+                    if (state.isAir() || isSkippable(state)) continue;
+
+                    int index = (x - minX) + (z - minZ) * 16;
+                    boolean hasSnow = keeper.isSnowyBlock(checkPos);
+                    if (loadingChunk) {
+                        applyOnLoad(keeper, checkPos, state, colTemps[index], colSnowDepths[index], hasSnow);
+                    } else {
+                        applyMeltOnly(keeper, checkPos, colTemps[index], hasSnow);
                     }
                 }
+            } else {
+                scanChunk(level, chunk, chunkMap, keeper, ctx, loadingChunk, colTemps, colSnowDepths);
             }
 
             if (loadingChunk && chunk instanceof LevelChunk levelChunk) {
@@ -139,6 +149,45 @@ public final class ChunkSnowRefresh {
             }
         } catch (Exception ignored) {
             // TFC/ES 不可用时跳过
+        }
+    }
+
+    /** posMap 为空时（ES 未记录候选方块）退回逐列扫描。 */
+    private static void scanChunk(ServerLevel level, ChunkAccess chunk, ChunkInfoMap chunkMap,
+                                  SnowyStatusKeeper keeper, ChunkContext ctx, boolean loadingChunk,
+                                  float[] colTemps, int[] colSnowDepths) {
+        int minX = chunk.getPos().getMinBlockX();
+        int minZ = chunk.getPos().getMinBlockZ();
+        int maxX = chunk.getPos().getMaxBlockX();
+        int maxZ = chunk.getPos().getMaxBlockZ();
+        int worldMin = chunk.getMinBuildHeight();
+        int worldMax = chunk.getMaxBuildHeight() - 1;
+        BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                int surfaceHeight = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
+                int solidHeight = chunkMap.getHeight(x, z);
+                int minY = Math.min(Math.max(solidHeight, worldMin), worldMax);
+                int maxY = Math.min(Math.max(surfaceHeight, worldMin), worldMax);
+                if (maxY < minY) maxY = minY;
+
+                int index = (x - minX) + (z - minZ) * 16;
+                float colTemp = colTemps[index];
+                int colSnowDepth = colSnowDepths[index];
+                for (int y = minY; y <= maxY; y++) {
+                    checkPos.set(x, y, z);
+                    BlockState state = chunk.getBlockState(checkPos);
+                    if (isSkippable(state)) continue;
+
+                    boolean hasSnow = keeper.isSnowyBlock(checkPos);
+                    if (loadingChunk) {
+                        applyOnLoad(keeper, checkPos, state, colTemp, colSnowDepth, hasSnow);
+                    } else {
+                        applyMeltOnly(keeper, checkPos, colTemp, hasSnow);
+                    }
+                }
+            }
         }
     }
 

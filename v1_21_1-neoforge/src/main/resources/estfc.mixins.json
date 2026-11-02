@@ -7,6 +7,7 @@
         "SolarDataManagerMixin",
         "WeatherManagerMixin",
         "WeatherHelpersMixin",
+        "IceAndSnowFeatureMixin",
         "EclipticUtilMixin",
         "SnowyMapCheckerMixin",
         "MapCheckerMixin",

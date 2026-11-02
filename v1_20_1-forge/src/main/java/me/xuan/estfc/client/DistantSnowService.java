@@ -22,28 +22,34 @@ public final class DistantSnowService {
 
     private DistantSnowService() {}
 
-    /** 远景有效雪深（0-100）：voxy 体素 y=真实方块高度；区域数据未到 → 用群系覆盖率兜底。 */
+    /** 远景有效雪深（0-100）：voxy 体素 y=真实方块高度；区域数据未到 → 不显示雪。 */
     public static int calcSnowDepthClient(Level level, BlockPos pos, int biomeDepth) {
         RegionClimateCache.Sample sample = RegionClimateCache.sampleClimate(pos.getX(), pos.getZ());
-        // 区域数据未到：用群系覆盖率兜底，避免远景整片 0%
+        // 区域数据未到：不显示雪；已算好的最近点会由 sampleClimate 返回
         if (sample == null) {
             if (Config.debugLogs() && biomeDepth < 10 && LOW_DEPTH_LOGS.incrementAndGet() <= 8) {
                 LOGGER.warn("[estfc] voxy no region sample: pos={} biomeDepth={}", pos, biomeDepth);
             }
-            return biomeDepth;
+            return 0;
         }
         // Voxy 体素 y 是它自己的真实方块高度，保持使用 pos.y；区域高度不作为温度海拔。
         Float temp = DistantTemperature.distantTemperature(level, sample, pos.getY());
         if (temp == null) return 0;
-        int depth = SnowDepthRules.depthFromCoverage(temp, biomeDepth, sample.rainfall());
+        // 服务端还没播种该群系（C=0）时，用和服务端首次播种相同的气候种子，
+        // 不等群系天气同步；暖/干旱群系 seed 仍是 0。
+        int coverage = biomeDepth;
+        if (coverage <= 0) {
+            coverage = SnowDepthRules.climateSeed(temp, sample.rainfall());
+        }
+        int depth = SnowDepthRules.depthFromCoverage(temp, coverage, sample.rainfall());
         if (Config.debugLogs() && depth >= 90 && temp > -2f && temp < 2f
             && HIGH_DEPTH_LOGS.incrementAndGet() <= 8) {
-            LOGGER.warn("[estfc] voxy near-zero full snow: pos={} y={} biomeDepth={} temp={} sampleHeight={} depth={} rain={}",
-                pos, pos.getY(), biomeDepth, temp, (int) sample.height(), depth, sample.rainfall());
+            LOGGER.warn("[estfc] voxy near-zero full snow: pos={} y={} coverage={} temp={} sampleHeight={} depth={} rain={}",
+                pos, pos.getY(), coverage, temp, (int) sample.height(), depth, sample.rainfall());
         }
-        if (Config.debugLogs() && depth < 10 && (biomeDepth >= 50 || biomeDepth < 10) && LOW_DEPTH_LOGS.incrementAndGet() <= 8) {
-            LOGGER.warn("[estfc] voxy low depth: pos={} y={} biomeDepth={} temp={} sampleHeight={} depth={} rain={}",
-                pos, pos.getY(), biomeDepth, temp, (int) sample.height(), depth, sample.rainfall());
+        if (Config.debugLogs() && depth < 10 && (coverage >= 50 || coverage < 10) && LOW_DEPTH_LOGS.incrementAndGet() <= 8) {
+            LOGGER.warn("[estfc] voxy low depth: pos={} y={} coverage={} temp={} sampleHeight={} depth={} rain={}",
+                pos, pos.getY(), coverage, temp, (int) sample.height(), depth, sample.rainfall());
         }
         return depth;
     }

@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 区域气候点（avgSeaLevelTemp + 表面高度，128 格网格）同步。
@@ -34,6 +35,11 @@ import java.util.concurrent.Executors;
  * 计算在独立线程池异步执行，主线程只入队。
  */
 public final class RegionClimatePayloads {
+
+    /** 首次计算前 N 个点串行：TFC region 缓存尚未生成时，多线程会重复创建同一个大 region。 */
+    private static final int WARMUP_POINTS = 512;
+    private static final AtomicInteger WARMUP_REMAINING = new AtomicInteger(WARMUP_POINTS);
+    private static final Object WARMUP_LOCK = new Object();
 
     private static final ResourceLocation REQUEST_ID =
         ResourceLocation.fromNamespaceAndPath("estfc", "region_climate_request");
@@ -148,7 +154,14 @@ public final class RegionClimatePayloads {
             SERVER_IN_FLIGHT.add(key);
             worker.submit(() -> {
                 try {
-                    RegionPoint point = computeRegion(level, gridX, gridZ, generation);
+                    RegionPoint point;
+                    if (WARMUP_REMAINING.getAndDecrement() > 0) {
+                        synchronized (WARMUP_LOCK) {
+                            point = computeRegion(level, gridX, gridZ, generation);
+                        }
+                    } else {
+                        point = computeRegion(level, gridX, gridZ, generation);
+                    }
                     if (point != null) {
                         // 回主线程发包（PacketDistributor 非线程安全）
                         server.execute(() -> {
@@ -173,6 +186,7 @@ public final class RegionClimatePayloads {
         SERVER_POINTS.clear();
         SERVER_PENDING.clear();
         SERVER_IN_FLIGHT.clear();
+        WARMUP_REMAINING.set(WARMUP_POINTS);
     }
 
     /** 在线、连接正常、位于主世界的玩家；否则 null。 */

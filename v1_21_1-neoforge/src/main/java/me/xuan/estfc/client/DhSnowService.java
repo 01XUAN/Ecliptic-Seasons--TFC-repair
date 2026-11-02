@@ -146,7 +146,11 @@ public final class DhSnowService {
         COLUMN_CACHE.put(columnKey, new ColumnEntry(day, biomeDepth, eventBottom, resolvedY));
         if (COLUMN_CACHE.size() > CACHE_CAP) COLUMN_CACHE.clear();
 
-        int depth = SnowDepthRules.depthFromCoverage(temp, biomeDepth, sample.rainfall());
+        int coverage = biomeDepth;
+        if (coverage <= 0) {
+            coverage = SnowDepthRules.climateSeed(temp, sample.rainfall());
+        }
+        int depth = SnowDepthRules.depthFromCoverage(temp, coverage, sample.rainfall());
         if (depth > 0 && SnowDepthRules.shouldSnow(depth, Mth.getSeed(x, resolvedY, z))) {
             param.setColor(SNOW_COLOR_R, SNOW_COLOR_G, SNOW_COLOR_B);
         }

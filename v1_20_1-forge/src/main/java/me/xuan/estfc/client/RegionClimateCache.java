@@ -1,11 +1,10 @@
 package me.xuan.estfc.client;
 
+import com.teamtea.eclipticseasons.client.util.ClientCon;
 import me.xuan.estfc.Config;
-import me.xuan.estfc.weather.ClimateQuery;
 import me.xuan.estfc.net.RegionClimatePayloads;
 import me.xuan.estfc.net.RegionClimatePayloads.RegionClimateRequest;
-import net.dries007.tfc.util.climate.Climate;
-import net.dries007.tfc.util.climate.OverworldClimateModel;
+import me.xuan.estfc.weather.ClimateQuery;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -16,9 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
-import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 区域气候点（avgSeaLevelTemp + 表面高度，128 格场）客户端缓存。
@@ -42,10 +43,24 @@ public final class RegionClimateCache {
 
     private record RegionPoint(float temp, float height, float rainfall) {}
 
+    /** 128 格单元四角，整段插值只查一次 */
+    private record Cell(RegionPoint v00, RegionPoint v01, RegionPoint v10, RegionPoint v11) {}
+
     private static final ConcurrentHashMap<Long, RegionPoint> REGION_POINTS = new ConcurrentHashMap<>();
+
+    /** 完整单元缓存（四角齐全才写入；点值静态不变） */
+    private static final ConcurrentHashMap<Long, Cell> CELLS = new ConcurrentHashMap<>();
+    private static final int CELL_CACHE_CAP = 8192;
 
     /** 缺失点请求集合（去重；drain 时缓存命中自动跳过） */
     private static final Set<Long> PENDING = ConcurrentHashMap.newKeySet();
+
+    /** 与 PENDING 同步的 FIFO：预取按环从近到远入队，drain 先发近的点。 */
+    private static final Queue<Long> PENDING_ORDER = new ConcurrentLinkedQueue<>();
+
+    /** 已发送、等待响应（key → 发送时间）；超时未回则允许重发。 */
+    private static final ConcurrentHashMap<Long, Long> SENT = new ConcurrentHashMap<>();
+    private static final long SENT_TIMEOUT_MILLIS = 30_000L;
 
     /** 绑定的客户端世界——换世界/维度时清空全部缓存 */
     private static WeakReference<Level> boundLevel = new WeakReference<>(null);
@@ -54,6 +69,16 @@ public final class RegionClimateCache {
     private static int lastScanGridX = Integer.MAX_VALUE, lastScanGridZ = Integer.MAX_VALUE;
     private static long lastScanTick = Long.MIN_VALUE;
 
+    /** 预取完成阈值与超时 */
+    private static final int PREFETCH_COMPLETE_POINTS = 16384;
+    private static final long PREFETCH_TIMEOUT_MILLIS = 30_000L;
+    private static final AtomicInteger RECEIVED = new AtomicInteger();
+    private static volatile long bindMillis;
+    /** 预取完成/新区域点到达后请求 Voxy 重扫（客户端 tick 线程执行） */
+    private static volatile boolean refreshRequested;
+    private static volatile boolean prefetchComplete;
+    private static volatile long lastRefreshRequestMillis;
+
     private RegionClimateCache() {}
 
     /** 双线性插值（温度 + 高度一次遍历 4 角）；数据缺失返回 null。 */
@@ -61,20 +86,27 @@ public final class RegionClimateCache {
     public static Sample sampleClimate(int x, int z) {
         int gx = x >> 7;
         int gz = z >> 7;
-        RegionPoint v00 = point(gx, gz);
-        RegionPoint v01 = point(gx, gz + 1);
-        RegionPoint v10 = point(gx + 1, gz);
-        RegionPoint v11 = point(gx + 1, gz + 1);
-        if (v00 == null || v01 == null || v10 == null || v11 == null) {
-            return sampleNearest(x, z);
+        long cellKey = RegionClimatePayloads.gridKey(gx, gz);
+        Cell cell = CELLS.get(cellKey);
+        if (cell == null) {
+            RegionPoint v00 = point(gx, gz);
+            RegionPoint v01 = point(gx, gz + 1);
+            RegionPoint v10 = point(gx + 1, gz);
+            RegionPoint v11 = point(gx + 1, gz + 1);
+            if (v00 == null || v01 == null || v10 == null || v11 == null) {
+                return sampleNearest(x, z);
+            }
+            cell = new Cell(v00, v01, v10, v11);
+            if (CELLS.size() > CELL_CACHE_CAP) CELLS.clear();
+            CELLS.put(cellKey, cell);
         }
 
         float deltaX = (x & 127) / 128f;
         float deltaZ = (z & 127) / 128f;
         return new Sample(x, z,
-            lerp4(v00.temp, v01.temp, v10.temp, v11.temp, deltaX, deltaZ),
-            lerp4(v00.height, v01.height, v10.height, v11.height, deltaX, deltaZ),
-            lerp4(v00.rainfall, v01.rainfall, v10.rainfall, v11.rainfall, deltaX, deltaZ));
+            lerp4(cell.v00.temp, cell.v01.temp, cell.v10.temp, cell.v11.temp, deltaX, deltaZ),
+            lerp4(cell.v00.height, cell.v01.height, cell.v10.height, cell.v11.height, deltaX, deltaZ),
+            lerp4(cell.v00.rainfall, cell.v01.rainfall, cell.v10.rainfall, cell.v11.rainfall, deltaX, deltaZ));
     }
 
     /** 四角缺失/请求未回时用最近的已缓存区域点，避免 Voxy 直接落到 biomeDepth=1。 */
@@ -83,8 +115,6 @@ public final class RegionClimateCache {
         int gx = x >> 7;
         int gz = z >> 7;
         RegionPoint best = null;
-        int bestGridX = 0;
-        int bestGridZ = 0;
         int bestDist = Integer.MAX_VALUE;
         for (int radius = 0; radius <= 2 && best == null; radius++) {
             for (int dx = -radius; dx <= radius; dx++) {
@@ -95,8 +125,6 @@ public final class RegionClimateCache {
                     int dist = Math.abs((gx + dx) * 128 + 64 - x) + Math.abs((gz + dz) * 128 + 64 - z);
                     if (dist < bestDist) {
                         best = point;
-                        bestGridX = gx + dx;
-                        bestGridZ = gz + dz;
                         bestDist = dist;
                     }
                 }
@@ -122,6 +150,20 @@ public final class RegionClimateCache {
         bind(level);
         if (ClimateQuery.getModelIfActive(level) == null) return;
 
+        long now = System.currentTimeMillis();
+        if (!prefetchComplete && now - bindMillis >= PREFETCH_TIMEOUT_MILLIS) {
+            prefetchComplete = true;
+            refreshRequested = true;
+            lastRefreshRequestMillis = now;
+        }
+        if (refreshRequested) {
+            refreshRequested = false;
+            try {
+                ClientCon.getAgent().setSnowChange(true);
+            } catch (Throwable ignored) {
+            }
+        }
+
         requestMissing(level);
 
         if (level.getGameTime() % SELF_CHECK_INTERVAL_TICKS == 0) {
@@ -131,16 +173,37 @@ public final class RegionClimateCache {
 
     /** 响应到达（netty 线程）。 */
     public static void onRegionClimate(int gridX, int gridZ, float temperature, int surfaceHeight, float rainfall) {
-        if (REGION_POINTS.putIfAbsent(RegionClimatePayloads.gridKey(gridX, gridZ),
+        long key = RegionClimatePayloads.gridKey(gridX, gridZ);
+        SENT.remove(key);
+        if (REGION_POINTS.putIfAbsent(key,
             new RegionPoint(temperature, surfaceHeight, rainfall)) == null) {
             long n = REGION_POINTS.size();
             if (Config.debugLogs() && n <= 5) {
                 LOGGER.info("[estfc] region climate received #{} ({},{}) = {}°C, h={}, rain={}",
                     n, gridX, gridZ, temperature, surfaceHeight, rainfall);
             }
+            recordReceive();
             if (n > REGION_CACHE_CAP) {
                 REGION_POINTS.clear();
             }
+        }
+    }
+
+    /** 缓存填充：预取完成后，按需补点节流触发 Voxy 重扫。 */
+    private static void recordReceive() {
+        int received = RECEIVED.incrementAndGet();
+        long now = System.currentTimeMillis();
+        if (!prefetchComplete) {
+            if (received >= PREFETCH_COMPLETE_POINTS) {
+                prefetchComplete = true;
+                refreshRequested = true;
+                lastRefreshRequestMillis = now;
+            }
+            return;
+        }
+        if (now - lastRefreshRequestMillis >= 15_000L) {
+            lastRefreshRequestMillis = now;
+            refreshRequested = true;
         }
     }
 
@@ -149,8 +212,14 @@ public final class RegionClimateCache {
     private static RegionPoint point(int gridX, int gridZ) {
         RegionPoint cached = REGION_POINTS.get(RegionClimatePayloads.gridKey(gridX, gridZ));
         if (cached != null) return cached;
-        if (PENDING.size() < PENDING_CAP) {
-            PENDING.add(RegionClimatePayloads.gridKey(gridX, gridZ));
+        long key = RegionClimatePayloads.gridKey(gridX, gridZ);
+        Long sentAt = SENT.get(key);
+        if (sentAt != null) {
+            if (System.currentTimeMillis() - sentAt < SENT_TIMEOUT_MILLIS) return null;
+            SENT.remove(key);
+        }
+        if (PENDING.size() < PENDING_CAP && PENDING.add(key)) {
+            PENDING_ORDER.add(key);
         }
         return null;
     }
@@ -182,10 +251,10 @@ public final class RegionClimateCache {
         }
 
         int budget = Config.dhTempRequestsPerTick();
-        for (Iterator<Long> it = PENDING.iterator(); it.hasNext() && budget > 0; ) {
-            long key = it.next();
-            it.remove();
-            if (!REGION_POINTS.containsKey(key)) {
+        Long key;
+        while (budget > 0 && (key = PENDING_ORDER.poll()) != null) {
+            if (!PENDING.remove(key)) continue;
+            if (!REGION_POINTS.containsKey(key) && SENT.putIfAbsent(key, System.currentTimeMillis()) == null) {
                 send(key);
                 budget--;
             }
@@ -221,8 +290,16 @@ public final class RegionClimateCache {
     private static void bind(Level level) {
         if (boundLevel.get() == level) return;
         REGION_POINTS.clear();
+        CELLS.clear();
         PENDING.clear();
+        PENDING_ORDER.clear();
+        SENT.clear();
         lastScanTick = Long.MIN_VALUE;
+        bindMillis = System.currentTimeMillis();
+        RECEIVED.set(0);
+        prefetchComplete = false;
+        refreshRequested = false;
+        lastRefreshRequestMillis = 0L;
         boundLevel = new WeakReference<>(level);
     }
 }

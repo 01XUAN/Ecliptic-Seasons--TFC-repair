@@ -2,7 +2,6 @@ package me.xuan.estfc.mixin;
 
 import com.teamtea.eclipticseasons.common.core.biome.WeatherManager;
 import me.xuan.estfc.Config;
-import me.xuan.estfc.weather.BiomeCoverageCache;
 import me.xuan.estfc.weather.ClimateQuery;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.dries007.tfc.util.tracker.WeatherHelpers;
@@ -136,14 +135,9 @@ public abstract class WeatherManagerMixin {
             if (temp > meltTemp) {
                 // 高于融雪温度 → 融雪。
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW_MELT);
-            } else if (BiomeCoverageCache.isClimateOnly(level, biome)) {
-                // 初始气候种子：奇偶 tick 交替加/清，双向逼近 C
-                cir.setReturnValue((level.getGameTime() & 1L) == 0L
-                    ? WeatherManager.SnowRenderStatus.SNOW
-                    : WeatherManager.SnowRenderStatus.SNOW_MELT);
             } else {
-                // 低温无降水：物理雪/冰不要继续生成；可视化补齐在 SnowyStatusKeeperMixin
-                // 内单独把 NONE 包成 SNOW，只改雪标志，不影响物理雪。
+                // 低温但未确认降雪：不新增雪。初始 C 由 ChunkSnowRefresh 在区块加载时铺设，
+                // 不能再靠奇偶 tick 交替补，否则雪停后也会继续积雪。
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.NONE);
             }
         } catch (Exception e) {}

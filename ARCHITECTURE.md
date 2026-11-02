@@ -39,7 +39,7 @@ v1_20_1-forge/           Forge 1.20.1 构建（Java 17，ForgeGradle 6，自带 
 | 半球 | `SolarCalculator.getInNorthernHemisphere(z, model.hemisphereScale())` | TFC 1.20.1 无此概念 → `HemisphereSeasons.isNorthernHemisphere(z, Config.hemisphereScale)`（公式照搬 1.21） |
 | 阻止物理雪 | 默认取消 `WeatherHelpers.onTickChunk`；`tfcPhysicalSnow=true` 时放行 | 默认取消 `EnvironmentHelpers.tickChunk`（`EnvironmentHelpersMixin`）+ 拦 TFE 的 `NTEWeatherHelpers.onTickChunk`（`estfc.tfe.mixins.json`）；`tfcPhysicalSnow=true` 时全部放行 |
 | 实时逐块覆雪驱动 | ES 自驱：它在 `ServerLevel.tickChunk` 里包 `getBlockRandomPos`（ordinal 1）= `tickPrecipitation` 循环；estfc 的 `SnowyStatusKeeperMixin` 把随机列改成区块内随机列序游标（见 §3.2.1） | **estfc 自驱 `ChunkSnowTicker`**：ES 包的 ordinal 1 在 MC 1.20.1 指向 `iceandsnow` 块，而 TFC 的 `ServerLevelMixin` 把该块守卫 `nextInt(16)` 强改成 1 → 整块不执行。TFC 那条 `EnvironmentHelpers.tickChunk` TAIL 路径实测也不执行 |
-| 世界生成的物理雪 | 无世界生成铺雪（TFC 1.21.1 的 `IceAndSnowFeature` 是空实现） | 拦两处（`tfcPhysicalSnow=true` 时放行）：`ClimateMixin` 取消 `Climate.onChunkLoad`（TFC 自己在冷区按温度+噪声铺 `minecraft:snow`/冰，入口是 TFC 自己的方法名，能稳定命中）+ `SnowAndFreezeFeatureMixin` 取消 vanilla 的 `minecraft:freeze_top_layer`。**注意**：`IceAndSnowFeature.place` 覆写的是 MC 的 `Feature.place`，生产 jar 里叫 `m_142674_`，用字面量 `place` + `remap=false` 的 mixin 永远命不中 |
+| 世界生成的物理雪 | `IceAndSnowFeatureMixin` 取消 `IceAndSnowFeature.place`；`tfcPhysicalSnow=true` 时放行。1.21.1 运行时是 Mojmap，`place` + `remap=false` 可命中 | 拦两处（`tfcPhysicalSnow=true` 时放行）：`ClimateMixin` 取消 `Climate.onChunkLoad`（TFC 自己在冷区按温度+噪声铺 `minecraft:snow`/冰，入口是 TFC 自己的方法名，能稳定命中）+ `SnowAndFreezeFeatureMixin` 取消 vanilla 的 `minecraft:freeze_top_layer`。**注意**：`IceAndSnowFeature.place` 覆写的是 MC 的 `Feature.place`，生产 jar 里叫 `m_142674_`，用字面量 `place` + `remap=false` 的 mixin 永远命不中 |
 | 天气循环驱动 | 注入 `WeatherHelpers.advanceWeatherCycle` RETURN | 监听 `TickEvent.LevelTickEvent` END（入口注册） |
 | `ConnectedGrassBlock.updateShape`（MC 覆写） | 生产名就是 `updateShape`（Mojmap），`remap=false` 直接命中 | 生产名是 `m_7417_`；`ConnectedGrassBlockMixin` 用默认 remap 让 `updateShape` 走 refmap，TFC 自己的 `updateStateFromDirection` 单独 `remap=false` |
 | 区域气候点生成 | `chunkDataGenerator().generate(data)` | `chunkDataProvider().createAndGeneratePartial(pos)` |
@@ -220,9 +220,10 @@ public static int depthFromCoverage(float actualTemp, int coverage, float rainfa
 ```
 
 语义：**覆盖率 C 是唯一状态**；温度只负责播种和融雪门槛，降水系数只影响 C 的推进速度/种子。
-- `C=0` = **未初始化**：用当前温度斜坡兜底（新区块、Voxy 未访问区域）。
+- `C=0` 可以是真实值（暖/干旱）也可以是未初始化；客户端远景在 `C<=0` 时用
+  `climateSeed(当地温度, 降水)` 作为临时覆盖率，暖/干旱仍为 0，服务端 C 同步后覆盖。
 - `BiomeSnowSeed` 在每个群系首次拿到代表点时播种：`C = 温度斜坡 × 降水系数`；
-  降水系数 >0 时至少为 1，干旱地区保持 0。
+  不再强制最小 1，`SEEDED` 集合负责“是否播种过”。
 - 尚未发生降雪/融雪前 `climateOnly=true`：后续采样可继续刷新种子 C；老区块用奇偶 tick 的
   `SNOW`/`SNOW_MELT` 交替把已有方块加/清到 C。第一次实际累积/融化后置 `false`，进入历史模型。
 - `BiomeCoverageCache` 同时保存目标 C 和显示 `DISPLAY`：
@@ -313,7 +314,9 @@ else                      → NONE        // 雪停后保持，不再继续铺
 
 ES的 `SnowyStatusKeeper.tickChunk` 根据返回状态决定: SNOW→尝试设FLAG_SNOW, MELT→尝试清FLAG_NONE, NONE→不变。
 初始/播种后的整块铺设由 `ChunkSnowRefresh` 在区块加载时完成；已加载区块靠同一采样速率逐步逼近
-`BiomeCoverageCache`，不依赖整区块重刷。
+`BiomeCoverageCache`，不依赖整区块重刷。`refreshChunk` 复用 ES `SnowyStatusKeeper.posMap`
+里刚扫描出的候选方块，只对这些位置按列温度重算，不再逐列扫描 `solidHeight..WORLD_SURFACE`；
+`posMap` 为空时才回退旧扫描。
 
 该分支里两处 `WeatherManager.getSnowDepthAtBiome`（源码顺序 = ordinal：0 = SNOW 分支、1 = SNOW_MELT 分支）
 **都由 `SnowyStatusKeeperMixin` 的 `@WrapOperation` 换成 `estfc$getPerBlockDepth`**（不设 `ordinal`，两处都命中）。
@@ -398,10 +401,10 @@ seed 的 y 用区域高度——事件 y 级别相关，直接用会产生级别
 → `DistantSnowService.calcSnowDepthClient(level, mcPos, biomeDepth)`
 → `SnowDepthRules.shouldSnow(depth, seed)`
 
-**区域数据缺失兜底**：DH/voxy 的 `RegionClimateCache.sampleClimate` 在 4 个
-128 格角点未同步时返回 null。此时直接跳过会把整块 LOD 烘焙成基础色（远景 0%，刷新后才
-跳回 70%）；`DhSnowService`/`DistantSnowService` 用已同步的群系覆盖率 `biomeDepth`
-做兜底（按 seed 二值化），数据到达后再按温度/降水细化。
+**区域数据缺失**：`RegionClimateCache.sampleClimate` 在 4 个 128 格角点未同步时
+尝试最近已缓存点；完全没有数据时返回 null，DH/voxy 显示 0（**不再回退 `biomeDepth`**）。
+群系 C 尚未同步（`biomeDepth<=0`）但区域点已有时，DH/voxy 都用
+`climateSeed(当地温度, 降水)` 临时覆盖，服务端 C 到达后覆盖为真实值。
 
 **与近景一致的原则（播种 + 累积）**：远景和近景走同一个
 `depthFromCoverage = 覆盖率`，并用同一份服务端同步的 `BiomeWeather.snowDepth`。
@@ -455,8 +458,8 @@ LOD render source 里，日温要等该 LOD 重建才刷新（列缓存会识别
 | `snowRainfallFullSnow` | 150 | [0, 500] | 年均降水>此值 → 覆雪不受降水影响 |
 | `dhTempPrefetchRadius` | 8192 | [128, 16384] | [DH/voxy] 区域气候点(128格网格)预取半径 |
 | `dhTempRequestsPerTick` | 512 | [1, 2048] | [DH/voxy] 客户端每tick区域点请求上限 |
-| `dhTempServerThreads` | 4 | [1, 32] | [DH/voxy] 服务端计算线程数(min(本值,核数)) |
-| `dhTempServerSubmitPerTick` | 64 | [1, 512] | [DH/voxy] 每tick提交给服务端线程池的上限 |
+| `dhTempServerThreads` | 24 | [1, 64] | [DH/voxy] 服务端计算线程数(min(本值,核数)) |
+| `dhTempServerSubmitPerTick` | 1024 | [1, 4096] | [DH/voxy] 每tick提交给服务端线程池的上限 |
 
 ### 4.2 速度控制
 
@@ -684,3 +687,74 @@ advanceWeatherCycle: rainLevel ±0.01/tick            — 100tick渐变
 onTickChunk: 每1/80概率→检查温度<-2+降水→handleSnowAccumulation
              每1/3概率(联合1/80)→检查温度>2→handleSnowMelting
 ```
+
+
+远景雪核心一条公式：
+
+temp = 区域海平面均温 + 月温 + 日温 − 海拔降温
+coverage = 服务端同步的群系覆盖率 C
+if (coverage <= 0) coverage = climateSeed(temp, 降水)
+
+depth = temp > 0°C ? 0 : clamp(coverage, 0, 100)
+snowy = depth > abs(seed(x, y, z) % 100)
+
+seed 是方块位置/状态的随机种子，所以 depth=30 表示这一列约 30% 的方块显示雪，不是整列全雪。
+
+1. 覆盖率 C 来源
+
+服务端 WeatherCycleService 按群系维护：
+
+- 首次采样：C = 温度斜坡 × 降水系数
+  - 温度 ≥0°C → 0；≤-4°C → 100；中间线性
+  - 降水 ≤80mm → 0；≥150mm → 1；中间线性
+- 之后按天气推进：
+  - 降水 + 低温：C += (100-C) × 降水系数 × step/256
+  - 升温：C *= (1-step/256)
+- C 还会生成一个显示值 DISPLAY，按实际随机 tick 速率逼近 C；ES 同步给客户端的是 round(DISPLAY)。
+
+2. 区域温度来源
+
+RegionClimateCache：
+
+- 服务端在 128 格网格点算 avgSeaLevelTemp + 表面高度 + 年均降水
+- 客户端缓存这些点，按 (x,z) 双线性插值
+- 四角没齐时用最近的已缓存点；完全没数据 → 本轮不显示雪
+- 第一次进世界预取玩家周围 8192 格（129×129 点），之后跑图按需补点
+
+客户端再把区域 avgSeaLevelTemp 加上 TFC 的月温、日温，并按实际高度做海拔修正：
+
+0.16225°C/格，TFC 的 clamp(0, 17.822)
+
+3. Voxy 路径
+
+Voxy 构建/刷新 section
+→ MapChecker.shouldSnowAtBiome
+→ DistantSnowService.calcSnowDepthClient
+biomeDepth = ES 同步的 DISPLAY
+coverage = biomeDepth；为 0 时用 climateSeed
+temp = 区域温度 + 海拔
+depth = depthFromCoverage(temp, coverage)
+shouldSnow(depth, seed)
+→ true：写入雪方块 ID / 季节模型
+
+VoxyCompact 只在 section mesh 时调用；雪变化靠 ES snowChange 触发重新 remesh。区域数据齐或新区域点到达时，estfc 会主动设置 snowChange。
+
+4. DH 路径
+
+DH 烘焙 LOD 颜色
+→ DhApiBlockColorOverrideEvent
+→ DhSnowService
+biomeDepth = 客户端 ES 群系缓存
+区域温度 + DH 列顶真实 y
+coverage = biomeDepth；为 0 时 climateSeed
+depth = depthFromCoverage
+shouldSnow(depth, seed(x, surfaceY, z))
+→ true：颜色改成 0xF9FEFE
+
+DH 只处理每列表面数据点，列内更低的数据点跳过；列缓存按 (维度, x, z) 保存当天结果。
+
+5. “先近似、后准确”
+
+1. 区域点还在填，四角不齐时用最近点近似
+2. 群系 C 还没同步，先用 climateSeed 兜底
+3. 数据齐后 estfc 设置 snowChange，Voxy/DH 重新构建，换成服务端 C + 双线性温度

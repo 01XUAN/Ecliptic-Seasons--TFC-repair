@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 每个群系首次获得代表点时，用当地温度播种一次雪深。
- * 播种后雪深至少为 1（0 只作为“未初始化”哨兵），因此之后不会再退回气候兜底。
+ * 播种后由 {@link #SEEDED} 与 climateOnly 标记跟踪初始化，不再把 0 当哨兵。
  */
 public final class BiomeSnowSeed {
 
@@ -61,8 +61,6 @@ public final class BiomeSnowSeed {
         float temp = ClimateQuery.instantTemperature(level, pos);
         float rainfall = ClimateQuery.averageRainfall(level, pos);
         int seed = SnowDepthRules.climateSeed(temp, rainfall);
-        // 潮湿群系至少留 1 作为“已初始化”哨兵；干旱(0)保持 0
-        if (SnowDepthRules.rainfallFactor(rainfall) > 0f) seed = Math.max(1, seed);
         BiomeCoverageCache.set(level, biome, seed);
         BiomeCoverageCache.setDisplay(level, biome, seed);
         BiomeCoverageCache.setClimateOnly(level, biome, true);

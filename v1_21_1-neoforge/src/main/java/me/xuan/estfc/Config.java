@@ -95,7 +95,7 @@ public class Config {
                 "[DH/voxy] Prefetch radius of region climate points (128-block grid, blocks).",
                 "Region points are generated server-side deterministically from the world seed",
                 "and synced to the client; this radius bounds the prefetch area around the player.",
-                "默认/Default: 2560"
+                "默认/Default: 8192"
             )
             .defineInRange("dhTempPrefetchRadius", 8192, 128, 16384);
 
@@ -111,17 +111,17 @@ public class Config {
             .comment(
                 "[DH/voxy] 服务端区域气候点计算线程数（异步）。",
                 "[DH/voxy] Server worker threads for region climate point computation (async).",
-                "默认/Default: 4"
+                "默认/Default: 24"
             )
-            .defineInRange("dhTempServerThreads", 4, 1, 32);
+            .defineInRange("dhTempServerThreads", 24, 1, 64);
 
         DH_TEMP_SERVER_SUBMIT_PER_TICK = BUILDER
             .comment(
                 "[DH/voxy] 每 tick 提交给服务端计算线程池的区域点上限。",
                 "[DH/voxy] Per-tick submit budget to the server computation pool.",
-                "默认/Default: 64"
+                "默认/Default: 1024"
             )
-            .defineInRange("dhTempServerSubmitPerTick", 64, 1, 512);
+            .defineInRange("dhTempServerSubmitPerTick", 1024, 1, 4096);
 
         BUILDER.pop();
     }
