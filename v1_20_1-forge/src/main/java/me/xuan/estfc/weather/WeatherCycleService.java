@@ -78,11 +78,19 @@ public final class WeatherCycleService {
                 return;
             }
 
+            long gameTime = level.getGameTime();
+
+            // 同步不能挂在“当前 tick 的 biome 有效”后面：tickBiome 轮转与
+            // gameTime%interval 的组合只会命中固定的一小撮索引，那些 biome 没代表点时
+            // 客户端永远收不到 C（voxy 表现为整片 biomeDepth=0 / 群系断层）。
+            int syncInterval = Config.biomeSyncIntervalTicks();
+            if (gameTime % syncInterval == 0 && !level.players().isEmpty()) {
+                WeatherManager.sendBiomePacket(level, biomes, level.players());
+            }
+
             long[] lastStepTick = stepTicks(level, biomes.size());
             int index = ip.es$getTickBiome();
             if (index < 0 || index >= biomes.size()) return;
-
-            long gameTime = level.getGameTime();
             WeatherManager.BiomeWeather biomeWeather = biomes.get(index);
             if (biomeWeather == null || biomeWeather.biomeHolder == null) {
                 lastStepTick[index] = gameTime;
@@ -120,8 +128,8 @@ public final class WeatherCycleService {
                     BiomeCoverageCache.setClimateOnly(level, biome, false);
                     float stepFraction = step / SAMPLES_PER_CHUNK;
                     if (accumulating) {
-                        coverage = Math.min(100f,
-                            coverage + (100f - coverage) * (maxCoverage / 100f) * stepFraction);
+                        coverage = Math.min(maxCoverage,
+                            coverage + (maxCoverage - coverage) * stepFraction);
                     } else {
                         coverage = Math.max(1f, coverage * (1f - stepFraction));
                     }
@@ -158,10 +166,6 @@ public final class WeatherCycleService {
                 biomeWeather.setSnowDepth(rounded);
             }
 
-            int syncInterval = Config.biomeSyncIntervalTicks();
-            if (gameTime % syncInterval == 0 && !level.players().isEmpty()) {
-                WeatherManager.sendBiomePacket(level, biomes, level.players());
-            }
         } catch (Exception ignored) {}
     }
 }

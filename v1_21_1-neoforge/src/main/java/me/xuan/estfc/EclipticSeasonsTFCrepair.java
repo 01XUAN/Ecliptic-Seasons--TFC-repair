@@ -67,6 +67,8 @@ public class EclipticSeasonsTFCrepair {
         // 专用服务器没有 Screen 类；无条件注册会让服务端在构造期加载客户端类而崩溃
         if (FMLEnvironment.dist.isClient()) {
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, EstfcConfigScreen::new);
+            // TFC 1.21.1 在区块包之前发出气候包时会丢数据；客户端 tick 重试
+            me.xuan.estfc.client.ChunkDataSyncRetry.init();
         }
     }
 }

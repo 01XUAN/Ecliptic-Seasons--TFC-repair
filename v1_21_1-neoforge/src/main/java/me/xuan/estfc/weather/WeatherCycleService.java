@@ -9,17 +9,23 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 群系雪深主循环：由 TFC advanceWeatherCycle 之后驱动，
  * 按 tick 间隔缓慢累积/消融 ES 群系雪深并定期同步客户端。
  */
 public final class WeatherCycleService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("estfc");
+    private static final AtomicInteger ERROR_LOGS = new AtomicInteger();
 
     private WeatherCycleService() {}
 
@@ -77,12 +83,19 @@ public final class WeatherCycleService {
                 LAST_STEP_TICK.remove(level.dimension());
                 return;
             }
+            long gameTime = level.getGameTime();
+
+            // 同步不能挂在“当前 tick 的 biome 有效”后面：tickBiome 轮转与
+            // gameTime%interval 的组合只会命中固定的一小撮索引，那些 biome 没代表点时
+            // 客户端永远收不到 C（voxy 表现为整片 biomeDepth=0 / 群系断层）。
+            int syncInterval = Config.biomeSyncIntervalTicks();
+            if (gameTime % syncInterval == 0 && !level.players().isEmpty()) {
+                WeatherManager.sendBiomePacket(level, biomes, level.players());
+            }
 
             long[] lastStepTick = stepTicks(level, biomes.size());
             int index = ip.es$getTickBiome();
             if (index < 0 || index >= biomes.size()) return;
-
-            long gameTime = level.getGameTime();
             WeatherManager.BiomeWeather biomeWeather = biomes.get(index);
             if (biomeWeather == null || biomeWeather.biomeHolder == null) {
                 lastStepTick[index] = gameTime;
@@ -112,7 +125,7 @@ public final class WeatherCycleService {
             long elapsed = Math.max(0L, gameTime - lastStepTick[index]);
             int step = (int) Math.min(MAX_STEPS, elapsed / interval);
             boolean accumulating = precipitating && sampleTemp <= meltTemp
-                && maxCoverage > 0f && coverage < 100f;
+                && maxCoverage > 0f && coverage < maxCoverage;
             boolean melting = sampleTemp > meltTemp && coverage > 1f;
 
             if (accumulating || melting) {
@@ -120,8 +133,8 @@ public final class WeatherCycleService {
                     BiomeCoverageCache.setClimateOnly(level, biome, false);
                     float stepFraction = step / SAMPLES_PER_CHUNK;
                     if (accumulating) {
-                        coverage = Math.min(100f,
-                            coverage + (100f - coverage) * (maxCoverage / 100f) * stepFraction);
+                        coverage = Math.min(maxCoverage,
+                            coverage + (maxCoverage - coverage) * stepFraction);
                     } else {
                         coverage = Math.max(1f, coverage * (1f - stepFraction));
                     }
@@ -151,17 +164,18 @@ public final class WeatherCycleService {
             if (maxDisplayStep > 0f) {
                 display += Math.max(-maxDisplayStep, Math.min(maxDisplayStep, coverage - display));
             }
-            BiomeCoverageCache.set(level, biome, coverage);
+            display = Math.min(display, maxCoverage);
+            BiomeCoverageCache.set(level, biome, Math.min(coverage, maxCoverage));
             BiomeCoverageCache.setDisplay(level, biome, display);
             int rounded = Math.max(0, Math.round(display));
             if ((biomeWeather.getSnowDepth() & 0xFF) != rounded) {
                 biomeWeather.setSnowDepth(rounded);
             }
 
-            int syncInterval = Config.biomeSyncIntervalTicks();
-            if (gameTime % syncInterval == 0 && !level.players().isEmpty()) {
-                WeatherManager.sendBiomePacket(level, biomes, level.players());
+        } catch (Exception e) {
+            if (Config.debugLogs() && ERROR_LOGS.incrementAndGet() <= 4) {
+                LOGGER.warn("[estfc] weather cycle failed", e);
             }
-        } catch (Exception ignored) {}
+        }
     }
 }

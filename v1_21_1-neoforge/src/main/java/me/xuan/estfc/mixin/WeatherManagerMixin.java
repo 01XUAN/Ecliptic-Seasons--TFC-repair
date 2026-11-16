@@ -136,9 +136,9 @@ public abstract class WeatherManagerMixin {
                 // 高于融雪温度 → 融雪。
                 cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW_MELT);
             } else {
-                // 低温但未确认降雪：不新增雪。初始 C 由 ChunkSnowRefresh 在区块加载时铺设，
-                // 不能再靠奇偶 tick 交替补，否则雪停后也会继续积雪。
-                cir.setReturnValue(WeatherManager.SnowRenderStatus.NONE);
+                // 低温：交给 getPerBlockDepth 的覆盖率/气候下限决定是否加雪。
+                // 不能再要求“正在降水”，否则区块加载后才纠正的温度/覆盖率永远补不上雪。
+                cir.setReturnValue(WeatherManager.SnowRenderStatus.SNOW);
             }
         } catch (Exception e) {}
     }

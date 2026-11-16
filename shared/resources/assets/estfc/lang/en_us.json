@@ -3,6 +3,7 @@
   "estfc.config.back": "Back",
   "estfc.config.done": "Done",
   "estfc.config.reset": "Reset",
+  "estfc.config.resetOne": "Reset this setting to default",
   "estfc.config.listAdd": "+ Add",
   "estfc.config.save": "Save Changes",
   "estfc.config.discard": "Discard Changes",

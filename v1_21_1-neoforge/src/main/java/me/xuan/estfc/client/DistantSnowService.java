@@ -35,21 +35,16 @@ public final class DistantSnowService {
         // Voxy 体素 y 是它自己的真实方块高度，保持使用 pos.y；区域高度不作为温度海拔。
         Float temp = DistantTemperature.distantTemperature(level, sample, pos.getY());
         if (temp == null) return 0;
-        // 服务端还没播种该群系（C=0）时，用和服务端首次播种相同的气候种子，
-        // 不等群系天气同步；暖/干旱群系 seed 仍是 0。
-        int coverage = biomeDepth;
-        if (coverage <= 0) {
-            coverage = SnowDepthRules.climateSeed(temp, sample.rainfall());
-        }
-        int depth = SnowDepthRules.depthFromCoverage(temp, coverage, sample.rainfall());
+        // depthFromCoverage 内部已用气候种子给冷区兜底，C 只在此基础上累积。
+        int depth = SnowDepthRules.depthFromCoverage(temp, biomeDepth, sample.rainfall());
         if (Config.debugLogs() && depth >= 90 && temp > -2f && temp < 2f
             && HIGH_DEPTH_LOGS.incrementAndGet() <= 8) {
-            LOGGER.warn("[estfc] voxy near-zero full snow: pos={} y={} coverage={} temp={} sampleHeight={} depth={} rain={}",
-                pos, pos.getY(), coverage, temp, (int) sample.height(), depth, sample.rainfall());
+            LOGGER.warn("[estfc] voxy near-zero full snow: pos={} y={} biomeDepth={} temp={} sampleHeight={} depth={} rain={}",
+                pos, pos.getY(), biomeDepth, temp, (int) sample.height(), depth, sample.rainfall());
         }
-        if (Config.debugLogs() && depth < 10 && (coverage >= 50 || coverage < 10) && LOW_DEPTH_LOGS.incrementAndGet() <= 8) {
-            LOGGER.warn("[estfc] voxy low depth: pos={} y={} coverage={} temp={} sampleHeight={} depth={} rain={}",
-                pos, pos.getY(), coverage, temp, (int) sample.height(), depth, sample.rainfall());
+        if (Config.debugLogs() && depth < 10 && (biomeDepth >= 50 || biomeDepth < 10) && LOW_DEPTH_LOGS.incrementAndGet() <= 8) {
+            LOGGER.warn("[estfc] voxy low depth: pos={} y={} biomeDepth={} temp={} sampleHeight={} depth={} rain={}",
+                pos, pos.getY(), biomeDepth, temp, (int) sample.height(), depth, sample.rainfall());
         }
         return depth;
     }

@@ -3,6 +3,7 @@
   "estfc.config.back": "返回",
   "estfc.config.done": "完成",
   "estfc.config.reset": "重置",
+  "estfc.config.resetOne": "恢复此项默认值",
   "estfc.config.listAdd": "+ 添加",
   "estfc.config.save": "保存修改",
   "estfc.config.discard": "放弃修改",

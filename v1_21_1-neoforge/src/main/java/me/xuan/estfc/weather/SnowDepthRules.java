@@ -24,12 +24,22 @@ public final class SnowDepthRules {
     }
 
     /**
-     * 当前温度下允许显示的覆雪率：高于融雪温度恒 0；C 未初始化时不显示雪，
-     * 等 BiomeSnowSeed 播种/服务端同步后再逐渐增加（远景和新加载区块一致）。
+     * 当前温度下允许显示的覆雪率：高于融雪温度恒 0。
+     *
+     * <ul>
+     *   <li>C≤1（未初始化/已融尽）：用气候种子，冷湿位置仍有雪，暖干位置为 0。</li>
+     *   <li>C&gt;1：显示 C，但不超过降水上限和温度斜坡（0°C→0，-4°C→100）。
+     *       温度斜坡是雪线附近 0..-4°C 的过渡带，不能让累积 C 把它压成整片 100%。</li>
+     * </ul>
      */
     public static int depthFromCoverage(float actualTemp, int coverage, float rainfall) {
         if (actualTemp > Config.snowMeltTemp()) return 0;
-        return Math.max(0, Math.min(100, coverage));
+        int ramp = tempToSnowDepth(actualTemp);
+        if (coverage <= 1) {
+            return Math.max(0, Math.min(ramp, climateSeed(actualTemp, rainfall)));
+        }
+        int maxCoverage = Math.round(maxCoverage(rainfall));
+        return Math.max(0, Math.min(ramp, Math.min(coverage, maxCoverage)));
     }
 
     /** 降水允许的最大覆盖率（0-100）。 */

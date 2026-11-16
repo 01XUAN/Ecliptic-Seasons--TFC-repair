@@ -34,22 +34,27 @@ public abstract class ExtraModelManagerMixin {
             if (estfc$tooBright(level, checkPos)) cir.setReturnValue(false);
             return;
         }
-        // 有服务端数据时信任服务端，只在无数据时回退
-        if (mapSlice != null) return;
+        // 有服务端数据时信任服务端；但客户端雪图可能因为区块附件同步时序为空，
+        // 只有玩家手动 NONE_SNOWY 才阻止回退。
+        if (mapSlice != null
+            && mapSlice.getSnowyStatus(checkPos) == com.teamtea.eclipticseasons.common.core.map.SnowyRemover.NONE_SNOWY) {
+            return;
+        }
 
         try {
             ClimateModel model = Climate.get(level);
             if (!model.supportsRain()) return;
 
+            // C=0 不等于没雪：depthFromCoverage 会用气候种子兜底冷湿位置
             int biomeDepth = ClimateQuery.getBiomeDepthAt(level, checkPos);
-            if (biomeDepth <= 0) return;
 
             float temp = model.getInstantTemperature(level, checkPos);
             float rainfall = model.getAverageRainfall(level, checkPos);
             int depth = SnowDepthRules.depthFromCoverage(temp, biomeDepth, rainfall);
             if (depth <= 0) return;
 
-            if (SnowDepthRules.shouldSnow(depth, state.getSeed(checkPos))) {
+            if (!estfc$tooBright(level, checkPos)
+                && SnowDepthRules.shouldSnow(depth, state.getSeed(checkPos))) {
                 cir.setReturnValue(true);
             }
         } catch (Exception ignored) {}

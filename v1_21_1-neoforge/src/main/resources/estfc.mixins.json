@@ -20,7 +20,8 @@
         "SnowModelMixin",
         "ExtraModelManagerMixin",
         "OverworldClimateModelMixin",
-        "DHToolMixin"
+        "DHToolMixin",
+        "ChunkWatchPacketMixin"
     ],
     "server": [],
     "refmap": "estfc.refmap.json"

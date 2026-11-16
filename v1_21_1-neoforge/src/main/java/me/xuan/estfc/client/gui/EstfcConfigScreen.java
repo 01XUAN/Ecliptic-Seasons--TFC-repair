@@ -30,6 +30,7 @@ public final class EstfcConfigScreen extends Screen {
     private static final int INPUT_W = 160;
     private static final int ROW_H = 20;
     private static final int TAB_W = 100;
+    private static final int RESET_W = 18;
 
     // ── 所有配置值（用于快照对比和重置） ──
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -65,6 +66,9 @@ public final class EstfcConfigScreen extends Screen {
     // 打开界面时的值快照 — 用于检测修改
     private final Object[] initialValues = new Object[ALL_VALUES.length];
 
+    /** 每个条目左侧的单项重置按钮 */
+    private final List<ResetEntry> resetEntries = new ArrayList<>();
+
     // ── 构造 ──
 
     public EstfcConfigScreen(ModContainer modContainer, Screen parent) {
@@ -92,6 +96,7 @@ public final class EstfcConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        resetEntries.clear();
         layout = new HeaderAndFooterLayout(this, 61, 33);
 
         // ── 头部：标题 + 标签栏 ──
@@ -112,8 +117,8 @@ public final class EstfcConfigScreen extends Screen {
 
         // ── 中部：可滚动内容 ──
         GridLayout grid = new GridLayout();
-        grid.defaultCellSetting().paddingHorizontal(5).paddingBottom(3).alignHorizontallyCenter();
-        GridLayout.RowHelper rows = grid.createRowHelper(2);
+        grid.defaultCellSetting().paddingHorizontal(3).paddingBottom(3).alignHorizontallyCenter();
+        GridLayout.RowHelper rows = grid.createRowHelper(3);
         buildTabContent(rows, activeTab);
 
         ScrollableLayout scroll = new ScrollableLayout(this.minecraft, grid, layout.getContentHeight());
@@ -124,6 +129,7 @@ public final class EstfcConfigScreen extends Screen {
 
         layout.visitWidgets(this::addRenderableWidget);
         layout.arrangeElements();
+        refreshResetStates();
     }
 
     private void buildFooter() {
@@ -288,25 +294,90 @@ public final class EstfcConfigScreen extends Screen {
 
     private void addBoolRow(GridLayout.RowHelper rows,
                             ModConfigSpec.BooleanValue spec, String key) {
+        ResetEntry entry = addResetButton(rows, spec);
         rows.addChild(makeLabel(key));
         var btn = CycleButton.onOffBuilder(spec.get()).displayOnlyValue()
-                .create(0, 0, INPUT_W, ROW_H, CommonComponents.EMPTY, (w, v) -> spec.set(v));
+                .create(0, 0, INPUT_W, ROW_H, CommonComponents.EMPTY, (w, v) -> {
+                    spec.set(v);
+                    onConfigChanged();
+                });
         attachTooltip(btn, key);
         rows.addChild(btn);
+        entry.setFromSpec = () -> btn.setValue(spec.get());
     }
 
     private void addDoubleRow(GridLayout.RowHelper rows,
                               ModConfigSpec.DoubleValue spec, String key, String unit) {
+        ResetEntry entry = addResetButton(rows, spec);
         rows.addChild(makeLabel(key));
-        rows.addChild(makeNumberBox(spec, key, unit,
-                Double::parseDouble, EstfcConfigScreen::formatDouble));
+        EditBox box = makeNumberBox(spec, key, unit,
+                Double::parseDouble, EstfcConfigScreen::formatDouble);
+        rows.addChild(box);
+        entry.setFromSpec = () -> box.setValue(formatDouble(spec.get()));
     }
 
     private void addIntRow(GridLayout.RowHelper rows,
                            ModConfigSpec.IntValue spec, String key, String unit) {
+        ResetEntry entry = addResetButton(rows, spec);
         rows.addChild(makeLabel(key));
-        rows.addChild(makeNumberBox(spec, key, unit,
-                Integer::parseInt, String::valueOf));
+        EditBox box = makeNumberBox(spec, key, unit,
+                Integer::parseInt, String::valueOf);
+        rows.addChild(box);
+        entry.setFromSpec = () -> box.setValue(String.valueOf(spec.get()));
+    }
+
+    /** 单项重置：左侧 ↺，把该配置恢复默认值并刷新同一行的控件。 */
+    private ResetEntry addResetButton(GridLayout.RowHelper rows, ModConfigSpec.ConfigValue<?> spec) {
+        Button button = Button.builder(Component.literal("↺"), b -> resetOne(spec))
+                .width(RESET_W).build();
+        button.setTooltip(Tooltip.create(Component.translatable("estfc.config.resetOne")));
+        rows.addChild(button);
+        ResetEntry entry = new ResetEntry(spec, button);
+        resetEntries.add(entry);
+        return entry;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void resetValue(ModConfigSpec.ConfigValue value) {
+        value.set(value.getDefault());
+    }
+
+    private void resetOne(ModConfigSpec.ConfigValue<?> spec) {
+        resetValue(spec);
+        boolean reinit = false;
+        for (ResetEntry entry : resetEntries) {
+            if (entry.spec != spec) continue;
+            if (entry.setFromSpec != null) entry.setFromSpec.run();
+            reinit |= entry.reinit;
+        }
+        if (reinit) {
+            clearWidgets();
+            init();
+        } else {
+            onConfigChanged();
+        }
+    }
+
+    private void refreshResetStates() {
+        for (ResetEntry entry : resetEntries) {
+            entry.button.active = !Objects.equals(entry.spec.get(), entry.spec.getDefault());
+        }
+    }
+
+    private void onConfigChanged() {
+        refreshResetStates();
+    }
+
+    private static final class ResetEntry {
+        final ModConfigSpec.ConfigValue<?> spec;
+        final Button button;
+        Runnable setFromSpec;
+        boolean reinit;
+
+        ResetEntry(ModConfigSpec.ConfigValue<?> spec, Button button) {
+            this.spec = spec;
+            this.button = button;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -323,6 +394,7 @@ public final class EstfcConfigScreen extends Screen {
                 if (r != null && !r.test(v)) { box.setTextColor(0xFFFF0000); return; }
                 spec.set(v);
                 box.setTextColor(EditBox.DEFAULT_TEXT_COLOR);
+                onConfigChanged();
             } catch (Exception e) { box.setTextColor(0xFFFF0000); }
         });
         attachTooltip(box, key, unit);
@@ -347,6 +419,8 @@ public final class EstfcConfigScreen extends Screen {
             init();
         }).build();
         attachTooltip(headerBtn, key);
+        ResetEntry listReset = addResetButton(rows, spec);
+        listReset.reinit = true;
         rows.addChild(headerBtn, 2);
 
         if (!expanded) return;
@@ -369,13 +443,13 @@ public final class EstfcConfigScreen extends Screen {
             LinearLayout row = LinearLayout.horizontal().spacing(4);
             row.addChild(box);
             row.addChild(del);
-            rows.addChild(row, 2);
+            rows.addChild(row, 3);
         }
 
         rows.addChild(Button.builder(
                         Component.translatable("estfc.config.listAdd"),
                         b -> addListItem(spec))
-                .build(), 2);
+                .build(), 3);
     }
 
     private void addListItem(ModConfigSpec.ConfigValue<List<String>> spec) {
