@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 每个群系的代表采样点（最近一次区块加载/实时采样见到的地表位置）。
+ * 每个群系的代表采样点（本会话内取该群系第一个仍加载的位置）。
  * 雪深累积/融化用该点自己的 TFC 温度与降水，避免拿单个玩家的位置代表所有群系。
  */
 public final class BiomeSampleCache {
@@ -19,12 +19,12 @@ public final class BiomeSampleCache {
 
     private BiomeSampleCache() {}
 
-    /** 记录群系代表点；区块已卸载时忽略。 */
+    /** 记录群系代表点；已有点所在区块仍加载时不换点，避免覆雪率随区块加载跳变。 */
     public static void record(Level level, Biome biome, BlockPos pos) {
         if (biome == null || pos == null || !level.isLoaded(pos)) return;
         Map<Biome, BlockPos> samples = SAMPLES.computeIfAbsent(level.dimension(), key -> new ConcurrentHashMap<>());
         BlockPos previous = samples.get(biome);
-        if (previous != null && previous.equals(pos)) return;
+        if (previous != null && (previous.equals(pos) || level.isLoaded(previous))) return;
         samples.put(biome, pos.immutable());
     }
 

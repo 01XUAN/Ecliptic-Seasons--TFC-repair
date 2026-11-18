@@ -152,8 +152,8 @@ me.xuan.estfc/
 │   ├── ClimateQuery.java           — 对 TFC/ES 状态的受保护读取 (getModelIfActive, isPrecipitating×3, getBiomeDepthAt)
 │   ├── SnowDepthRules.java         — 纯函数 (tempToSnowDepth, depthFromCoverage, rainfallFactor, shouldSnow)
 │   ├── WeatherCycleService.java    — tick 主循环 (按维度分键的 lastStepTick, 覆雪率滑窗, 防积压)
-│   ├── BiomeSampleCache.java       — 每个群系的代表采样点 (维度+biome → 最近地表坐标)
-│   ├── BiomeSnowSeed.java          — 群系首次采样时用当地温度播种一次覆雪率
+│   ├── BiomeSampleCache.java       — 每个群系的稳定代表采样点 (维度+biome → 首个仍加载的地表坐标)
+│   ├── BiomeSnowSeed.java          — 群系首次采样时用当地温度播种一次覆雪率（之后不重播）
 │   ├── BiomeCoverageCache.java     — 每群系期望覆雪率 (浮点, 按 ES 采样速率推进)
 │   ├── ChunkSnowRefresh.java       — 区块加载/更新覆雪刷新 (prepare, ChunkTemperature, refreshChunk, applyOnLoad, applyMeltOnly)
 │   ├── SnowDefinitionRegistrar.java— 运行时补齐 datapack 未覆盖的 TFC 方块雪定义 (服务端+客户端分类)
@@ -230,10 +230,13 @@ public static int depthFromCoverage(float actualTemp, int coverage, float rainfa
   不能让 C=100 把它压成整片 100%（2026-11-16 修复）。
 - `maxCoverage = 100 × 降水系数`（年均降水 <80mm → 0；>150mm → 100；之间线性）。
 - 群系 C 只用一个代表点演化，可能偏高/偏低；显示帽保证相邻群系在雪线附近仍按实际温度走。
-- `BiomeSnowSeed` 在每个群系首次拿到代表点时播种：`C = 温度斜坡 × 降水系数`；
-  不再强制最小 1，`SEEDED` 集合负责“是否播种过”。
-- 尚未发生降雪/融雪前 `climateOnly=true`：后续采样可继续刷新种子 C；老区块用奇偶 tick 的
-  `SNOW`/`SNOW_MELT` 交替把已有方块加/清到 C。第一次实际累积/融化后置 `false`，进入历史模型。
+- `BiomeSnowSeed` 在每个群系首次拿到代表点时播种一次：`C = 温度斜坡 × 降水系数`；
+  不再强制最小 1，`SEEDED` 集合负责“是否播种过”。**播种后不再随区块加载重播**，
+  否则同一群系的 C 会跟着每个新区块中心的温度上下跳（2026-11-18 修复）。
+- `BiomeSampleCache` 的代表点在所在区块仍加载时保持不动，只在区块卸载后换点；
+  雨量/温度不会因路过/加载新区块而跳变。
+- 尚未发生降雪/融雪前 `climateOnly=true`（仅诊断/状态标记）；第一次实际累积/融化后置 `false`，
+  进入历史模型。
 - `BiomeCoverageCache` 同时保存目标 C 和显示 `DISPLAY`：
   - 降水+低温：目标 `C += (maxCoverage - C) × step/256`（上限就是 maxCoverage）
   - 升温：目标 `C *= (1 - step/256)`
@@ -271,7 +274,8 @@ public static boolean shouldSnow(int depth, long seed) {
 **注入点**: `WeatherHelpersMixin` → TFC `advanceWeatherCycle` TAIL
 **频率**: 每 game tick 1 次, 处理 1 个 biome (轮转)
 **biome深度存储**: ES `WeatherManager.BiomeWeather.snowDepth` (0-255, 取低8位)
-**采样点**: `BiomeSampleCache`，按 `(维度, biome)` 记录最近一次区块加载/实时 tickChunk 见到的地表位置
+**采样点**: `BiomeSampleCache`，按 `(维度, biome)` 记录该群系第一个仍加载的地表位置；
+已有代表点所在区块未卸载时不换点，避免区块加载导致 C 跳变
 
 ```
 每 tick:

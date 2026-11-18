@@ -23,7 +23,7 @@ public final class BiomeSnowSeed {
 
     private BiomeSnowSeed() {}
 
-    /** 已播种/无需播种时返回；尚未发生过降雪/融雪时允许按当前温度刷新种子。 */
+    /** 每个群系只播种一次；后续覆雪率由 {@link WeatherCycleService} 推进。 */
     public static void ensureSeeded(ServerLevel level, Biome biome, BlockPos pos) {
         if (biome == null || pos == null || !level.isLoaded(pos)) return;
 
@@ -41,19 +41,20 @@ public final class BiomeSnowSeed {
             return;
         }
 
-        boolean first = SEEDED.add(key);
-        if (!first && !BiomeCoverageCache.isClimateOnly(level, biome)) return;
+        if (!SEEDED.add(key)) return;
 
-        // 存档里已有深度：>1 视为历史；0/1 视为仅播种/已融尽，允许按当前气候刷新
+        // 存档里已有深度：>1 视为历史；0/1 视为仅播种/已融尽，按当前气候播种
         int current = weather.getSnowDepth() & 0xFF;
-        if (first && current > 1) {
+        if (current > 1) {
             BiomeCoverageCache.set(level, biome, current);
             BiomeCoverageCache.setDisplay(level, biome, current);
             BiomeCoverageCache.setClimateOnly(level, biome, false);
             return;
         }
 
-        seedClimate(level, biome, pos, model, weather);
+        // 用稳定代表点播种，不随区块加载换点
+        BlockPos samplePos = BiomeSampleCache.get(level, biome);
+        seedClimate(level, biome, samplePos != null ? samplePos : pos, model, weather);
     }
 
     private static void seedClimate(ServerLevel level, Biome biome, BlockPos pos,
